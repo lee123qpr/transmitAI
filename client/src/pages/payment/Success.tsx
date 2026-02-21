@@ -98,7 +98,7 @@ const Success = () => {
     }, [status, navigate]);
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-slate-50 flex items-start justify-center p-4 pt-20 md:pt-32">
             <SEO title="Payment Processing | Transmit.AI" />
             <div className="bg-white max-w-md w-full rounded-2xl shadow-xl p-8 text-center animate-fade-in-up">
 
@@ -149,6 +149,12 @@ const Success = () => {
                             If you are running on Localhost, make sure your specific Stripe Webhook CLI is running!
                             <code className="block mt-2 bg-black/10 p-2 rounded">stripe listen --forward-to localhost:3000/api/webhooks/stripe</code>
                         </div>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="btn-primary w-full mb-4"
+                        >
+                            Refresh Status
+                        </button>
                         <button
                             onClick={() => navigate('/app/dashboard')}
                             className="text-slate-500 hover:text-slate-900 underline text-sm"

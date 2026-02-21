@@ -51,8 +51,13 @@ router.post('/simulate', express.json(), async (req, res) => {
 // REAL WEBHOOK ENDPOINT
 // Uses RAW parser for signature verification
 router.post('/', express.raw({ type: 'application/json' }), async (req, res) => {
-    console.log('[Webhook] Incoming Stripe event...');
+    console.log('[Webhook] Incoming Stripe event at:', new Date().toISOString());
+    console.log('[Webhook] Headers:', JSON.stringify(req.headers));
+
     const sig = req.headers['stripe-signature'];
+    const hasSecret = !!endpointSecret;
+    console.log(`[Webhook] Secret Configured: ${hasSecret}, Signature Present: ${!!sig}`);
+
     let event: Stripe.Event;
 
     try {
@@ -63,12 +68,15 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
         } else {
             // Fallback for local testing if secret is missing (e.g. CLI not used)
             console.warn('[Webhook] No endpoint secret or signature found. Falling back to JSON parsing (Insecure - Local only)');
-            event = JSON.parse(req.body.toString());
+            const bodyString = req.body.toString();
+            console.log('[Webhook] Raw body string (start):', bodyString.substring(0, 100));
+            event = JSON.parse(bodyString);
         }
     } catch (err: any) {
         console.error(`[Webhook] ERROR: Signature verification failed: ${err.message}`);
         // Log the body type to help debug Vercel issues
         console.log(`[Webhook] Body type: ${typeof req.body}, IsBuffer: ${Buffer.isBuffer(req.body)}`);
+        if (req.body) console.log(`[Webhook] Body Sample: ${req.body.toString().substring(0, 50)}`);
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
