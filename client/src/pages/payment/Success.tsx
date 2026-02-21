@@ -12,19 +12,14 @@ const Success = () => {
     const { getToken } = useAuth();
     const { fetchUserStatus } = useDocumentStore();
     const sessionId = searchParams.get('session_id');
-    const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
-    const [errorMsg, setErrorMsg] = useState('');
+    const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(sessionId ? 'verifying' : 'error');
+    const [errorMsg, setErrorMsg] = useState(sessionId ? '' : 'No session ID found in URL. Please contact support.');
     const [countdown, setCountdown] = useState(5);
 
     // Primary method: verify the session directly with our backend
     // This is reliable in serverless as it's a pull, not a push (webhook)
     useEffect(() => {
-        if (!isLoaded || !user) return;
-        if (!sessionId) {
-            setErrorMsg('No session ID found in URL. Please contact support.');
-            setStatus('error');
-            return;
-        }
+        if (!isLoaded || !user || !sessionId) return;
 
         const verifySession = async () => {
             try {

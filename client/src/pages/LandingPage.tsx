@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FileSpreadsheet, Brain, Layers, CheckCircle, ArrowRight, FileText } from 'lucide-react';
 import { SignUpButton } from '@clerk/clerk-react';
 
@@ -8,8 +9,18 @@ import HeroAnimation from '../components/HeroAnimation';
 
 import TrustedByStrip from '../components/TrustedByStrip';
 
+const WORDS = ['Document', 'Drawings', 'Reports', 'Specifications', 'Surveys'];
+
 const LandingPage = () => {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const [wordIndex, setWordIndex] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setWordIndex((prev) => (prev + 1) % WORDS.length);
+        }, 2500);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <div className="flex flex-col">
@@ -24,7 +35,23 @@ const LandingPage = () => {
                     <div className="text-left">
                         <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.1]">
                             Automate Construction <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Document Extraction</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid">
+                                <AnimatePresence mode="popLayout">
+                                    <motion.span
+                                        key={wordIndex}
+                                        initial={{ y: 40, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        exit={{ y: -40, opacity: 0 }}
+                                        transition={{ duration: 0.4, ease: "easeOut" }}
+                                        className="col-start-1 row-start-1"
+                                    >
+                                        {WORDS[wordIndex]}
+                                    </motion.span>
+                                </AnimatePresence>
+                            </span>{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                                Extraction
+                            </span>
                         </h1>
 
                         <p className="text-xl text-slate-600 mb-8 max-w-lg leading-relaxed">
@@ -38,7 +65,7 @@ const LandingPage = () => {
                                 </button>
                             </SignUpButton>
                             <a href="#how-it-works" className="px-8 py-4 text-lg font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all hover:scale-105 flex items-center justify-center">
-                                View Demo
+                                View Video
                             </a>
                         </div>
                         <p className="mt-6 text-sm text-slate-500">No credit card required · 10 free documents · Cancel anytime</p>
