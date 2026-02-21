@@ -1,6 +1,6 @@
 import React from 'react';
 import { useUser } from '@clerk/clerk-react';
-import { CreditCard, ExternalLink } from 'lucide-react';
+import { CreditCard, ExternalLink, Zap } from 'lucide-react';
 import { useDocumentStore } from '../services/store';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -76,40 +76,72 @@ const BillingSettings: React.FC = () => {
 
             {/* Actions Section */}
             <div className="space-y-4">
-                {/* Upgrade to Pro (Visible only for Free) */}
-                {subscriptionTier === 'free' && (
-                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div>
-                            <h4 className="font-bold text-blue-900">Upgrade to Pro</h4>
-                            <p className="text-sm text-blue-700 mt-1">Get 500 documents/mo and unlimited history.</p>
-                        </div>
-                        <button
-                            onClick={() => document.dispatchEvent(new CustomEvent('open-upgrade-modal'))}
-                            className="whitespace-nowrap px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
-                        >
-                            Upgrade Now
-                        </button>
-                    </div>
-                )}
+                {/* Upgrade Options (Visible for Free / Pro) */}
+                {subscriptionTier !== 'business' && (
+                    <div className="space-y-4 mt-8">
+                        <h3 className="font-bold text-slate-900 text-lg border-b pb-2">Upgrade Options</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Pro Plan */}
+                            {subscriptionTier === 'free' && (
+                                <div className="border border-blue-100 rounded-xl p-6 flex flex-col bg-slate-50 relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                        <Zap size={64} className="fill-blue-700" />
+                                    </div>
+                                    <div className="relative z-10 flex-1 flex flex-col">
+                                        <div className="inline-flex items-center w-fit gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold mb-4">
+                                            <Zap size={14} className="fill-blue-700" /> PRO
+                                        </div>
+                                        <div className="flex items-baseline gap-1 mb-2">
+                                            <span className="text-3xl font-bold text-slate-900">£20</span>
+                                            <span className="text-slate-500 font-medium">/mo</span>
+                                        </div>
+                                        <p className="text-sm text-slate-600 mb-6">Perfect for individuals. Get 500 documents/mo and unlimited history.</p>
+                                        <button
+                                            onClick={() => document.dispatchEvent(new CustomEvent('open-upgrade-modal'))}
+                                            className="w-full mt-auto px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+                                        >
+                                            Upgrade to Pro
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
-                {/* Upgrade to Business (Visible for Pro) */}
-                {subscriptionTier === 'pro' && (
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div>
-                            <h4 className="font-bold text-slate-900 flex items-center gap-2">
-                                Upgrade to Business
-                                <span className="text-[10px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full uppercase font-bold">Recommended</span>
-                            </h4>
-                            <p className="text-sm text-slate-600 mt-1">Need more? Get 2,500 documents/mo and priority support.</p>
+                            {/* Business Plan */}
+                            <div className={`border rounded-xl p-6 flex flex-col relative overflow-hidden group ${subscriptionTier === 'free' ? 'bg-slate-900 text-white border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                                <div className={`absolute top-0 right-0 p-4 transition-opacity ${subscriptionTier === 'free' ? 'opacity-10 group-hover:opacity-20' : 'opacity-5 group-hover:opacity-10'}`}>
+                                    <Zap size={64} className={subscriptionTier === 'free' ? 'fill-yellow-400 text-yellow-400' : ''} />
+                                </div>
+                                <div className="relative z-10 flex-1 flex flex-col">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold ${subscriptionTier === 'free' ? 'bg-slate-800 text-white' : 'bg-slate-900 text-white'}`}>
+                                            <Zap size={14} className="fill-yellow-400 text-yellow-400" /> BUSINESS
+                                        </div>
+                                        <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wider ${subscriptionTier === 'free' ? 'bg-yellow-100/10 text-yellow-400 border border-yellow-400/20' : 'bg-yellow-100 text-yellow-800 border-none'}`}>Recommended</span>
+                                    </div>
+                                    <div className="flex items-baseline gap-1 mb-2">
+                                        <span className={`text-3xl font-bold ${subscriptionTier === 'free' ? 'text-white' : 'text-slate-900'}`}>£60</span>
+                                        <span className={`font-medium ${subscriptionTier === 'free' ? 'text-slate-400' : 'text-slate-500'}`}>/mo</span>
+                                    </div>
+                                    <p className={`text-sm mb-6 ${subscriptionTier === 'free' ? 'text-slate-300' : 'text-slate-600'}`}>For high-volume teams. Get 2,500 documents/mo and priority support.</p>
+
+                                    <button
+                                        onClick={subscriptionTier === 'free'
+                                            ? () => document.dispatchEvent(new CustomEvent('open-upgrade-modal'))
+                                            : handleManageSubscription
+                                        }
+                                        disabled={isLoading}
+                                        className={`w-full mt-auto px-4 py-3 font-medium rounded-lg transition-colors shadow-sm flex justify-center items-center gap-2
+                                            ${subscriptionTier === 'free'
+                                                ? 'bg-yellow-400 hover:bg-yellow-500 text-slate-900'
+                                                : 'bg-slate-900 hover:bg-slate-800 text-white'
+                                            }`}
+                                    >
+                                        {isLoading ? 'Loading...' : 'Get Business'}
+                                        {subscriptionTier !== 'free' && <ExternalLink size={16} />}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <button
-                            onClick={handleManageSubscription} // Portal handles upgrades
-                            disabled={isLoading}
-                            className="whitespace-nowrap px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2"
-                        >
-                            {isLoading ? 'Loading...' : 'Update Plan'}
-                            <ExternalLink size={14} />
-                        </button>
                     </div>
                 )}
 
