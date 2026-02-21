@@ -153,11 +153,11 @@ router.post('/verify-session', async (req, res) => {
         // Determine plan from metadata
         const planType = session.metadata?.planType || 'pro';
         let tier: 'pro' | 'business' = 'pro';
-        let limit = 100;
+        let limit = 500;
 
         if (planType.toLowerCase().includes('business')) {
             tier = 'business';
-            limit = 500;
+            limit = 2500;
         }
 
         // Idempotency: check if user is already on the correct tier

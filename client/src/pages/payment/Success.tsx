@@ -82,7 +82,7 @@ const Success = () => {
         };
 
         verifySession();
-    }, [user, isLoaded, sessionId]);
+    }, [user, isLoaded, sessionId, getToken, fetchUserStatus]);
 
     // Redirect countdown (only starts after success)
     useEffect(() => {
