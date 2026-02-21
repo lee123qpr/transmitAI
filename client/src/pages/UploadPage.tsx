@@ -276,7 +276,7 @@ const UploadPage = () => {
                 currentRow += 2; // Leave a blank row
             }
 
-            worksheet.getRow(currentRow).values = ['Filename', 'Type', 'Document Number', 'Revision', 'Title', 'Issue Date', 'Discipline', 'Consultant', 'Summary'];
+            worksheet.getRow(currentRow).values = ['Filename', 'Type', 'Document Number', 'Revision', 'Title', 'Issue Date', 'Discipline', 'Consultant', 'Status', 'Summary'];
             worksheet.getRow(currentRow).font = { bold: true };
 
             // Define Columns (for width only)
@@ -289,6 +289,7 @@ const UploadPage = () => {
                 { key: 'issueDate', width: 15 },
                 { key: 'discipline', width: 15 },
                 { key: 'consultant', width: 20 },
+                { key: 'status', width: 15 },
                 { key: 'summary', width: 50 },
             ];
 
@@ -302,6 +303,7 @@ const UploadPage = () => {
                     r.data.issueDate || '',
                     r.data.discipline || '',
                     r.data.consultant || '',
+                    r.data.status || 'Pending',
                     r.data.summary || ''
                 ]);
             });
@@ -334,14 +336,13 @@ const UploadPage = () => {
             const jsPDF = (await import('jspdf')).default;
             const autoTable = (await import('jspdf-autotable')).default;
 
-            const doc = new jsPDF();
+            const doc = new jsPDF({ orientation: 'landscape' });
             let yPos = 15;
 
-            // Add Transmittal Title
             // Add Header with Company Info
             if (companySettings.logo) {
                 try {
-                    doc.addImage(companySettings.logo, 'PNG', 160, 10, 30, 15); // Top Right Logo
+                    doc.addImage(companySettings.logo, 'PNG', 250, 10, 30, 15); // Adjusted for landscape
                 } catch (e) {
                     console.warn('Failed to add logo to PDF', e);
                 }
@@ -371,13 +372,27 @@ const UploadPage = () => {
                 r.data.title || '',
                 r.data.issueDate || '',
                 r.data.discipline || '',
-                r.data.consultant || ''
+                r.data.consultant || '',
+                r.data.status || 'Pending',
+                r.data.summary || ''
             ]);
 
             autoTable(doc, {
                 startY: yPos,
-                head: [['Filename', 'Type', 'Doc Num', 'Rev', 'Title', 'Date', 'Disc', 'Cons']],
+                head: [['Filename', 'Type', 'Doc Num', 'Rev', 'Title', 'Date', 'Disc', 'Cons', 'Status', 'Summary']],
                 body: tableBody,
+                columnStyles: {
+                    0: { cellWidth: 40 }, // Filename
+                    1: { cellWidth: 15 }, // Type
+                    2: { cellWidth: 35 }, // Doc Num
+                    3: { cellWidth: 12 }, // Rev
+                    4: { cellWidth: 50 }, // Title
+                    5: { cellWidth: 20 }, // Date
+                    6: { cellWidth: 20 }, // Disc
+                    7: { cellWidth: 25 }, // Cons
+                    8: { cellWidth: 20 }, // Status
+                    9: { cellWidth: 35 }  // Summary
+                }
             });
 
             const filename = transmittalTitle ? `${transmittalTitle.replace(/[^a-z0-9]/gi, '_')}.pdf` : 'extracted_data.pdf';
