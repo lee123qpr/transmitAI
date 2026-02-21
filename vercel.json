@@ -9,11 +9,11 @@
     "rewrites": [
         {
             "source": "/api/health",
-            "destination": "/api/health.ts"
+            "destination": "/api/health"
         },
         {
-            "source": "/api/(.*)",
-            "destination": "/api/index.ts"
+            "source": "/api/:path*",
+            "destination": "/api/main"
         },
         {
             "source": "/((?!api|assets|favicon|logo|static).*)",
