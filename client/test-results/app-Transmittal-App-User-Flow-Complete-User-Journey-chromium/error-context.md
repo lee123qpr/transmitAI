@@ -1,0 +1,52 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - generic [ref=e9]:
+        - heading "Sign in to Transmit Al" [level=1] [ref=e10]
+        - paragraph [ref=e11]: Welcome back! Please sign in to continue
+      - generic [ref=e12]:
+        - generic [ref=e14]:
+          - button "Sign in with Apple" [ref=e15] [cursor=pointer]:
+            - img "Sign in with Apple" [ref=e16]
+          - button "Sign in with Google" [ref=e17] [cursor=pointer]:
+            - img "Sign in with Google" [ref=e18]
+          - button "Sign in with Microsoft" [ref=e19] [cursor=pointer]:
+            - img "Sign in with Microsoft" [ref=e20]
+        - paragraph [ref=e23]: or
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e29]:
+              - generic [ref=e31]: Email address
+              - textbox "Email address" [ref=e32]:
+                - /placeholder: Enter your email address
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Password
+                  - generic:
+                    - textbox "Password":
+                      - /placeholder: Enter your password
+                    - button "Show password":
+                      - img
+          - button "Continue" [ref=e35] [cursor=pointer]:
+            - generic [ref=e36]:
+              - text: Continue
+              - img [ref=e37]
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]: Don’t have an account?
+        - link "Sign up" [ref=e42] [cursor=pointer]:
+          - /url: https://enhanced-muskox-54.accounts.dev/sign-up#/?redirect_url=http%3A%2F%2Flocalhost%3A5174%2Fapp
+      - generic [ref=e44]:
+        - generic [ref=e46]:
+          - paragraph [ref=e47]: Secured by
+          - link "Clerk logo" [ref=e48] [cursor=pointer]:
+            - /url: https://go.clerk.com/components
+            - img [ref=e49]
+        - paragraph [ref=e54]: Development mode
+  - alert [ref=e55]: My account | Transmit Al
+```

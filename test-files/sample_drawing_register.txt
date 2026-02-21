@@ -1,0 +1,21 @@
+ARCHITECTURAL DRAWING REGISTER
+================================================
+
+PROJECT: King Edward Mews Development
+DOCUMENT NUMBER: PRJ-ARC-ZZ-00-DR-A-1001
+REVISION: Rev_02
+TITLE: Proposed Ground Floor Plan
+ISSUE DATE: 2024-03-15
+STATUS: S4 - Approved for Construction
+DISCIPLINE: Architectural
+CONSULTANT: MSJ Design Ltd
+
+DESCRIPTION:
+This drawing shows the proposed ground floor layout including:
+- Main entrance lobby
+- Residential units A01-A04
+- Communal facilities
+- Fire escape routes
+- Structural grid locations
+
+Drawing complies with BS 1192 and ISO 19650 standards.

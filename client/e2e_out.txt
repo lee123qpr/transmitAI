@@ -1,0 +1,41 @@
+﻿
+Running 3 tests using 1 worker
+
+Navigating to dashboard...
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+BROWSER CONSOLE: [GlobalSync] Fetching latest user status...
+BROWSER CONSOLE: [GlobalSync] Fetching latest user status...
+Checking Welcome Modal...
+  Γ£ÿ  1 [chromium] ΓÇ║ e2e\app.spec.ts:12:5 ΓÇ║ Transmittal App User Flow ΓÇ║ Complete User Journey (28.7s)
+  Γ£ô  2 [chromium] ΓÇ║ e2e\cookieBanner.spec.ts:10:5 ΓÇ║ UK Cookie Consent Banner ΓÇ║ should display for new users and disappear when "Accept All" is clicked (1.5s)
+  Γ£ô  3 [chromium] ΓÇ║ e2e\cookieBanner.spec.ts:37:5 ΓÇ║ UK Cookie Consent Banner ΓÇ║ should disappear and save preference when "Reject Non-Essential" is clicked (1.0s)
+
+
+  1) [chromium] ΓÇ║ e2e\app.spec.ts:12:5 ΓÇ║ Transmittal App User Flow ΓÇ║ Complete User Journey ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/Welcome to Transmit\.AI!/)
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText(/Welcome to Transmit\.AI!/)[22m
+
+
+      26 |         const welcomeModal = page.getByText(/Welcome to Transmit\.AI!/);
+      27 |         // Increase timeout because of the 1.5s delay
+    > 28 |         await expect(welcomeModal).toBeVisible({ timeout: 15000 });
+         |                                    ^
+      29 |
+      30 |         // Click Next
+      31 |         await page.getByRole('button', { name: 'Next' }).click();
+        at C:\Users\Lee Kilcoyne\OneDrive\Desktop\Transmittal\client\e2e\app.spec.ts:28:36
+
+  1 failed
+    [chromium] ΓÇ║ e2e\app.spec.ts:12:5 ΓÇ║ Transmittal App User Flow ΓÇ║ Complete User Journey ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  2 passed (38.3s)
