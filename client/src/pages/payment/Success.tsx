@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth } from '@clerk/clerk-react';
 import SEO from '../../components/SEO';
 
 const Success = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { user, isLoaded } = useUser();
+    const { getToken } = useAuth();
     const sessionId = searchParams.get('session_id');
     const [status, setStatus] = useState<'verifying' | 'success' | 'timeout'>('verifying');
     const [countdown, setCountdown] = useState(5);
@@ -23,7 +24,10 @@ const Success = () => {
         const checkStatus = async () => {
             try {
                 // Fetch fresh user data from YOUR backend, not just Clerk
-                const res = await fetch(`/api/user/${user.id}`);
+                const token = await getToken();
+                const res = await fetch(`/api/user?userId=${user.id}`, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
                 const data = await res.json();
 
                 // Check if tier is no longer 'free' (or matches expected)

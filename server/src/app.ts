@@ -9,6 +9,7 @@ import documentRoutes from './routes/documentRoutes';
 import path from 'path';
 import adminRoutes from './routes/adminRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import stripeWebhook from './routes/webhook_stripe';
 // Rename Transmittal (Emergency Route - Moved from api.ts due to 404)
 import { query } from './db';
 
@@ -19,6 +20,10 @@ import { securityMiddleware } from './middleware/security';
 
 // Middleware
 app.use(cors());
+
+// Stripe Webhook (MUST be before express.json())
+app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhook);
+
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 
