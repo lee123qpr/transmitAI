@@ -177,8 +177,8 @@ router.post('/verify-session', async (req, res) => {
             }
         }
 
-        if (existingUser?.subscription_tier === tier) {
-            console.log(`[Payment] User ${userId} is already on ${tier}. Returning success (idempotent).`);
+        if (existingUser?.subscription_tier === tier && existingUser.documents_limit >= limit) {
+            console.log(`[Payment] User ${userId} is already on ${tier} with correct limits. Returning success (idempotent).`);
             return res.json({
                 success: true,
                 tier: existingUser.subscription_tier,

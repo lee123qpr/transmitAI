@@ -44,11 +44,13 @@ const Dashboard = () => {
         const sync = async () => {
             if (user?.id) {
                 const token = await getToken();
-                fetchDocuments(user.id, token || undefined);
+                // Ensure we have the latest tier/usage before showing the dashboard
+                await fetchUserStatus(user.id, user.primaryEmailAddress?.emailAddress, token || undefined);
+                await fetchDocuments(user.id, token || undefined);
             }
         };
         sync();
-    }, [user?.id, getToken, fetchDocuments]);
+    }, [user?.id, getToken, fetchUserStatus, fetchDocuments]);
 
     const isPro = subscriptionTier === 'pro' || subscriptionTier === 'business' || isAdmin;
     const documentLimit = usage.limit;
