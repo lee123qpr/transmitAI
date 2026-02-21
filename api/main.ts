@@ -1,3 +1,9 @@
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+};
+
 export default async (req: any, res: any) => {
     try {
         // Polyfill for libraries that expect DOMMatrix (like pdfjs-dist used in pdf-to-img)

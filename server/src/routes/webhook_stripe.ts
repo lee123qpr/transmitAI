@@ -51,6 +51,7 @@ router.post('/simulate', express.json(), async (req, res) => {
 // REAL WEBHOOK ENDPOINT
 // Uses RAW parser for signature verification
 router.post('/', express.raw({ type: 'application/json' }), async (req, res) => {
+    console.log('[Webhook] Incoming Stripe event...');
     const sig = req.headers['stripe-signature'];
     let event: Stripe.Event;
 
@@ -58,22 +59,29 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
         if (endpointSecret && sig) {
             // Stripe expects the raw body for signature verification
             event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+            console.log(`[Webhook] Signature verified: ${event.type}`);
         } else {
             // Fallback for local testing if secret is missing (e.g. CLI not used)
-            // Note: req.body is a Buffer here because of express.raw
+            console.warn('[Webhook] No endpoint secret or signature found. Falling back to JSON parsing (Insecure - Local only)');
             event = JSON.parse(req.body.toString());
         }
     } catch (err: any) {
-        console.error(`[Webhook] Signature verification failed: ${err.message}`);
+        console.error(`[Webhook] ERROR: Signature verification failed: ${err.message}`);
+        // Log the body type to help debug Vercel issues
+        console.log(`[Webhook] Body type: ${typeof req.body}, IsBuffer: ${Buffer.isBuffer(req.body)}`);
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
     // Handle the event
+    console.log(`[Webhook] Processing event type: ${event.type}`);
+
     switch (event.type) {
         case 'checkout.session.completed': {
             const session = event.data.object as Stripe.Checkout.Session;
             const userId = session.metadata?.userId;
             const planType = session.metadata?.planType || 'pro';
+
+            console.log(`[Webhook] Session metadata: userId=${userId}, planType=${planType}`);
 
             if (userId) {
                 try {
@@ -83,6 +91,8 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
                 }
             } else {
                 console.warn('[Webhook] checkout.session.completed missing userId in metadata');
+                // Fallback: search for customer by email if metadata is missing? 
+                // Risky, better to log and fix the source.
             }
             break;
         }
