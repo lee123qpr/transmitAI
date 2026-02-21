@@ -590,7 +590,7 @@ const Dashboard = () => {
                                             setNewTransmittalName(selectedTransmittal);
                                             setIsRenaming(true);
                                         }}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-blue-600"
+                                        className="opacity-30 hover:opacity-100 transition-opacity p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-blue-600"
                                         title="Rename Transmittal"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
@@ -688,7 +688,7 @@ const Dashboard = () => {
                                 <div>
                                     <p className="text-slate-400 text-sm font-medium mb-1">Current Plan</p>
                                     <h3 className="text-2xl font-bold flex items-center gap-2">
-                                        {isPro ? 'Pro Plan' : 'Free Plan'}
+                                        {subscriptionTier === 'business' ? 'Business Plan' : subscriptionTier === 'pro' ? 'Pro Plan' : 'Free Plan'}
                                         {isPro && <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">ACTIVE</span>}
                                     </h3>
                                 </div>

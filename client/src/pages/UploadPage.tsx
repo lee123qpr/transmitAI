@@ -230,6 +230,15 @@ const UploadPage = () => {
         setResults(prev => [...prev, ...newResults]);
         setFiles([]); // Clear queue after processing
         setIsUploading(false);
+
+        // Show completion toast with dashboard link
+        if (newResults.length > 0) {
+            showToast(
+                `✅ ${newResults.length} document${newResults.length > 1 ? 's' : ''} processed! View in Dashboard →`,
+                'success',
+                6000
+            );
+        }
     };
 
     const handlePreview = (file: File) => {
