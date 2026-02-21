@@ -12,11 +12,11 @@
             "destination": "/api/health.ts"
         },
         {
-            "source": "/api/(.*)",
+            "source": "/api/:path*",
             "destination": "/api/server.ts"
         },
         {
-            "source": "/(.*)",
+            "source": "/((?!api|assets|favicon|logo|static).*)",
             "destination": "/index.html"
         }
     ]
