@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { useUser, useAuth } from '@clerk/clerk-react';
+import { useDocumentStore } from '../../services/store';
 import SEO from '../../components/SEO';
 
 const Success = () => {
@@ -9,6 +10,7 @@ const Success = () => {
     const navigate = useNavigate();
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
+    const { fetchUserStatus } = useDocumentStore();
     const sessionId = searchParams.get('session_id');
     const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
     const [errorMsg, setErrorMsg] = useState('');
@@ -42,6 +44,7 @@ const Success = () => {
                 console.log('[Success] Verify response:', data);
 
                 if (res.ok && data.success) {
+                    await fetchUserStatus(user.id, user.primaryEmailAddress?.emailAddress, token || undefined);
                     setStatus('success');
                 } else {
                     // Payment not complete yet — could be a timing issue
@@ -59,6 +62,7 @@ const Success = () => {
                             });
                             const retryData = await retryRes.json();
                             if (retryRes.ok && retryData.success) {
+                                await fetchUserStatus(user.id, user.primaryEmailAddress?.emailAddress, token || undefined);
                                 setStatus('success');
                             } else {
                                 setErrorMsg(data.message || data.error || 'Could not confirm payment. Please contact support.');
