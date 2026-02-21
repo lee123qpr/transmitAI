@@ -52,7 +52,7 @@ app.get('/api/direct-test', (req: Request, res: Response) => {
 });
 
 // Final Error Fallback for /api routes
-app.all('/api/*', (req, res) => {
+app.all('/api/:path*', (req, res) => {
   console.warn(`[Server] Unhandled API Route: ${req.method} ${req.path}`);
   res.status(404).json({ error: 'API Route Not Found', method: req.method, path: req.path });
 });
