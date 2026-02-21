@@ -32,6 +32,8 @@ interface ResultItem {
     isEditing: boolean;
 }
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
 const UploadPage = () => {
     const { user } = useUser();
     const { getToken } = useAuth();
@@ -58,7 +60,7 @@ const UploadPage = () => {
             try {
                 const email = user.primaryEmailAddress?.emailAddress;
                 const token = await getToken();
-                const url = email ? `/api/user?email=${encodeURIComponent(email)}` : `/api/user`;
+                const url = email ? `${API_URL}/user?email=${encodeURIComponent(email)}` : `${API_URL}/user`;
                 const res = await fetch(url, {
                     headers: token ? { 'Authorization': `Bearer ${token}` } : {}
                 });
@@ -169,7 +171,7 @@ const UploadPage = () => {
 
             try {
                 const token = await getToken();
-                const response = await fetch('/api/documents/upload', {
+                const response = await fetch(`${API_URL}/documents/upload`, {
                     method: 'POST',
                     headers: {
                         ...(token ? { 'Authorization': `Bearer ${token}` } : {})

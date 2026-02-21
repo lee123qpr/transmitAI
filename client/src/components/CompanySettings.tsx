@@ -97,7 +97,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
                 try {
                     const email = user.primaryEmailAddress?.emailAddress;
                     const token = await getToken();
-                    const res = await fetch(`/api/user`, {
+                    const res = await fetch(`${API_URL}/user`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
