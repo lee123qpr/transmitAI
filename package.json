@@ -7,6 +7,32 @@
         "server"
     ],
     "scripts": {
-        "build": "cd client && npm install && npm run build"
+        "build": "cd client && npm run build"
+    },
+    "dependencies": {
+        "@clerk/clerk-sdk-node": "^4.13.23",
+        "cors": "^2.8.6",
+        "dotenv": "^17.3.1",
+        "express": "^5.2.1",
+        "express-rate-limit": "^8.2.1",
+        "mammoth": "^1.11.0",
+        "multer": "^2.0.2",
+        "node-fetch": "^3.3.2",
+        "openai": "^6.22.0",
+        "pdf-parse": "^2.4.5",
+        "pdf-to-img": "^5.0.0",
+        "pg": "^8.18.0",
+        "resend": "^6.9.2",
+        "stripe": "^20.3.1",
+        "xlsx": "^0.18.5"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.6",
+        "@types/multer": "^2.0.0",
+        "@types/node": "^25.2.3",
+        "@types/pg": "^8.16.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3"
     }
 }
