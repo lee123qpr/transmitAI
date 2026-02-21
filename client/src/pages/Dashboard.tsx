@@ -741,7 +741,7 @@ const Dashboard = () => {
                                     />
                                 </div>
                                 <p className="text-xs text-slate-400 mt-2">
-                                    {isPro ? 'Unlimited documents & exports included' : 'Upgrade for unlimited documents'}
+                                    {isPro ? 'Unlimited documents & exports included' : 'Upgrade for more features and credits'}
                                 </p>
                             </div>
                         </div>
