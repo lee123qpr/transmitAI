@@ -57,7 +57,7 @@ const LandingPage = () => {
                         </h1>
 
                         <p className="text-xl text-slate-600 mb-8 max-w-lg leading-relaxed">
-                            Create legally-sound transmittal records that protect your organisation. Controlled documentation with proper metadata prevents costly disputes.
+                            Stop manually typing data. Extract metadata, revisions, and drawings straight into structured transmittal registers in seconds, saving hours of manual entry.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">
