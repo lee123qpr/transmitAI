@@ -194,12 +194,12 @@ const UploadPage = () => {
                         showToast(`Analysis failed: ${file.name}`, 'error');
                         const msg = errorData.message || 'The AI could not read this document format.';
                         setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
-                        throw new Error(msg);
+                        continue;
                     }
 
                     const msg = errorData.error || `Server error during processing.`;
                     setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
-                    throw new Error(msg);
+                    continue;
                 }
 
                 const json = await response.json();
@@ -219,17 +219,11 @@ const UploadPage = () => {
             } catch (err: any) {
                 console.error('Upload failed:', err);
 
-                // Only add generic error if it wasn't already added manually in the !response.ok block
-                const isKnownError = err.message?.includes('AI could not read') ||
-                    err.message?.includes('Server error during processing') ||
-                    err.message?.includes('Server error (');
-
-                if (!isKnownError) {
-                    setUploadErrors(prev => [...prev, {
-                        filename: file.name,
-                        reason: err.message || 'Connection lost or server timeout.'
-                    }]);
-                }
+                // If we reach here, it's an unhandled exception or network error
+                setUploadErrors(prev => [...prev, {
+                    filename: file.name,
+                    reason: err.message || 'Connection lost or server timeout.'
+                }]);
             }
         }
 
