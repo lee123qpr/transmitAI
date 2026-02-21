@@ -6,7 +6,7 @@ const Cancel = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-start justify-center p-4 pt-20 md:pt-32">
+        <div className="min-h-screen bg-slate-50 flex items-start justify-center p-4 pt-24">
             <SEO title="Payment Cancelled | Transmit.AI" />
             <div className="bg-white max-w-md w-full rounded-2xl shadow-xl p-8 text-center animate-fade-in-up">
                 <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
