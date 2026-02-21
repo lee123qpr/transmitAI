@@ -35,19 +35,21 @@ const LandingPage = () => {
                     <div className="text-left">
                         <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.1]">
                             Automate Construction <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid">
-                                <AnimatePresence mode="popLayout">
-                                    <motion.span
-                                        key={wordIndex}
-                                        initial={{ y: 40, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        exit={{ y: -40, opacity: 0 }}
-                                        transition={{ duration: 0.4, ease: "easeOut" }}
-                                        className="col-start-1 row-start-1"
-                                    >
-                                        {WORDS[wordIndex]}
-                                    </motion.span>
-                                </AnimatePresence>
+                            <span className="inline-block min-w-[340px] px-1 pb-4 -mb-4 overflow-hidden relative align-bottom align-text-bottom">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid w-full text-left leading-[1.1] pt-1">
+                                    <AnimatePresence mode="popLayout">
+                                        <motion.span
+                                            key={wordIndex}
+                                            initial={{ y: -40, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            exit={{ y: 40, opacity: 0 }}
+                                            transition={{ duration: 0.4, ease: "easeOut" }}
+                                            className="col-start-1 row-start-1"
+                                        >
+                                            {WORDS[wordIndex]}
+                                        </motion.span>
+                                    </AnimatePresence>
+                                </span>
                             </span>{' '}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
                                 Extraction
