@@ -62,25 +62,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
         console.log(`[DocumentController] Processing file: ${req.file.originalname} for user: ${userId}`);
 
-        // 2. Duplicate Check
-        const fileHash = crypto.createHash('md5').update(req.file.buffer).digest('hex');
-        const duplicateCheck = await query(
-            `SELECT id FROM documents 
-             WHERE user_id = $1 
-             AND excerpt_data->>'fileHash' = $2 
-             AND filename = $3
-             LIMIT 1`,
-            [userId, fileHash, req.file.originalname]
-        );
-
-        if (duplicateCheck.rowCount && duplicateCheck.rowCount > 0) {
-            return res.status(409).json({
-                error: 'Duplicate file detected',
-                message: `The file "${req.file.originalname}" has already been uploaded.`
-            });
-        }
-
-        // 3. Extract Data
+        // 2. Extract Data
         let extractedData;
         try {
             extractedData = await extractDocumentData(req.file.buffer, req.file.originalname);
@@ -100,7 +82,6 @@ export const uploadDocument = async (req: Request, res: Response) => {
         }
 
         if (req.body.transmittalTitle) extractedData.transmittalTitle = req.body.transmittalTitle;
-        extractedData.fileHash = fileHash;
 
         // 4. Save to DB
         const docResult = await query(

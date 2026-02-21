@@ -181,12 +181,6 @@ const UploadPage = () => {
                     const errorData = await response.json().catch(() => ({}));
 
                     // Handle Specific Error Cases
-                    if (response.status === 409) {
-                        showToast(`Skipped duplicate: ${file.name}`, 'info');
-                        const msg = `This exact file has already been uploaded.`;
-                        setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
-                        throw new Error(msg);
-                    }
                     if (response.status === 400) {
                         showToast(`Analysis failed: ${file.name}`, 'error');
                         const msg = errorData.message || 'The AI could not read this document format.';
@@ -217,8 +211,7 @@ const UploadPage = () => {
                 console.error('Upload failed:', err);
 
                 // Only add generic error if it wasn't already added manually in the !response.ok block
-                const isKnownError = err.message?.includes('already been uploaded') ||
-                    err.message?.includes('AI could not read') ||
+                const isKnownError = err.message?.includes('AI could not read') ||
                     err.message?.includes('Server error during processing');
 
                 if (!isKnownError) {
