@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { PDFParse } from 'pdf-parse';
-import { pdf } from 'pdf-to-img';
+// ESM-only modules must be imported dynamically in CommonJS environments
+// import { pdf } from 'pdf-to-img';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
 
@@ -57,7 +58,8 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                     const pdfDataUrl = `data:application/pdf;base64,${pdfBase64}`;
 
                     // Read first 3 pages for better metadata extraction
-                    const document = await pdf(pdfDataUrl, { scale: 2.0 });
+                    const { pdf: pdfImg } = await import('pdf-to-img');
+                    const document = await pdfImg(pdfDataUrl, { scale: 2.0 });
                     const pageImages: string[] = [];
 
                     // Try to get up to 3 pages (will fail gracefully if document has fewer)
