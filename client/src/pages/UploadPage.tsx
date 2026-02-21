@@ -178,7 +178,14 @@ const UploadPage = () => {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
+                    let errorData: any = {};
+                    const text = await response.text();
+                    try {
+                        errorData = JSON.parse(text);
+                    } catch (e) {
+                        console.error('[Upload] Non-JSON error response:', text.substring(0, 100));
+                        errorData = { error: `Server error (${response.status}). The service might be timing out or unavailable.` };
+                    }
 
                     // Handle Specific Error Cases
                     if (response.status === 400) {
@@ -212,7 +219,8 @@ const UploadPage = () => {
 
                 // Only add generic error if it wasn't already added manually in the !response.ok block
                 const isKnownError = err.message?.includes('AI could not read') ||
-                    err.message?.includes('Server error during processing');
+                    err.message?.includes('Server error during processing') ||
+                    err.message?.includes('Server error (');
 
                 if (!isKnownError) {
                     setUploadErrors(prev => [...prev, {
@@ -517,7 +525,7 @@ const UploadPage = () => {
                     <div className="flex justify-between items-start mb-2">
                         <h4 className="font-semibold text-amber-800 flex items-center gap-2">
                             <AlertCircle size={18} />
-                            {uploadErrors.length} File{uploadErrors.length > 1 ? 's' : ''} Skipped
+                            {uploadErrors.length} File{uploadErrors.length > 1 ? 's' : ''} failed to process
                         </h4>
                         <button
                             onClick={() => setUploadErrors([])}
