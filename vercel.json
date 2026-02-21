@@ -1,5 +1,6 @@
 {
     "version": 2,
+    "cleanUrls": true,
     "functions": {
         "api/index.ts": {
             "maxDuration": 60
@@ -11,7 +12,7 @@
             "destination": "/api/index.ts"
         },
         {
-            "source": "/(.*)",
+            "source": "/((?!assets/|favicon.ico|logo.png).*)",
             "destination": "/index.html"
         }
     ]
