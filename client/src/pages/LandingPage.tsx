@@ -9,7 +9,7 @@ import HeroAnimation from '../components/HeroAnimation';
 
 import TrustedByStrip from '../components/TrustedByStrip';
 
-const WORDS = ['Document', 'Drawings', 'Reports', 'Specifications', 'Surveys'];
+const WORDS = ['Documents', 'Drawings', 'Reports', 'Specifications', 'Surveys'];
 
 const LandingPage = () => {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
