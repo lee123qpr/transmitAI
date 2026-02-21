@@ -35,29 +35,29 @@ const LandingPage = () => {
                     <div className="text-left">
                         <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.1]">
                             Automate Construction <br />
-                            <span className="flex flex-wrap items-center mt-2">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid relative align-bottom overflow-hidden px-1 pb-4 -mb-4 pt-1">
+                            <span className="flex flex-wrap md:flex-nowrap items-baseline mt-2 -ml-1">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid relative overflow-hidden pb-5 -mb-5 pt-5 -mt-5 pl-1 pr-2">
                                     <AnimatePresence mode="popLayout">
                                         <motion.span
                                             key={wordIndex}
-                                            initial={{ x: -40, opacity: 0 }}
-                                            animate={{ x: 0, opacity: 1 }}
-                                            exit={{ x: 40, opacity: 0 }}
+                                            initial={{ y: -50, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            exit={{ y: 50, opacity: 0 }}
                                             transition={{ duration: 0.4, ease: "easeOut" }}
-                                            className="col-start-1 row-start-1"
+                                            className="col-start-1 row-start-1 leading-[1.1]"
                                         >
                                             {WORDS[wordIndex]}
                                         </motion.span>
                                     </AnimatePresence>
                                 </span>
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 ml-3 md:ml-4">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 ml-2 md:ml-4 whitespace-nowrap">
                                     Extraction
                                 </span>
                             </span>
                         </h1>
 
                         <p className="text-xl text-slate-600 mb-8 max-w-lg leading-relaxed">
-                            Stop manually typing data. Extract metadata, revisions, and drawings straight into structured transmittal registers in seconds, saving hours of manual entry.
+                            Create legally-sound transmittal records that protect your business. Cut hours of manual entry to a few minutes.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">

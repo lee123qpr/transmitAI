@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { Upload, X, File, FileText, FileSpreadsheet, FileImage, FileCode, CheckCircle, AlertCircle, Eye, Download, Edit2, Save, RotateCcw, FileCheck, ShieldCheck, Zap } from 'lucide-react';
 import { useDocumentStore } from '../services/store';
+import JSZip from 'jszip';
 // Lazy load heavy dependencies to reduce initial bundle size
 // import jsPDF from 'jspdf';
 // import autoTable from 'jspdf-autotable';
@@ -43,6 +44,7 @@ const UploadPage = () => {
 
     // ... rest of state ...
     const [isDragging, setIsDragging] = useState(false);
+    const [isProcessingUploads, setIsProcessingUploads] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [results, setResults] = useState<ResultItem[]>([]);
@@ -117,22 +119,129 @@ const UploadPage = () => {
         }
     };
 
-    const handleDrop = (e: React.DragEvent) => {
+    const isValidFile = (file: File) => {
+        const allowedExtensions = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.doc', '.docx', '.xls', '.xlsx', '.txt', '.csv', '.dxf'];
+        const name = file.name.toLowerCase();
+        return allowedExtensions.some(ext => name.endsWith(ext));
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const processEntry = async (entry: any, fileList: File[]) => {
+        if (entry.isFile) {
+            await new Promise<void>((resolve) => {
+                entry.file((file: File) => {
+                    if (isValidFile(file) && !file.name.startsWith('._')) {
+                        fileList.push(file);
+                    }
+                    resolve();
+                });
+            });
+        } else if (entry.isDirectory) {
+            const dirReader = entry.createReader();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const entries = await new Promise<any[]>((resolve) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                dirReader.readEntries((results: any[]) => resolve(results));
+            });
+            for (const nestedEntry of entries) {
+                await processEntry(nestedEntry, fileList);
+            }
+        }
+    };
+
+    const processZip = async (zipFile: File, fileList: File[]) => {
+        try {
+            const zip = new JSZip();
+            const contents = await zip.loadAsync(zipFile);
+            const extractPromises: Promise<void>[] = [];
+
+            contents.forEach((_relativePath, zipEntry) => {
+                if (!zipEntry.dir) {
+                    extractPromises.push(
+                        zipEntry.async('blob').then((blob) => {
+                            const extractedFile = new window.File([blob], zipEntry.name.split('/').pop() || zipEntry.name, {
+                                type: blob.type || 'application/octet-stream',
+                            });
+                            if (isValidFile(extractedFile) && !extractedFile.name.startsWith('._')) {
+                                fileList.push(extractedFile);
+                            }
+                        })
+                    );
+                }
+            });
+            await Promise.all(extractPromises);
+        } catch (err) {
+            console.error('Error extracting ZIP:', err);
+            showToast('Failed to perfectly read ZIP file. Some files may be missing.', 'error');
+        }
+    };
+
+    const handleDrop = async (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
         setIsDragging(false);
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            const newFiles = Array.from(e.dataTransfer.files);
+
+        const newFiles: File[] = [];
+
+        if (e.dataTransfer.items) {
+            setIsProcessingUploads(true);
+            for (let i = 0; i < e.dataTransfer.items.length; i++) {
+                const item = e.dataTransfer.items[i];
+                if (item.kind === 'file') {
+                    const entry = item.webkitGetAsEntry();
+                    if (entry) {
+                        if (entry.isDirectory) {
+                            await processEntry(entry, newFiles);
+                        } else {
+                            const file = item.getAsFile();
+                            if (file) {
+                                if (file.name.toLowerCase().endsWith('.zip')) {
+                                    await processZip(file, newFiles);
+                                } else if (isValidFile(file)) {
+                                    newFiles.push(file);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            setIsProcessingUploads(false);
+        } else if (e.dataTransfer.files) {
+            setIsProcessingUploads(true);
+            for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                const file = e.dataTransfer.files[i];
+                if (file.name.toLowerCase().endsWith('.zip')) {
+                    await processZip(file, newFiles);
+                } else if (isValidFile(file)) {
+                    newFiles.push(file);
+                }
+            }
+            setIsProcessingUploads(false);
+        }
+
+        if (newFiles.length > 0) {
             setFiles(prev => [...prev, ...newFiles]);
             setError(null);
         }
     };
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            const newFiles = Array.from(e.target.files);
-            setFiles(prev => [...prev, ...newFiles]);
-            setError(null);
+            setIsProcessingUploads(true);
+            const newFiles: File[] = [];
+            for (let i = 0; i < e.target.files.length; i++) {
+                const file = e.target.files[i];
+                if (file.name.toLowerCase().endsWith('.zip')) {
+                    await processZip(file, newFiles);
+                } else if (isValidFile(file)) {
+                    newFiles.push(file);
+                }
+            }
+            if (newFiles.length > 0) {
+                setFiles(prev => [...prev, ...newFiles]);
+                setError(null);
+            }
+            setIsProcessingUploads(false);
         }
     };
 
@@ -184,7 +293,7 @@ const UploadPage = () => {
                     const text = await response.text();
                     try {
                         errorData = JSON.parse(text);
-                    } catch (e) {
+                    } catch (_e) {
                         console.error('[Upload] Non-JSON error response:', text.substring(0, 100));
                         errorData = { error: `Server error (${response.status}). The service might be timing out or unavailable.` };
                     }
@@ -216,13 +325,14 @@ const UploadPage = () => {
                     file: file,
                     isEditing: false
                 });
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Upload failed:', err);
 
                 // If we reach here, it's an unhandled exception or network error
+                const message = err instanceof Error ? err.message : 'Connection lost or server timeout.';
                 setUploadErrors(prev => [...prev, {
                     filename: file.name,
-                    reason: err.message || 'Connection lost or server timeout.'
+                    reason: message
                 }]);
             }
         }
@@ -511,14 +621,27 @@ const UploadPage = () => {
                     className="hidden"
                     multiple
                     onChange={handleFileSelect}
-                    accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.txt,.csv,.dxf"
+                    accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.txt,.csv,.dxf,.zip"
                 />
-                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Upload size={32} />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900">Drag & Drop files here</h3>
-                <p className="text-slate-500 mt-2 mb-6">or click to browse from your computer</p>
-                <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">PDF • DOCX • XLSX • TXT • CSV • DXF • Images</p>
+
+                {isProcessingUploads ? (
+                    <div className="py-2">
+                        <div className="w-16 h-16 text-blue-600 mx-auto mb-4 flex items-center justify-center relative">
+                            <LoadingSpinner size="large" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-slate-900">Extracting Files...</h3>
+                        <p className="text-slate-500 mt-2 mb-6">Scanning directories and unpacking archives</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                            <Upload size={32} />
+                        </div>
+                        <h3 className="text-xl font-semibold text-slate-900">Drop files, folders, or ZIPs here</h3>
+                        <p className="text-slate-500 mt-2 mb-6">or click to browse from your computer</p>
+                        <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">PDF • DOCX • XLSX • TXT • CSV • DXF • ZIP / Folders</p>
+                    </>
+                )}
             </div>
 
             {/* Error Message (Global / Limit) */}
