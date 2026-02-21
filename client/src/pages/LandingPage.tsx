@@ -33,24 +33,26 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center relative z-10">
                     {/* Left Column: Text */}
                     <div className="text-left">
-                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start gap-1">
-                            <span className="leading-[1.1]">Automate</span>
-                            <span className="leading-[1.1]">Construction</span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid relative overflow-hidden align-top -my-1 py-1">
-                                <AnimatePresence mode="popLayout">
-                                    <motion.span
-                                        key={wordIndex}
-                                        initial={{ y: "-100%", opacity: 0 }}
-                                        animate={{ y: "0%", opacity: 1 }}
-                                        exit={{ y: "100%", opacity: 0 }}
-                                        transition={{ duration: 0.4, ease: "easeOut" }}
-                                        className="col-start-1 row-start-1 leading-[1.1]"
-                                    >
-                                        {WORDS[wordIndex]}
-                                    </motion.span>
-                                </AnimatePresence>
+                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start gap-0">
+                            <span className="leading-[0.9]">Automate</span>
+                            <span className="leading-[0.9]">Construction</span>
+                            <span className="bg-slate-200/60 rounded-xl px-3 -ml-3 my-1 overflow-hidden">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid relative align-top pt-2 pb-1">
+                                    <AnimatePresence mode="popLayout">
+                                        <motion.span
+                                            key={wordIndex}
+                                            initial={{ y: "-100%", opacity: 0 }}
+                                            animate={{ y: "0%", opacity: 1 }}
+                                            exit={{ y: "100%", opacity: 0 }}
+                                            transition={{ duration: 0.4, ease: "easeOut" }}
+                                            className="col-start-1 row-start-1 leading-[0.9]"
+                                        >
+                                            {WORDS[wordIndex]}
+                                        </motion.span>
+                                    </AnimatePresence>
+                                </span>
                             </span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 leading-[1.1]">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 leading-[0.9]">
                                 Extraction
                             </span>
                         </h1>
