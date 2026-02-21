@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 app.use(securityMiddleware);
 
 // Modular Routes
-app.use('/api/user', userRoutes);
+// app.use('/api/user', userRoutes); // Masked by api.ts - removing to unify logic
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);

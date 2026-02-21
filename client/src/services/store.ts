@@ -47,7 +47,7 @@ interface DocumentState extends UserState, SystemState {
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Hardcoded matching the backend admin list
-const ADMIN_EMAILS = ['leekilcoyne1@gmail.com'];
+const ADMIN_EMAILS = ['leekilcoyne1@gmail.com', 'lee_kilcoyne@hotmail.com'];
 
 export const useDocumentStore = create<DocumentState>((set, get) => ({
     documents: [],

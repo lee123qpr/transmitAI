@@ -56,7 +56,8 @@ export const updateUser = async (userId: string, data: Partial<User>): Promise<U
 };
 
 export const createUser = async (userId: string, email: string): Promise<User> => {
-    const isAdmin = ['leekilcoyne1@gmail.com'].includes(email.toLowerCase());
+    const admins = ['leekilcoyne1@gmail.com', 'lee_kilcoyne@hotmail.com'];
+    const isAdmin = admins.includes(email.toLowerCase());
     const tier = isAdmin ? 'pro' : 'free';
     const limit = isAdmin ? 500 : 10;
 
