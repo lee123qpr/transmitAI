@@ -125,8 +125,9 @@ router.get('/user', requireAuth, async (req: Request, res) => {
         // Auto-upgrade admins if they are currently on free plan
         const emailToVerify = email || user.email;
         const ADMIN_EMAILS_LIST = ['leekilcoyne1@gmail.com', ...(process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase())];
-        if (emailToVerify && ADMIN_EMAILS_LIST.includes(String(emailToVerify).toLowerCase()) && user.subscription_tier === 'free') {
-            console.log(`[API] Admin detected with free plan, upgrading to Pro (500 limit)...`);
+        const isAdminUser = emailToVerify && ADMIN_EMAILS_LIST.includes(String(emailToVerify).toLowerCase());
+        if (isAdminUser && (user.subscription_tier === 'free' || user.documents_limit < 500)) {
+            console.log(`[API] Admin detected with sub-optimal limits, syncing to Pro/500...`);
             user = await updateUserTier(userId, 'pro', 500);
         }
 
