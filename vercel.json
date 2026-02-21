@@ -2,17 +2,21 @@
     "version": 2,
     "cleanUrls": true,
     "functions": {
-        "api/index.ts": {
+        "api/*.ts": {
             "maxDuration": 60
         }
     },
     "rewrites": [
         {
-            "source": "/api/(.*)",
+            "source": "/api/health",
+            "destination": "/api/health.ts"
+        },
+        {
+            "source": "/api/:path*",
             "destination": "/api/index.ts"
         },
         {
-            "source": "/((?!api/|assets/|favicon.ico|logo.png|.*\\.).*)",
+            "source": "/(.*)",
             "destination": "/index.html"
         }
     ]
