@@ -39,7 +39,7 @@ const WelcomeModal = () => {
         },
         {
             title: "1. Upload Documents",
-            content: "Start by uploading your PDF, DWG, or image files. You can drag & drop multiple files at once. Group them by transmittal package for better organization.",
+            content: "Start by uploading your PDF or image files. You can drag & drop multiple files at once. Group them by transmittal package for better organisation.",
             icon: <FileText size={48} className="text-indigo-600 mb-4" />
         },
         {
