@@ -65,7 +65,9 @@ export const uploadDocument = async (req: Request, res: Response) => {
         // 2. Extract Data
         let extractedData;
         try {
+            console.log(`[DocumentController] Starting AI extraction for: ${req.file.originalname}`);
             extractedData = await extractDocumentData(req.file.buffer, req.file.originalname);
+            console.log(`[DocumentController] AI Extraction successful for: ${req.file.originalname}`);
         } catch (extractionError: any) {
             console.error('[DocumentController] AI Extraction failed:', extractionError);
 
@@ -78,12 +80,14 @@ export const uploadDocument = async (req: Request, res: Response) => {
         }
 
         if (!extractedData) {
+            console.warn(`[DocumentController] Extraction returned empty for: ${req.file.originalname}`);
             return res.status(422).json({ error: 'Extraction Failed', message: 'Could not extract text.' });
         }
 
         if (req.body.transmittalTitle) extractedData.transmittalTitle = req.body.transmittalTitle;
 
         // 4. Save to DB
+        console.log(`[DocumentController] Saving metadata to DB for: ${req.file.originalname}`);
         const docResult = await query(
             `INSERT INTO documents (
                 user_id, filename, file_size, file_type, 
@@ -105,6 +109,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
         // 5. Increment Usage
         await incrementUsage(userId);
+        console.log(`[DocumentController] Upload complete for: ${req.file.originalname}`);
 
         res.json({
             message: 'File processed successfully',
@@ -117,7 +122,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        console.error('[DocumentController] Upload processing error:', error);
+        console.error('[DocumentController] Critical upload error:', error);
         res.status(500).json({ error: 'Failed to process document', details: error instanceof Error ? error.message : 'Unknown error' });
     }
 };

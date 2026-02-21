@@ -48,3 +48,5 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Restarted at', new Date().toISOString());
 });
+
+export default app;
