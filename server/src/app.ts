@@ -21,8 +21,8 @@ import { securityMiddleware } from './middleware/security';
 // Middleware
 app.use(cors());
 
-// Stripe Webhook (MUST be before express.json())
-app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhook);
+// Stripe Webhook (MUST be before express.json() but middleware is now inside the router)
+app.use('/api/webhooks/stripe', stripeWebhook);
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));

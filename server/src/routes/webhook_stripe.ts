@@ -9,7 +9,48 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-router.post('/', async (req, res) => {
+/**
+ * Shared logic for upgrading user tier
+ */
+async function processSubscription(userId: string, planType: string) {
+    console.log(`[Subscription] Updating user ${userId} to ${planType}...`);
+
+    let limit = 100;
+    let tier: 'pro' | 'business' = 'pro';
+
+    if (planType.toLowerCase().includes('business')) {
+        tier = 'business';
+        limit = 500;
+    }
+
+    await updateUserTier(userId, tier, limit);
+    console.log(`[Subscription] User ${userId} successfully upgraded to ${tier}`);
+}
+
+// SIMULATION ENDPOINT (Localhost only)
+// Uses JSON parser, not raw
+router.post('/simulate', express.json(), async (req, res) => {
+    // Only allow simulation on localhost
+    const isLocal = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
+    if (!isLocal) {
+        return res.status(403).json({ error: 'Simulation only allowed on localhost' });
+    }
+
+    const { userId, planType } = req.body;
+    if (!userId) return res.status(400).json({ error: 'Missing userId' });
+
+    try {
+        await processSubscription(userId, planType || 'pro');
+        res.json({ success: true, message: 'Simulation processed' });
+    } catch (err: any) {
+        console.error(`[Simulation] Error:`, err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// REAL WEBHOOK ENDPOINT
+// Uses RAW parser for signature verification
+router.post('/', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event: Stripe.Event;
 
@@ -18,8 +59,9 @@ router.post('/', async (req, res) => {
             // Stripe expects the raw body for signature verification
             event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
         } else {
-            // Fallback for local testing if secret is missing
-            event = req.body;
+            // Fallback for local testing if secret is missing (e.g. CLI not used)
+            // Note: req.body is a Buffer here because of express.raw
+            event = JSON.parse(req.body.toString());
         }
     } catch (err: any) {
         console.error(`[Webhook] Signature verification failed: ${err.message}`);
@@ -34,20 +76,8 @@ router.post('/', async (req, res) => {
             const planType = session.metadata?.planType || 'pro';
 
             if (userId) {
-                console.log(`[Webhook] Payment successful for user ${userId}. Upgrading to ${planType}...`);
-
-                // Determine limits based on plan
-                let limit = 100;
-                let tier: 'pro' | 'business' = 'pro';
-
-                if (planType.includes('business')) {
-                    tier = 'business';
-                    limit = 500;
-                }
-
                 try {
-                    await updateUserTier(userId, tier, limit);
-                    console.log(`[Webhook] User ${userId} successfully upgraded to ${tier}`);
+                    await processSubscription(userId, planType);
                 } catch (dbError) {
                     console.error(`[Webhook] Failed to update user tier in DB:`, dbError);
                 }

@@ -45,7 +45,7 @@ const Success = () => {
                     // Call the simulate endpoint
                     try {
                         const planType = searchParams.get('plan') || 'pro'; // Get plan from URL params
-                        const simRes = await fetch('/api/webhooks/simulate', {
+                        const simRes = await fetch('/api/webhooks/stripe/simulate', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ userId: user.id, planType })
