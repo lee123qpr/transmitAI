@@ -3,6 +3,8 @@ import { useUser } from '@clerk/clerk-react';
 import { CreditCard, ExternalLink } from 'lucide-react';
 import { useDocumentStore } from '../services/store';
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
 const BillingSettings: React.FC = () => {
     const { user } = useUser();
     const { subscriptionTier } = useDocumentStore();
@@ -11,8 +13,7 @@ const BillingSettings: React.FC = () => {
     const handleManageSubscription = async () => {
         setIsLoading(true);
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-            const res = await fetch(`${apiUrl}/create-portal-session`, {
+            const res = await fetch(`${API_URL}/create-portal-session`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

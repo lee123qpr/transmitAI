@@ -127,7 +127,7 @@ const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Settin
         const defaultSubject = selectedType === 'newsletter' ? 'Welcome to our Newsletter!' : 'Welcome to Transmittal!';
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setSubject(template.subject || defaultSubject);
-         
+
         setHtml(template.html || '');
     }, [settings, selectedType, getTemplate]);
 
@@ -782,7 +782,7 @@ const AdminDashboard = () => {
                                                     <select
                                                         className="text-xs font-bold bg-slate-100 border-none rounded p-1 focus:ring-0"
                                                         value={u.subscription_tier}
-                                                        onChange={(e) => handleAction('PATCH', `/api/admin/users/${u.id}/tier`, { tier: e.target.value, limit: e.target.value === 'pro' ? 100 : e.target.value === 'business' ? 1000 : 10 })}
+                                                        onChange={(e) => handleAction('PATCH', `${API_URL}/admin/users/${u.id}/tier`, { tier: e.target.value, limit: e.target.value === 'pro' ? 100 : e.target.value === 'business' ? 1000 : 10 })}
                                                     >
                                                         <option value="free">FREE</option>
                                                         <option value="pro">PRO</option>
@@ -793,7 +793,7 @@ const AdminDashboard = () => {
                                             </td>
                                             <td className="px-6 py-4 flex items-center gap-2">
                                                 <button onClick={() => { setSelectedUser(u); setEmailModalOpen(true); }} className="p-2 text-slate-400 hover:text-blue-600 border border-slate-200 rounded-lg transition-colors"><Mail size={16} /></button>
-                                                <button onClick={() => handleAction('PATCH', `/api/admin/users/${u.id}/status`, { status: u.status === 'active' ? 'suspended' : 'active' })} className={`p-2 border border-slate-200 rounded-lg transition-colors ${u.status === 'active' ? 'text-slate-400 hover:text-red-500' : 'text-green-500 hover:text-green-600'}`}>
+                                                <button onClick={() => handleAction('PATCH', `${API_URL}/admin/users/${u.id}/status`, { status: u.status === 'active' ? 'suspended' : 'active' })} className={`p-2 border border-slate-200 rounded-lg transition-colors ${u.status === 'active' ? 'text-slate-400 hover:text-red-500' : 'text-green-500 hover:text-green-600'}`}>
                                                     {u.status === 'active' ? <XCircle size={16} /> : <CheckCircle size={16} />}
                                                 </button>
                                             </td>

@@ -3,7 +3,9 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 import { Building2, Save, X, Loader2 } from 'lucide-react';
 import { useToast } from './Toast';
 
-type CompanySettingsProps = Record<string, never>;
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface CompanySettingsProps { }
 
 const CompanySettings: React.FC<CompanySettingsProps> = () => {
     const { user } = useUser();
@@ -28,7 +30,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
             try {
                 // Pass email to ensure user creation
                 const email = user.primaryEmailAddress?.emailAddress;
-                const url = email ? `/api/user?email=${encodeURIComponent(email)}` : `/api/user`;
+                const url = email ? `${API_URL}/user?email=${encodeURIComponent(email)}` : `${API_URL}/user`;
                 const token = await getToken();
                 const res = await fetch(url, {
                     headers: token ? { 'Authorization': `Bearer ${token}` } : {}
@@ -45,7 +47,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
             }
         };
         fetchSettings();
-    }, [user]);
+    }, [user, getToken]);
 
     const handleSaveName = async () => {
         if (!user) return;
@@ -53,7 +55,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
         try {
             const email = user.primaryEmailAddress?.emailAddress;
             const token = await getToken();
-            const res = await fetch(`/api/user`, {
+            const res = await fetch(`${API_URL}/user`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -135,7 +137,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
         setIsSavingLogo(true);
         try {
             const token = await getToken();
-            await fetch(`/api/user`, {
+            await fetch(`${API_URL}/user`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
