@@ -20,7 +20,7 @@ const Dashboard = () => {
     const { getToken } = useAuth();
     const navigate = useNavigate();
     const {
-        documents, usage, subscriptionTier, isAdmin,
+        documents, usage, subscriptionTier,
         fetchDocuments, fetchUserStatus, deleteDocument, deleteTransmittal,
         isLoading, isInitialized
     } = useDocumentStore();
@@ -52,7 +52,7 @@ const Dashboard = () => {
         sync();
     }, [user?.id, getToken, fetchUserStatus, fetchDocuments]);
 
-    const isPro = subscriptionTier === 'pro' || subscriptionTier === 'business' || isAdmin;
+    const isPro = subscriptionTier === 'pro' || subscriptionTier === 'business';
     const documentLimit = usage.limit;
     const documentsUsed = usage.current;
 

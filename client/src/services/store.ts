@@ -22,7 +22,6 @@ interface UserState {
         limit: number;
     };
     subscriptionTier: string;
-    isAdmin: boolean;
     isInitialized: boolean;
     fetchUserStatus: (userId: string, email?: string, token?: string) => Promise<void>;
 }
@@ -46,8 +45,7 @@ interface DocumentState extends UserState, SystemState {
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-// Hardcoded matching the backend admin list
-const ADMIN_EMAILS = ['leekilcoyne1@gmail.com'];
+
 
 export const useDocumentStore = create<DocumentState>((set, get) => ({
     documents: [],
@@ -57,7 +55,6 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
     // User Stats
     usage: { current: 0, limit: 10 },
     subscriptionTier: 'free',
-    isAdmin: false,
     isInitialized: false,
 
     // System Stats
@@ -81,7 +78,6 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
             set({
                 usage: { current: data.documents_usage, limit: data.documents_limit },
                 subscriptionTier: data.subscription_tier,
-                isAdmin: email ? ADMIN_EMAILS.includes(email.toLowerCase()) : false,
             });
         } catch (err) {
             console.error('[Store] fetchUserStatus error:', err);

@@ -56,9 +56,8 @@ export const updateUser = async (userId: string, data: Partial<User>): Promise<U
 };
 
 export const createUser = async (userId: string, email: string): Promise<User> => {
-    const isAdmin = ['leekilcoyne1@gmail.com'].includes(email.toLowerCase());
-    const tier = isAdmin ? 'pro' : 'free';
-    const limit = isAdmin ? 500 : 10;
+    const tier = 'free';
+    const limit = 10;
 
     const res = await query(
         `INSERT INTO users (id, email, subscription_tier, documents_usage, documents_limit, status, newsletter_subscribed)
