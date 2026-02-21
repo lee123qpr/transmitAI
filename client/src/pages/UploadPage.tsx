@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth } from '@clerk/clerk-react';
 import { Upload, X, File, FileText, FileSpreadsheet, FileImage, FileCode, CheckCircle, AlertCircle, Eye, Download, Edit2, Save, RotateCcw, FileCheck, ShieldCheck, Zap } from 'lucide-react';
 import { useDocumentStore } from '../services/store';
 // Lazy load heavy dependencies to reduce initial bundle size
@@ -34,6 +34,7 @@ interface ResultItem {
 
 const UploadPage = () => {
     const { user } = useUser();
+    const { getToken } = useAuth();
     const { showToast } = useToast();
     // Global sync in App.tsx handles the initial fetch now.
     // We only need to worry about local state here.
@@ -53,17 +54,27 @@ const UploadPage = () => {
 
     useEffect(() => {
         if (!user) return;
-        const email = user.primaryEmailAddress?.emailAddress;
-        fetch(`/api/user/${user.id}${email ? `?email=${email}` : ''}`)
-            .then(res => res.json())
-            .then(data => {
-                setCompanySettings({
-                    name: data.company_name,
-                    logo: data.company_logo_url
+        const fetchSettings = async () => {
+            try {
+                const email = user.primaryEmailAddress?.emailAddress;
+                const token = await getToken();
+                const url = email ? `/api/user?email=${encodeURIComponent(email)}` : `/api/user`;
+                const res = await fetch(url, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
                 });
-            })
-            .catch(err => console.error('Failed to load company settings:', err));
-    }, [user]);
+                if (res.ok) {
+                    const data = await res.json();
+                    setCompanySettings({
+                        name: data.company_name,
+                        logo: data.company_logo_url
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to load company settings:', err);
+            }
+        };
+        fetchSettings();
+    }, [user, getToken]);
 
     // Modal State
     const [modalConfig, setModalConfig] = useState<{
@@ -157,10 +168,11 @@ const UploadPage = () => {
             formData.append('file', file);
 
             try {
+                const token = await getToken();
                 const response = await fetch('/api/documents/upload', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${window.localStorage.getItem('clerk-db-jwt') || 'mock_token'}` // fallback for e2e
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                     },
                     body: formData,
                 });
@@ -171,16 +183,19 @@ const UploadPage = () => {
                     // Handle Specific Error Cases
                     if (response.status === 409) {
                         showToast(`Skipped duplicate: ${file.name}`, 'info');
-                        throw new Error(`Duplicate file skipped: ${file.name}`);
+                        const msg = `This exact file has already been uploaded.`;
+                        setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
+                        throw new Error(msg);
                     }
                     if (response.status === 400) {
-                        showToast(`Corrupt file detected: ${file.name}`, 'error');
-                        throw new Error(`Corrupt/Invalid file: ${file.name}. ${errorData.message || ''}`);
+                        showToast(`Analysis failed: ${file.name}`, 'error');
+                        const msg = errorData.message || 'The AI could not read this document format.';
+                        setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
+                        throw new Error(msg);
                     }
 
-                    const msg = errorData.details
-                        ? `${errorData.error}: ${errorData.details}`
-                        : (errorData.error || `Failed to upload ${file.name}`);
+                    const msg = errorData.error || `Server error during processing.`;
+                    setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
                     throw new Error(msg);
                 }
 
@@ -198,14 +213,20 @@ const UploadPage = () => {
                     file: file,
                     isEditing: false
                 });
-            } catch {
-                console.error('Upload failed');
+            } catch (err: any) {
+                console.error('Upload failed:', err);
 
-                // Add to error list for this batch
-                setUploadErrors(prev => [...prev, {
-                    filename: file.name,
-                    reason: 'Upload failed'
-                }]);
+                // Only add generic error if it wasn't already added manually in the !response.ok block
+                const isKnownError = err.message?.includes('already been uploaded') ||
+                    err.message?.includes('AI could not read') ||
+                    err.message?.includes('Server error during processing');
+
+                if (!isKnownError) {
+                    setUploadErrors(prev => [...prev, {
+                        filename: file.name,
+                        reason: err.message || 'Connection lost or server timeout.'
+                    }]);
+                }
             }
         }
 
