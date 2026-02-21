@@ -19,7 +19,11 @@ const Dashboard = () => {
     const { user } = useUser();
     const { getToken } = useAuth();
     const navigate = useNavigate();
-    const { documents, usage, subscriptionTier, fetchDocuments, deleteDocument, deleteTransmittal } = useDocumentStore();
+    const {
+        documents, usage, subscriptionTier,
+        fetchDocuments, deleteDocument, deleteTransmittal,
+        isLoading, isInitialized
+    } = useDocumentStore();
     const { showToast } = useToast();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [selectedTransmittal, setSelectedTransmittal] = useState<string | null>(null);
@@ -653,77 +657,113 @@ const Dashboard = () => {
             {/* Transmittal Grid View */}
             {!selectedTransmittal && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Plan Usage Card */}
-                    <div
-                        className={`p-6 rounded-xl shadow-lg relative overflow-hidden group cursor-pointer transition-all ${isPro ? 'bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-slate-700' : 'bg-slate-900 text-white'}`}
-                        onClick={() => !isPro && setIsUpgradeModalOpen(true)}
-                    >
-                        <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Zap size={80} />
-                        </div>
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <p className="text-slate-400 text-sm font-medium mb-1">Current Plan</p>
-                                <h3 className="text-2xl font-bold flex items-center gap-2">
-                                    {isPro ? 'Pro Plan' : 'Free Plan'}
-                                    {isPro && <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">ACTIVE</span>}
-                                </h3>
+                    {/* Plan Usage Card / Skeleton */}
+                    {isLoading && !isInitialized ? (
+                        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 relative overflow-hidden animate-pulse">
+                            <div className="flex justify-between items-start mb-8">
+                                <div className="space-y-3">
+                                    <div className="h-4 w-24 bg-slate-800 rounded"></div>
+                                    <div className="h-8 w-32 bg-slate-800 rounded"></div>
+                                </div>
+                                <div className="p-3 rounded-xl bg-slate-800 w-12 h-12"></div>
                             </div>
-                            {isPro && <Zap className="text-blue-400 fill-blue-400" size={24} />}
+                            <div className="space-y-3">
+                                <div className="flex justify-between">
+                                    <div className="h-3 w-20 bg-slate-800 rounded"></div>
+                                    <div className="h-3 w-12 bg-slate-800 rounded"></div>
+                                </div>
+                                <div className="w-full bg-slate-800 h-2 rounded-full"></div>
+                                <div className="h-3 w-1/2 bg-slate-800 rounded"></div>
+                            </div>
                         </div>
+                    ) : (
+                        <div
+                            className={`p-6 rounded-xl shadow-lg relative overflow-hidden group cursor-pointer transition-all ${isPro ? 'bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-slate-700' : 'bg-slate-900 text-white'}`}
+                            onClick={() => !isPro && setIsUpgradeModalOpen(true)}
+                        >
+                            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Zap size={80} />
+                            </div>
+                            <div className="flex justify-between items-start mb-2">
+                                <div>
+                                    <p className="text-slate-400 text-sm font-medium mb-1">Current Plan</p>
+                                    <h3 className="text-2xl font-bold flex items-center gap-2">
+                                        {isPro ? 'Pro Plan' : 'Free Plan'}
+                                        {isPro && <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">ACTIVE</span>}
+                                    </h3>
+                                </div>
+                                {isPro && <Zap className="text-blue-400 fill-blue-400" size={24} />}
+                            </div>
 
-                        <div className="mt-4">
-                            {/* Usage Alert */}
-                            {documentsUsed >= documentLimit * 0.8 && !isPro && (
-                                <div className={`mb-4 p-3 rounded-lg border-2 ${documentsUsed >= documentLimit
-                                    ? 'bg-red-50 border-red-300'
-                                    : 'bg-orange-50 border-orange-300'
-                                    }`}>
-                                    <div className="flex items-center gap-2 mb-1.5">
-                                        <Zap size={18} className={`shrink-0 ${documentsUsed >= documentLimit
-                                            ? 'text-red-600 fill-red-600'
-                                            : 'text-orange-600 fill-orange-600'
-                                            }`} />
-                                        <p className={`text-sm font-bold ${documentsUsed >= documentLimit
-                                            ? 'text-red-900'
-                                            : 'text-orange-900'
+                            <div className="mt-4">
+                                {/* Usage Alert */}
+                                {documentsUsed >= documentLimit * 0.8 && !isPro && (
+                                    <div className={`mb-4 p-3 rounded-lg border-2 ${documentsUsed >= documentLimit
+                                        ? 'bg-red-50 border-red-300'
+                                        : 'bg-orange-50 border-orange-300'
+                                        }`}>
+                                        <div className="flex items-center gap-2 mb-1.5">
+                                            <Zap size={18} className={`shrink-0 ${documentsUsed >= documentLimit
+                                                ? 'text-red-600 fill-red-600'
+                                                : 'text-orange-600 fill-orange-600'
+                                                }`} />
+                                            <p className={`text-sm font-bold ${documentsUsed >= documentLimit
+                                                ? 'text-red-900'
+                                                : 'text-orange-900'
+                                                }`}>
+                                                {documentsUsed >= documentLimit ? 'Limit Reached!' : 'Approaching Limit'}
+                                            </p>
+                                        </div>
+                                        <p className={`text-sm leading-snug ${documentsUsed >= documentLimit
+                                            ? 'text-red-800'
+                                            : 'text-orange-800'
                                             }`}>
-                                            {documentsUsed >= documentLimit ? 'Limit Reached!' : 'Approaching Limit'}
+                                            You've used <span className="font-bold">{documentsUsed} of {documentLimit}</span> documents this month.
+                                            {documentsUsed >= documentLimit && ' Upgrade to continue.'}
                                         </p>
                                     </div>
-                                    <p className={`text-sm leading-snug ${documentsUsed >= documentLimit
-                                        ? 'text-red-800'
-                                        : 'text-orange-800'
-                                        }`}>
-                                        You've used <span className="font-bold">{documentsUsed} of {documentLimit}</span> documents this month.
-                                        {documentsUsed >= documentLimit && ' Upgrade to continue.'}
-                                    </p>
+                                )}
+
+                                <div className="flex justify-between items-end mb-2">
+                                    <span className="text-sm text-slate-300">Monthly Usage</span>
+                                    <span className={`font-bold ${documentsUsed >= documentLimit ? 'text-red-400' : 'text-white'}`}>
+                                        {documentsUsed} / {documentLimit}
+                                    </span>
                                 </div>
-                            )}
-
-                            <div className="flex justify-between items-end mb-2">
-                                <span className="text-sm text-slate-300">Monthly Usage</span>
-                                <span className={`font-bold ${documentsUsed >= documentLimit ? 'text-red-400' : 'text-white'}`}>
-                                    {documentsUsed} / {documentLimit}
-                                </span>
+                                <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                                    <div
+                                        className={`h-full transition-all duration-500 ${isPro ? 'bg-green-500'
+                                            : documentsUsed >= documentLimit ? 'bg-red-500'
+                                                : documentsUsed >= documentLimit * 0.8 ? 'bg-amber-500'
+                                                    : 'bg-blue-500'
+                                            }`}
+                                        style={{ width: `${Math.min((documentsUsed / documentLimit) * 100, 100)}%` }}
+                                    />
+                                </div>
+                                <p className="text-xs text-slate-400 mt-2">
+                                    {isPro ? 'Unlimited documents & exports included' : 'Upgrade for unlimited documents'}
+                                </p>
                             </div>
-                            <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
-                                <div
-                                    className={`h-full transition-all duration-500 ${isPro ? 'bg-green-500'
-                                        : documentsUsed >= documentLimit ? 'bg-red-500'
-                                            : documentsUsed >= documentLimit * 0.8 ? 'bg-amber-500'
-                                                : 'bg-blue-500'
-                                        }`}
-                                    style={{ width: `${Math.min((documentsUsed / documentLimit) * 100, 100)}%` }}
-                                />
-                            </div>
-                            <p className="text-xs text-slate-400 mt-2">
-                                {isPro ? 'Unlimited documents & exports included' : 'Upgrade for unlimited documents'}
-                            </p>
                         </div>
-                    </div>
+                    )}
 
-                    {Object.entries(transmittals).map(([title, docs]) => (
+                    {/* Folder Skeletons While Loading */}
+                    {isLoading && Array.from({ length: 2 }).map((_, i) => (
+                        <div key={`skeleton-${i}`} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm animate-pulse">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-slate-100 rounded-lg w-12 h-12"></div>
+                                <div className="h-6 w-16 bg-slate-100 rounded-full"></div>
+                            </div>
+                            <div className="h-6 w-3/4 bg-slate-100 rounded mb-2"></div>
+                            <div className="h-4 w-1/2 bg-slate-100 rounded mb-4"></div>
+                            <div className="w-full pt-4 border-t border-slate-100 flex justify-between items-center">
+                                <div className="h-4 w-20 bg-slate-100 rounded"></div>
+                                <div className="h-4 w-4 bg-slate-100 rounded"></div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {!isLoading && Object.entries(transmittals).map(([title, docs]) => (
                         <div
                             key={title}
                             onClick={() => setSelectedTransmittal(title)}
@@ -758,7 +798,7 @@ const Dashboard = () => {
                         </div>
                     ))}
 
-                    {Object.keys(transmittals).length === 0 && (
+                    {!isLoading && isInitialized && Object.keys(transmittals).length === 0 && (
                         <div className="col-span-1 md:col-span-2 lg:col-span-3 border-2 border-dashed border-slate-200 rounded-2xl p-12 flex flex-col items-center text-center bg-slate-50/50">
                             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-6">
                                 <Folder size={40} className="text-blue-600" />
@@ -802,7 +842,8 @@ const Dashboard = () => {
                         </div>
                     )}
                 </div>
-            )}
+            )
+            }
 
             {/* Detailed Document View */}
             {selectedTransmittal && (
@@ -858,8 +899,9 @@ const Dashboard = () => {
                         </table>
                     </div>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 
