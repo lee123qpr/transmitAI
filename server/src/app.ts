@@ -21,6 +21,13 @@ import { securityMiddleware } from './middleware/security';
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
+
+// Debug Logging Middleware
+app.use((req, res, next) => {
+  console.log(`[Server] ${req.method} ${req.path}`);
+  next();
+});
+
 app.use(securityMiddleware);
 
 // Modular Routes
@@ -44,9 +51,17 @@ app.get('/api/direct-test', (req: Request, res: Response) => {
   res.json({ message: 'Direct route works' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log('Restarted at', new Date().toISOString());
+// Final Error Fallback for /api routes
+app.all('/api/*', (req, res) => {
+  console.warn(`[Server] Unhandled API Route: ${req.method} ${req.path}`);
+  res.status(404).json({ error: 'API Route Not Found', method: req.method, path: req.path });
 });
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log('Restarted at', new Date().toISOString());
+  });
+}
 
 export default app;
