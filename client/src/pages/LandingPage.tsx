@@ -33,10 +33,10 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center relative z-10">
                     {/* Left Column: Text */}
                     <div className="text-left">
-                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start leading-none">
-                            <span className="py-2">Automate</span>
-                            <span className="py-2">Construction</span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid relative overflow-hidden align-top">
+                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start gap-1">
+                            <span className="leading-[1.1]">Automate</span>
+                            <span className="leading-[1.1]">Construction</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid relative overflow-hidden align-top -my-1 py-1">
                                 <AnimatePresence mode="popLayout">
                                     <motion.span
                                         key={wordIndex}
@@ -44,13 +44,13 @@ const LandingPage = () => {
                                         animate={{ y: "0%", opacity: 1 }}
                                         exit={{ y: "100%", opacity: 0 }}
                                         transition={{ duration: 0.4, ease: "easeOut" }}
-                                        className="col-start-1 row-start-1 py-2"
+                                        className="col-start-1 row-start-1 leading-[1.1]"
                                     >
                                         {WORDS[wordIndex]}
                                     </motion.span>
                                 </AnimatePresence>
                             </span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 py-2">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 leading-[1.1]">
                                 Extraction
                             </span>
                         </h1>
