@@ -12,6 +12,8 @@ export interface DocumentData {
     status: string;
     uploadedAt: string;
     transmittalTitle?: string;
+    summary?: string;
+    documentType?: string;
 }
 
 interface UserState {

@@ -204,7 +204,9 @@ router.get('/documents', requireAuth, async (req: Request, res) => {
                 consultant: excerpt?.consultant || 'Unknown',
                 status: doc.status || 'Pending',
                 uploadedAt: doc.created_at,
-                transmittalTitle: excerpt?.transmittalTitle
+                transmittalTitle: excerpt?.transmittalTitle,
+                summary: excerpt?.summary || '',
+                documentType: excerpt?.documentType || 'Unknown'
             };
         });
 

@@ -129,11 +129,13 @@ const Dashboard = () => {
             worksheet.columns = [
                 { header: 'Doc Number', key: 'documentNumber', width: 22 },
                 { header: 'Revision', key: 'revision', width: 12 },
+                { header: 'Type', key: 'documentType', width: 15 },
                 { header: 'Title', key: 'title', width: 45 },
                 { header: 'Status', key: 'status', width: 18 },
                 { header: 'Issue Date', key: 'issueDate', width: 15 },
                 { header: 'Discipline', key: 'discipline', width: 18 },
                 { header: 'Consultant', key: 'consultant', width: 25 },
+                { header: 'Summary', key: 'summary', width: 50 },
             ];
 
             // Style header row (row 4)
@@ -350,15 +352,17 @@ const Dashboard = () => {
                 const tableBody = disciplineDocs.map(d => [
                     d.documentNumber || '-',
                     d.revision || '-',
+                    d.documentType || '-',
                     d.title || '-',
                     d.issueDate || '-',
                     d.status || '-',
-                    d.consultant || '-'
+                    d.consultant || '-',
+                    d.summary || '-'
                 ]);
 
                 autoTable(doc, {
                     startY: yPos,
-                    head: [['Doc Number', 'Rev', 'Title', 'Date', 'Status', 'Consultant']],
+                    head: [['Doc Number', 'Rev', 'Type', 'Title', 'Date', 'Status', 'Consultant', 'Summary']],
                     body: tableBody,
                     theme: 'grid',
                     headStyles: {
@@ -376,12 +380,14 @@ const Dashboard = () => {
                         fillColor: [250, 250, 250]
                     },
                     columnStyles: {
-                        0: { cellWidth: 40 },   // Doc Number (wider)
-                        1: { cellWidth: 18 },   // Rev
-                        2: { cellWidth: 115 },  // Title (much wider for landscape!)
-                        3: { cellWidth: 25 },   // Date
-                        4: { cellWidth: 30 },   // Status
-                        5: { cellWidth: 41 }    // Consultant (wider)
+                        0: { cellWidth: 30 },   // Doc Number
+                        1: { cellWidth: 12 },   // Rev
+                        2: { cellWidth: 20 },   // Type
+                        3: { cellWidth: 55 },   // Title
+                        4: { cellWidth: 18 },   // Date
+                        5: { cellWidth: 20 },   // Status
+                        6: { cellWidth: 30 },   // Consultant
+                        7: { cellWidth: 84 }    // Summary
                     },
                     margin: { left: 14, right: 14 },
                     didDrawPage: () => {
@@ -807,9 +813,13 @@ const Dashboard = () => {
                                 <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
                                     <th className="px-6 py-3 font-semibold">Number</th>
                                     <th className="px-6 py-3 font-semibold">Rev</th>
+                                    <th className="px-6 py-3 font-semibold hidden xl:table-cell">Type</th>
                                     <th className="px-6 py-3 font-semibold">Title</th>
+                                    <th className="px-6 py-3 font-semibold hidden md:table-cell">Discipline</th>
+                                    <th className="px-6 py-3 font-semibold hidden lg:table-cell">Consultant</th>
                                     <th className="px-6 py-3 font-semibold">Date</th>
                                     <th className="px-6 py-3 font-semibold">Status</th>
+                                    <th className="px-6 py-3 font-semibold hidden 2xl:table-cell">Summary</th>
                                     <th className="px-6 py-3 font-semibold text-right">Action</th>
                                 </tr>
                             </thead>
@@ -818,13 +828,21 @@ const Dashboard = () => {
                                     <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-6 py-3 font-medium text-slate-900">{doc.documentNumber}</td>
                                         <td className="px-6 py-3 text-slate-600">{doc.revision}</td>
-                                        <td className="px-6 py-3 text-slate-900">{doc.title}</td>
-                                        <td className="px-6 py-3 text-slate-500 text-sm">{doc.issueDate}</td>
+                                        <td className="px-6 py-3 text-slate-600 hidden xl:table-cell text-xs">{doc.documentType || '-'}</td>
+                                        <td className="px-6 py-3 text-slate-900 max-w-xs truncate" title={doc.title}>{doc.title}</td>
+                                        <td className="px-6 py-3 text-slate-600 hidden md:table-cell">
+                                            <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs whitespace-nowrap">
+                                                {doc.discipline || '-'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-3 text-slate-600 hidden lg:table-cell text-sm truncate max-w-[150px]" title={doc.consultant || '-'}>{doc.consultant || '-'}</td>
+                                        <td className="px-6 py-3 text-slate-500 text-sm whitespace-nowrap">{doc.issueDate}</td>
                                         <td className="px-6 py-3">
                                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                                 {doc.status}
                                             </span>
                                         </td>
+                                        <td className="px-6 py-3 text-slate-500 text-xs hidden 2xl:table-cell max-w-sm truncate" title={doc.summary || '-'}>{doc.summary || '-'}</td>
                                         <td className="px-6 py-3 text-right">
                                             <button
                                                 onClick={(e) => handleDeleteDocument(e, doc.id, doc.documentNumber)}
