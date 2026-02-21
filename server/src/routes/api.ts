@@ -126,8 +126,8 @@ router.get('/user', requireAuth, async (req: Request, res) => {
         const emailToVerify = email || user.email;
         const ADMIN_EMAILS_LIST = ['leekilcoyne1@gmail.com', ...(process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase())];
         if (emailToVerify && ADMIN_EMAILS_LIST.includes(String(emailToVerify).toLowerCase()) && user.subscription_tier === 'free') {
-            console.log(`[API] Admin detected with free plan, upgrading...`);
-            user = await updateUserTier(userId, 'pro', 100);
+            console.log(`[API] Admin detected with free plan, upgrading to Pro (500 limit)...`);
+            user = await updateUserTier(userId, 'pro', 500);
         }
 
         // Get actual count to ensure the UI is 100% accurate

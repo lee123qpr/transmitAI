@@ -15,12 +15,12 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 async function processSubscription(userId: string, planType: string) {
     console.log(`[Subscription] Updating user ${userId} to ${planType}...`);
 
-    let limit = 100;
+    let limit = 500;
     let tier: 'pro' | 'business' = 'pro';
 
     if (planType.toLowerCase().includes('business')) {
         tier = 'business';
-        limit = 500;
+        limit = 2500;
     }
 
     await updateUserTier(userId, tier, limit);
