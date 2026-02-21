@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { extractDocumentData } from '../services/aiService';
-import { getUser, createUser, checkLimit, incrementUsage } from '../services/userService';
+import { getUser, createUser, checkLimit, incrementUsage, syncUsage } from '../services/userService';
 import { query } from '../db';
 
 export const getDocuments = async (req: Request, res: Response) => {
@@ -137,9 +137,12 @@ export const deleteDocument = async (req: Request, res: Response) => {
             [id, userId]
         );
 
-        if (result.rowCount === 0) {
+        if (!result.rowCount || result.rowCount === 0) {
             return res.status(404).json({ error: 'Document not found or unauthorized' });
         }
+
+        // Sync usage after deletion
+        await syncUsage(userId);
 
         res.json({ success: true, id });
     } catch (error) {
@@ -179,6 +182,11 @@ export const deleteTransmittal = async (req: Request, res: Response) => {
         }
 
         res.json({ success: true, count: result.rowCount });
+
+        // Sync usage after transmittal deletion
+        if (result.rowCount && result.rowCount > 0) {
+            await syncUsage(userId);
+        }
     } catch (error) {
         console.error('[DocumentController] Delete Transmittal Error:', error);
         res.status(500).json({ error: 'Failed to delete transmittal' });

@@ -128,7 +128,11 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
                 console.log('[Store] Sample Transmittal Title:', data[0].transmittalTitle);
             }
 
-            set({ documents: data, isLoading: false });
+            set((state) => ({
+                documents: data,
+                isLoading: false,
+                usage: { ...state.usage, current: data.length } // Sync local usage
+            }));
         } catch (err) {
             set({ error: (err as Error).message, isLoading: false });
         }

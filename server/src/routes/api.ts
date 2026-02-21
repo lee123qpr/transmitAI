@@ -3,7 +3,7 @@ import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
 import { extractDocumentData } from '../services/aiService';
-import { createUser, getUser, updateUser, checkLimit, incrementUsage, updateUserTier } from '../services/userService';
+import { createUser, getUser, updateUser, checkLimit, incrementUsage, updateUserTier, getActualDocumentCount, syncUsage } from '../services/userService';
 import { query } from '../db';
 import paymentRoutes from './payments';
 import { requireAuth } from '../middleware/auth'; // Import Auth Middleware
@@ -130,7 +130,18 @@ router.get('/user', requireAuth, async (req: Request, res) => {
             user = await updateUserTier(userId, 'pro', 100);
         }
 
-        res.json(user);
+        // Get actual count to ensure the UI is 100% accurate
+        const actualCount = await getActualDocumentCount(userId);
+
+        // Background sync to heal the DB state if it drifted
+        if (actualCount !== user.documents_usage) {
+            syncUsage(userId).catch(err => console.error('Background sync failed:', err));
+        }
+
+        res.json({
+            ...user,
+            documents_usage: actualCount // Return real count to frontend
+        });
     } catch (error) {
         console.error('[API] Get User Error:', error);
         res.status(500).json({ error: 'Failed to fetch user status' });

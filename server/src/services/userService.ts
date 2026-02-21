@@ -135,3 +135,21 @@ export const checkLimit = async (userId: string): Promise<{ allowed: boolean; me
 
     return { allowed: true };
 };
+
+export const getActualDocumentCount = async (userId: string): Promise<number> => {
+    const res = await query('SELECT COUNT(*) as count FROM documents WHERE user_id = $1', [userId]);
+    return parseInt(res.rows[0].count || '0', 10);
+};
+
+export const syncUsage = async (userId: string): Promise<void> => {
+    try {
+        const count = await getActualDocumentCount(userId);
+        await query(
+            'UPDATE users SET documents_usage = $2, updated_at = NOW() WHERE id = $1',
+            [userId, count]
+        );
+        console.log(`[UserService] Synced usage for ${userId}: ${count} docs`);
+    } catch (err) {
+        console.error('[UserService] syncUsage error:', err);
+    }
+};
