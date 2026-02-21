@@ -114,4 +114,61 @@ router.post('/create-portal-session', async (req, res) => {
     }
 });
 
+// Verify Session & Upgrade User
+// This is the RELIABLE way to upgrade in serverless - we pull directly from Stripe
+// instead of waiting for a webhook push that may be dropped.
+router.post('/verify-session', async (req, res) => {
+    const { sessionId, userId } = req.body;
+
+    if (!sessionId || !userId) {
+        return res.status(400).json({ error: 'Missing sessionId or userId' });
+    }
+
+    try {
+        console.log(`[Payment] Verifying session ${sessionId} for user ${userId}`);
+
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+        console.log(`[Payment] Session status: ${session.status}, payment_status: ${session.payment_status}`);
+
+        // Only upgrade if payment was actually completed
+        if (session.status !== 'complete' || session.payment_status !== 'paid') {
+            return res.json({ success: false, message: `Payment not complete. Status: ${session.status}` });
+        }
+
+        // Verify the session belongs to this user (security check)
+        const sessionUserId = session.metadata?.userId;
+        if (sessionUserId && sessionUserId !== userId) {
+            console.warn(`[Payment] User mismatch: session=${sessionUserId}, requested=${userId}`);
+            return res.status(403).json({ error: 'Session does not belong to this user' });
+        }
+
+        // Determine plan from metadata or planType
+        const planType = session.metadata?.planType || 'pro';
+        let tier: 'pro' | 'business' = 'pro';
+        let limit = 100;
+
+        if (planType.toLowerCase().includes('business')) {
+            tier = 'business';
+            limit = 500;
+        }
+
+        console.log(`[Payment] Upgrading user ${userId} to ${tier} (limit: ${limit})`);
+
+        const { updateUserTier } = await import('../services/userService');
+        const updatedUser = await updateUserTier(userId, tier, limit);
+
+        console.log(`[Payment] Upgrade successful. New tier: ${updatedUser?.subscription_tier}`);
+
+        return res.json({
+            success: true,
+            tier: updatedUser?.subscription_tier,
+            limit: updatedUser?.documents_limit,
+        });
+    } catch (error: any) {
+        console.error('[Payment] Verify session error:', error);
+        return res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;

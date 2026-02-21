@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { CheckCircle, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import SEO from '../../components/SEO';
 
@@ -10,74 +10,75 @@ const Success = () => {
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
     const sessionId = searchParams.get('session_id');
-    const [status, setStatus] = useState<'verifying' | 'success' | 'timeout'>('verifying');
+    const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
+    const [errorMsg, setErrorMsg] = useState('');
     const [countdown, setCountdown] = useState(5);
 
-    // Poll for subscription update
+    // Primary method: verify the session directly with our backend
+    // This is reliable in serverless as it's a pull, not a push (webhook)
     useEffect(() => {
         if (!isLoaded || !user) return;
+        if (!sessionId) {
+            setErrorMsg('No session ID found in URL. Please contact support.');
+            setStatus('error');
+            return;
+        }
 
-        let attempts = 0;
-        const maxAttempts = 20; // 20 attempts * 2s = 40s max wait
-        let simulationTriggered = false;
-
-        const checkStatus = async () => {
+        const verifySession = async () => {
             try {
-                // Fetch fresh user data from YOUR backend, not just Clerk
                 const token = await getToken();
-                const res = await fetch(`/api/user?userId=${user.id}`, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                console.log(`[Success] Verifying session ${sessionId} for user ${user.id}`);
+
+                const res = await fetch('/api/verify-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                    body: JSON.stringify({ sessionId, userId: user.id }),
                 });
+
                 const data = await res.json();
+                console.log('[Success] Verify response:', data);
 
-                // Check if tier is no longer 'free' (or matches expected)
-                // For simplicity, any non-free tier is a success for now
-                if (data.subscription_tier !== 'free') {
+                if (res.ok && data.success) {
                     setStatus('success');
-                    return true;
-                }
-
-                // LOCALHOST FALLBACK: If webhook hasn't fired after 10s (5 attempts), simulate it
-                if (!simulationTriggered && attempts >= 5 && window.location.hostname === 'localhost') {
-                    simulationTriggered = true;
-                    console.log('[DEV] Webhook timeout detected on localhost. Triggering simulation...');
-
-                    // Call the simulate endpoint
-                    try {
-                        const planType = searchParams.get('plan') || 'pro'; // Get plan from URL params
-                        const simRes = await fetch('/api/webhooks/stripe/simulate', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: user.id, planType })
-                        });
-
-                        if (simRes.ok) {
-                            console.log('[DEV] Webhook simulation successful');
+                } else {
+                    // Payment not complete yet — could be a timing issue
+                    // Retry once after 3 seconds to handle any propagation delay
+                    console.warn('[Success] Session not complete yet, retrying in 3s...');
+                    setTimeout(async () => {
+                        try {
+                            const retryRes = await fetch('/api/verify-session', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                                },
+                                body: JSON.stringify({ sessionId, userId: user.id }),
+                            });
+                            const retryData = await retryRes.json();
+                            if (retryRes.ok && retryData.success) {
+                                setStatus('success');
+                            } else {
+                                setErrorMsg(data.message || data.error || 'Could not confirm payment. Please contact support.');
+                                setStatus('error');
+                            }
+                        } catch {
+                            setErrorMsg('Network error on retry. Please refresh.');
+                            setStatus('error');
                         }
-                    } catch (err) {
-                        console.error('[DEV] Failed to simulate webhook:', err);
-                    }
+                    }, 3000);
                 }
             } catch (err) {
-                console.error("Error polling status:", err);
+                console.error('[Success] Verification error:', err);
+                setErrorMsg('Failed to connect to payment server. Please refresh.');
+                setStatus('error');
             }
-            return false;
         };
 
-        const interval = setInterval(async () => {
-            attempts++;
-            const isUpdated = await checkStatus();
-
-            if (isUpdated) {
-                clearInterval(interval);
-            } else if (attempts >= maxAttempts) {
-                clearInterval(interval);
-                setStatus('timeout');
-            }
-        }, 2000);
-
-        return () => clearInterval(interval);
-    }, [user, isLoaded, searchParams]);
+        verifySession();
+    }, [user, isLoaded, sessionId]);
 
     // Redirect countdown (only starts after success)
     useEffect(() => {
@@ -116,44 +117,42 @@ const Success = () => {
 
                 {status === 'success' && (
                     <>
-                        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 scale-in-center">
+                        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                             <CheckCircle size={40} />
                         </div>
-                        <h1 className="text-3xl font-bold text-slate-900 mb-2">You're a Pro!</h1>
-                        <p className="text-slate-600 mb-8">
-                            Your account has been successfully upgraded. Redirecting you to the dashboard...
+                        <h1 className="text-3xl font-bold text-slate-900 mb-2">You're upgraded! 🎉</h1>
+                        <p className="text-slate-600 mb-4">
+                            Your account has been successfully upgraded. Welcome to the next level!
                         </p>
                         <p className="text-sm text-slate-400 mb-6">
-                            Redirecting in {countdown}s
+                            Redirecting to dashboard in {countdown}s...
                         </p>
                         <button
                             onClick={() => navigate('/app/dashboard')}
                             className="btn-primary w-full flex items-center justify-center gap-2"
                         >
-                            Return to Dashboard <ArrowRight size={18} />
+                            Go to Dashboard <ArrowRight size={18} />
                         </button>
                     </>
                 )}
 
-                {status === 'timeout' && (
+                {status === 'error' && (
                     <>
-                        <div className="w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <Loader2 size={40} />
+                        <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <AlertCircle size={40} />
                         </div>
-                        <h1 className="text-2xl font-bold text-slate-900 mb-2">Still Processing</h1>
-                        <p className="text-slate-600 mb-6">
-                            We received your payment, but your account update is taking longer than expected.
+                        <h1 className="text-2xl font-bold text-slate-900 mb-2">Verification Issue</h1>
+                        <p className="text-slate-600 mb-4">
+                            {errorMsg || 'We received your payment but could not confirm your upgrade automatically.'}
                         </p>
-                        <div className="bg-yellow-50 text-yellow-800 text-sm p-4 rounded-lg mb-6 text-left">
-                            <strong>Developer Note:</strong><br />
-                            If you are running on Localhost, make sure your specific Stripe Webhook CLI is running!
-                            <code className="block mt-2 bg-black/10 p-2 rounded">stripe listen --forward-to localhost:3000/api/webhooks/stripe</code>
-                        </div>
+                        <p className="text-slate-500 text-sm mb-6">
+                            Please try refreshing, or go to the dashboard and contact support if your tier has not updated.
+                        </p>
                         <button
                             onClick={() => window.location.reload()}
-                            className="btn-primary w-full mb-4"
+                            className="btn-primary w-full flex items-center justify-center gap-2 mb-3"
                         >
-                            Refresh Status
+                            Try Again
                         </button>
                         <button
                             onClick={() => navigate('/app/dashboard')}
@@ -166,7 +165,7 @@ const Success = () => {
 
                 <div className="mt-8 pt-6 border-t border-slate-100">
                     <p className="text-xs text-slate-400 font-mono">
-                        Session ID: {sessionId ? `${sessionId.substring(0, 10)}...` : 'N/A'}
+                        Session ID: {sessionId ? `${sessionId.substring(0, 12)}...` : 'N/A'}
                     </p>
                 </div>
             </div>
