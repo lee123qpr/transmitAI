@@ -231,6 +231,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             - issueDate: (string) Date in YYYY-MM-DD format.
             - discipline: (string) ONE of: "Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General"
             - consultant: (string) Company name in the title block logo/header.
+            - status: (string) The drawing/document status (e.g., "For Construction", "Preliminary", "S2", etc).
             - summary: (string) Brief description of the content.
             - documentType: (string) Document classification: one of "Drawing", "Specification", "Report", "Schedule", "Transmittal", "Letter", "Form", or "Other".
 

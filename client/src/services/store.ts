@@ -9,7 +9,7 @@ export interface DocumentData {
     issueDate: string;
     discipline: string;
     consultant: string;
-    status: 'Pending' | 'Approved' | 'Review';
+    status: string;
     uploadedAt: string;
     transmittalTitle?: string;
 }
