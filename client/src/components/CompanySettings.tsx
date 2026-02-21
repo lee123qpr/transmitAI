@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth } from '@clerk/clerk-react';
 import { Building2, Save, X, Loader2 } from 'lucide-react';
 import { useToast } from './Toast';
 
@@ -7,6 +7,7 @@ type CompanySettingsProps = Record<string, never>;
 
 const CompanySettings: React.FC<CompanySettingsProps> = () => {
     const { user } = useUser();
+    const { getToken } = useAuth();
     const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -27,8 +28,11 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
             try {
                 // Pass email to ensure user creation
                 const email = user.primaryEmailAddress?.emailAddress;
-                const url = email ? `/api/user/${user.id}?email=${encodeURIComponent(email)}` : `/api/user/${user.id}`;
-                const res = await fetch(url);
+                const url = email ? `/api/user?email=${encodeURIComponent(email)}` : `/api/user`;
+                const token = await getToken();
+                const res = await fetch(url, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
                 if (res.ok) {
                     const data = await res.json();
                     if (data.company_name) setCompanyName(data.company_name);
@@ -48,9 +52,13 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
         setIsSavingName(true);
         try {
             const email = user.primaryEmailAddress?.emailAddress;
-            const res = await fetch(`/api/user/${user.id}`, {
+            const token = await getToken();
+            const res = await fetch(`/api/user`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({
                     company_name: companyName,
                     email // Pass email for auto-creation
@@ -88,9 +96,13 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
                 const newLogoUrl = ev.target.result as string;
                 try {
                     const email = user.primaryEmailAddress?.emailAddress;
-                    const res = await fetch(`/api/user/${user.id}`, {
+                    const token = await getToken();
+                    const res = await fetch(`/api/user`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                        },
                         body: JSON.stringify({
                             company_logo_url: newLogoUrl,
                             email // Pass email for auto-creation
@@ -122,9 +134,13 @@ const CompanySettings: React.FC<CompanySettingsProps> = () => {
 
         setIsSavingLogo(true);
         try {
-            await fetch(`/api/user/${user.id}`, {
+            const token = await getToken();
+            await fetch(`/api/user`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({ company_logo_url: '' })
             });
             setLogoUrl('');
