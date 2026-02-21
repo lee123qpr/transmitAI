@@ -531,12 +531,27 @@ const UploadPage = () => {
                         </button>
                     </div>
                     <ul className="space-y-2 text-sm">
-                        {uploadErrors.map((err, idx) => (
-                            <li key={idx} className="flex gap-2 text-amber-700 bg-white/50 p-2 rounded border border-amber-100/50">
-                                <span className="font-medium text-slate-700 break-all min-w-[30%]">{err.filename}:</span>
-                                <span className="flex-1">{err.reason}</span>
-                            </li>
-                        ))}
+                        {uploadErrors.map((err, idx) => {
+                            const isUpgradeError = err.reason.includes('Please upgrade to Pro');
+                            const baseMessage = isUpgradeError ? err.reason.split('Please upgrade')[0] : err.reason;
+
+                            return (
+                                <li key={idx} className="flex gap-2 text-amber-700 bg-white/50 p-2 rounded border border-amber-100/50">
+                                    <span className="font-medium text-slate-700 break-all min-w-[30%]">{err.filename}:</span>
+                                    <span className="flex-1">
+                                        {baseMessage}
+                                        {isUpgradeError && (
+                                            <button
+                                                onClick={() => setIsUpgradeModalOpen(true)}
+                                                className="font-bold underline hover:text-amber-900 transition-colors ml-1"
+                                            >
+                                                Please upgrade to Pro.
+                                            </button>
+                                        )}
+                                    </span>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </div>
             )}
