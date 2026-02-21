@@ -36,7 +36,7 @@ const PrivacyPolicy = () => {
 
                 <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4">4. Data Security</h2>
                 <p className="mb-4">
-                    We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorized way, altered or disclosed.
+                    We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorised way, altered or disclosed.
                 </p>
 
                 <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4">5. Contact Us</h2>

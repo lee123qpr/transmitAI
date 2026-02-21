@@ -46,7 +46,7 @@ const CookiePolicy = () => {
                         <div className="mb-6">
                             <h3 className="text-xl font-semibold text-slate-900 mb-3">Persistent Cookies</h3>
                             <p className="text-slate-600 leading-relaxed">
-                                These cookies remain on your device for a set period or until you delete them. They help us recognize you as a returning visitor and remember your preferences.
+                                These cookies remain on your device for a set period or until you delete them. They help us recognise you as a returning visitor and remember your preferences.
                             </p>
                         </div>
 

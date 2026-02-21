@@ -107,7 +107,7 @@ const Success = () => {
                         <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
                             <Loader2 size={40} className="animate-spin" />
                         </div>
-                        <h1 className="text-2xl font-bold text-slate-900 mb-2">Finalizing Upgrade...</h1>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-2">Finalising Upgrade...</h1>
                         <p className="text-slate-600 mb-8">
                             We're confirming your payment with Stripe. This usually takes a few seconds.
                         </p>
