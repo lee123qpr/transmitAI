@@ -161,8 +161,21 @@ router.post('/verify-session', async (req, res) => {
         }
 
         // Idempotency: check if user is already on the correct tier
-        const { getUser, updateUserTier } = await import('../services/userService');
-        const existingUser = await getUser(userId);
+        const { getUser, updateUserTier, createUser } = await import('../services/userService');
+        let existingUser = await getUser(userId);
+
+        if (!existingUser) {
+            console.warn(`[Payment] User ${userId} not found during verification. Attempting JIT creation with session email.`);
+            try {
+                const sessionEmail = session.customer_details?.email || session.customer_email || '';
+                if (sessionEmail) {
+                    existingUser = await createUser(userId, sessionEmail);
+                    console.log(`[Payment] JIT User created for ${userId}`);
+                }
+            } catch (err) {
+                console.error(`[Payment] JIT User creation failed:`, err);
+            }
+        }
 
         if (existingUser?.subscription_tier === tier) {
             console.log(`[Payment] User ${userId} is already on ${tier}. Returning success (idempotent).`);
@@ -176,12 +189,21 @@ router.post('/verify-session', async (req, res) => {
 
         console.log(`[Payment] Upgrading user ${userId} to ${tier} (limit: ${limit})`);
         const updatedUser = await updateUserTier(userId, tier, limit);
-        console.log(`[Payment] Upgrade successful. New tier: ${updatedUser?.subscription_tier}`);
+
+        if (!updatedUser) {
+            console.error(`[Payment] FAILED to update tier in DB for user ${userId}. updateUserTier returned null.`);
+            return res.status(500).json({
+                error: 'Database update failed. Please refresh or contact support.',
+                success: false
+            });
+        }
+
+        console.log(`[Payment] Upgrade successful. New tier: ${updatedUser.subscription_tier}`);
 
         return res.json({
             success: true,
-            tier: updatedUser?.subscription_tier,
-            limit: updatedUser?.documents_limit,
+            tier: updatedUser.subscription_tier,
+            limit: updatedUser.documents_limit,
         });
     } catch (error: any) {
         console.error('[Payment] Verify session error:', error.message, error.type);

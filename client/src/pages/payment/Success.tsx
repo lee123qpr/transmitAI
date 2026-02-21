@@ -38,36 +38,15 @@ const Success = () => {
                 const data = await res.json();
                 console.log('[Success] Verify response:', data);
 
-                if (res.ok && data.success) {
+                if (res.ok && data.success && data.tier) {
+                    console.log('[Success] Database updated to:', data.tier);
                     await fetchUserStatus(user.id, user.primaryEmailAddress?.emailAddress, token || undefined);
                     setStatus('success');
                 } else {
-                    // Payment not complete yet — could be a timing issue
-                    // Retry once after 3 seconds to handle any propagation delay
-                    console.warn('[Success] Session not complete yet, retrying in 3s...');
-                    setTimeout(async () => {
-                        try {
-                            const retryRes = await fetch('/api/verify-session', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                                },
-                                body: JSON.stringify({ sessionId, userId: user.id }),
-                            });
-                            const retryData = await retryRes.json();
-                            if (retryRes.ok && retryData.success) {
-                                await fetchUserStatus(user.id, user.primaryEmailAddress?.emailAddress, token || undefined);
-                                setStatus('success');
-                            } else {
-                                setErrorMsg(data.message || data.error || 'Could not confirm payment. Please contact support.');
-                                setStatus('error');
-                            }
-                        } catch {
-                            setErrorMsg('Network error on retry. Please refresh.');
-                            setStatus('error');
-                        }
-                    }, 3000);
+                    const failMsg = data.message || data.error || 'Payment verification failed.';
+                    console.error('[Success] Verification failed or missing tier:', data);
+                    setErrorMsg(failMsg);
+                    setStatus('error');
                 }
             } catch (err) {
                 console.error('[Success] Verification error:', err);
