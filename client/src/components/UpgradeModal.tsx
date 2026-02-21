@@ -65,7 +65,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) => {
 
     return ReactDOM.createPortal(
         <div
-            className="fixed inset-0 z-[9999] flex items-start justify-center bg-slate-900/50 backdrop-blur-sm overflow-y-auto py-8 px-4"
+            className="fixed inset-0 z-[999999] flex items-start justify-center bg-slate-900/50 backdrop-blur-sm overflow-y-auto py-8 px-4"
             onClick={onClose}
         >
             <div
