@@ -26,7 +26,10 @@ async function testFileExtraction(filename) {
         const response = await fetch(API_URL, {
             method: 'POST',
             body: form,
-            headers: form.getHeaders()
+            headers: {
+                ...form.getHeaders(),
+                'Authorization': 'Bearer mock_token'
+            }
         });
 
         const result = await response.json();

@@ -1,4 +1,4 @@
-import { PDFParse } from 'pdf-parse';
+import pdfParse from 'pdf-parse';
 import * as fs from 'fs';
 
 async function test() {
@@ -9,9 +9,7 @@ async function test() {
         console.log(`Buffer size: ${dataBuffer.length} bytes`);
 
         console.log("Parsing PDF...");
-        const parser = new PDFParse({ data: dataBuffer });
-        const data = await parser.getText();
-        await parser.destroy();
+        const data = await pdfParse(dataBuffer);
 
         console.log("Success!");
         console.log("Text length:", data.text.length);

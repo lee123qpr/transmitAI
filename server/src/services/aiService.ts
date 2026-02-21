@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { PDFParse } from 'pdf-parse';
+import pdfParse from 'pdf-parse';
 // ESM-only modules must be imported dynamically in CommonJS environments
 // import { pdf } from 'pdf-to-img';
 import mammoth from 'mammoth';
@@ -36,9 +36,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
         if (fileExt === 'pdf') {
             console.log('[AI Service] Detected PDF. Attempting text extraction...');
             try {
-                const parser = new PDFParse({ data: fileBuffer });
-                const pdfData = await parser.getText();
-                await parser.destroy();
+                const pdfData = await pdfParse(fileBuffer);
                 contentToAnalyze = pdfData.text;
                 console.log(`[AI Service] PDF Text Extracted. Length: ${contentToAnalyze.length} chars`);
 
