@@ -87,7 +87,7 @@ const Success = () => {
             setCountdown((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    navigate('/app/dashboard');
+                    navigate('/app');
                     return 0;
                 }
                 return prev - 1;
@@ -127,7 +127,7 @@ const Success = () => {
                             Redirecting to dashboard in {countdown}s...
                         </p>
                         <button
-                            onClick={() => navigate('/app/dashboard')}
+                            onClick={() => navigate('/app')}
                             className="btn-primary w-full flex items-center justify-center gap-2"
                         >
                             Go to Dashboard <ArrowRight size={18} />
@@ -154,7 +154,7 @@ const Success = () => {
                             Try Again
                         </button>
                         <button
-                            onClick={() => navigate('/app/dashboard')}
+                            onClick={() => navigate('/app')}
                             className="text-slate-500 hover:text-slate-900 underline text-sm"
                         >
                             Continue to Dashboard anyway
