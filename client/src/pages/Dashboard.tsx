@@ -21,7 +21,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const {
         documents, usage, subscriptionTier, isAdmin,
-        fetchDocuments, deleteDocument, deleteTransmittal,
+        fetchDocuments, fetchUserStatus, deleteDocument, deleteTransmittal,
         isLoading, isInitialized
     } = useDocumentStore();
     const { showToast } = useToast();
