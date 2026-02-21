@@ -84,11 +84,14 @@ export const uploadDocument = async (req: Request, res: Response) => {
         let extractedData;
         try {
             extractedData = await extractDocumentData(req.file.buffer, req.file.originalname);
-        } catch (extractionError) {
-            console.error('[DocumentController] Extraction failed:', extractionError);
+        } catch (extractionError: any) {
+            console.error('[DocumentController] AI Extraction failed:', extractionError);
+
+            // Provide more specific feedback if possible
+            const reason = extractionError.message || 'The AI service timed out or could not process this file.';
             return res.status(400).json({
                 error: 'File Processing Failed',
-                message: 'The file appears to be corrupt or unreadable.'
+                message: reason
             });
         }
 
