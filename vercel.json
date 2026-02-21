@@ -12,7 +12,10 @@
             "destination": "/api/index.ts"
         },
         {
-            "source": "/((?!assets/|favicon.ico|logo.png).*)",
+            "handle": "filesystem"
+        },
+        {
+            "source": "/(.*)",
             "destination": "/index.html"
         }
     ]

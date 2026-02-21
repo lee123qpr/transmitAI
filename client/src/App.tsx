@@ -37,9 +37,7 @@ const Cancel = lazy(() => import('./pages/payment/Cancel'));
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-if (!clerkPubKey) {
-  throw new Error("Missing Publishable Key")
-}
+// No top-level throw; handle inside component to allow ErrorBoundary or descriptive UI
 
 
 // Sync Component to ensure User Status is always up to date
@@ -106,6 +104,22 @@ const ProtectedLayout = () => {
 };
 
 function App() {
+  if (!clerkPubKey) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+        <div className="bg-white p-8 rounded-xl shadow-lg border border-red-100 max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">Configuration Error</h1>
+          <p className="text-slate-600 mb-6">
+            The application is missing its authentication key. Please ensure <code className="bg-slate-100 px-1 rounded">VITE_CLERK_PUBLISHABLE_KEY</code> is set in your environment variables.
+          </p>
+          <div className="text-xs text-slate-400">
+            Transmit.AI Stability Layer v1.0
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
       <ErrorBoundary>
