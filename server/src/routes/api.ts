@@ -354,6 +354,68 @@ router.delete('/transmittals', requireAuth, async (req: Request, res) => {
     }
 });
 
+// Rename Transmittal (Bulk)
+router.put('/transmittals/rename', requireAuth, async (req: Request, res) => {
+    try {
+        const { oldTitle, newTitle } = req.body;
+        const userId = req.auth.userId;
+
+        if (!newTitle) return res.status(400).json({ error: 'Missing new title' });
+
+        const titleQuery = oldTitle === 'Unsorted Uploads' ? null : oldTitle;
+
+        // 1. Fetch matching documents
+        let result;
+        if (titleQuery) {
+            result = await query(
+                `SELECT id, excerpt_data FROM documents 
+                 WHERE user_id = $1 
+                 AND (
+                    excerpt_data->>'transmittalTitle' = $2 
+                    OR title = $2
+                 )`,
+                [userId, titleQuery]
+            );
+        } else {
+            result = await query(
+                `SELECT id, excerpt_data FROM documents 
+                 WHERE user_id = $1 
+                 AND (excerpt_data->>'transmittalTitle' IS NULL OR excerpt_data->>'transmittalTitle' = '')`,
+                [userId]
+            );
+        }
+
+        if (result.rowCount === 0) {
+            return res.json({ success: true, count: 0 });
+        }
+
+        // 2. Loop and update each one's excerpt_data safely
+        let updateCount = 0;
+        for (const doc of result.rows) {
+            let excerpt = doc.excerpt_data;
+            if (typeof excerpt === 'string') {
+                try { excerpt = JSON.parse(excerpt); } catch (e) { excerpt = {}; }
+            } else if (!excerpt) {
+                excerpt = {};
+            }
+
+            // Update the transmittalTitle inside the JSON
+            excerpt.transmittalTitle = newTitle;
+
+            await query(
+                'UPDATE documents SET excerpt_data = $1 WHERE id = $2 AND user_id = $3',
+                [JSON.stringify(excerpt), doc.id, userId]
+            );
+            updateCount++;
+        }
+
+        res.json({ success: true, count: updateCount });
+    } catch (error) {
+        console.error('[API] Rename Transmittal Error:', error);
+        res.status(500).json({ error: 'Failed to rename transmittal' });
+    }
+});
+
 export default router;
 
 

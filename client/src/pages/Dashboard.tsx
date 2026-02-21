@@ -478,9 +478,14 @@ const Dashboard = () => {
         }
 
         try {
-            const response = await fetch('/api/transmittals/rename?userId=' + user?.id, {
+            const token = await getToken();
+            const API_URL = import.meta.env.VITE_API_URL || '/api';
+            const response = await fetch(`${API_URL}/transmittals/rename?userId=${user?.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({ oldTitle: selectedTransmittal, newTitle: newTransmittalName.trim() })
             });
 
