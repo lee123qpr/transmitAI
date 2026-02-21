@@ -205,8 +205,8 @@ router.get('/documents', requireAuth, async (req: Request, res) => {
                 status: doc.status || 'Pending',
                 uploadedAt: doc.created_at,
                 transmittalTitle: excerpt?.transmittalTitle,
-                summary: excerpt?.summary || '',
-                documentType: excerpt?.documentType || 'Unknown'
+                summary: excerpt?.summary || excerpt?.description || '',
+                documentType: excerpt?.documentType || excerpt?.document_type || excerpt?.type || 'N/A'
             };
         });
 

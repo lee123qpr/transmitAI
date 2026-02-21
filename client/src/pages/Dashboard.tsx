@@ -806,44 +806,44 @@ const Dashboard = () => {
 
             {/* Detailed Document View */}
             {selectedTransmittal && (
-                <div className="bg-white border boundary-slate-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
-                                    <th className="px-6 py-3 font-semibold">Number</th>
-                                    <th className="px-6 py-3 font-semibold">Rev</th>
-                                    <th className="px-6 py-3 font-semibold hidden xl:table-cell">Type</th>
-                                    <th className="px-6 py-3 font-semibold">Title</th>
-                                    <th className="px-6 py-3 font-semibold hidden md:table-cell">Discipline</th>
-                                    <th className="px-6 py-3 font-semibold hidden lg:table-cell">Consultant</th>
-                                    <th className="px-6 py-3 font-semibold">Date</th>
-                                    <th className="px-6 py-3 font-semibold">Status</th>
-                                    <th className="px-6 py-3 font-semibold hidden 2xl:table-cell">Summary</th>
-                                    <th className="px-6 py-3 font-semibold text-right">Action</th>
+                                    <th className="px-4 py-3 font-semibold min-w-[220px]">Number</th>
+                                    <th className="px-4 py-3 font-semibold">Rev</th>
+                                    <th className="px-4 py-3 font-semibold hidden xl:table-cell">Type</th>
+                                    <th className="px-4 py-3 font-semibold">Title</th>
+                                    <th className="px-4 py-3 font-semibold hidden md:table-cell">Discipline</th>
+                                    <th className="px-4 py-3 font-semibold hidden lg:table-cell">Consultant</th>
+                                    <th className="px-4 py-3 font-semibold">Date</th>
+                                    <th className="px-4 py-3 font-semibold">Status</th>
+                                    <th className="px-4 py-3 font-semibold hidden 2xl:table-cell">Summary</th>
+                                    <th className="px-4 py-3 font-semibold text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {transmittals[selectedTransmittal]?.map((doc) => (
-                                    <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-6 py-3 font-medium text-slate-900">{doc.documentNumber}</td>
-                                        <td className="px-6 py-3 text-slate-600">{doc.revision}</td>
-                                        <td className="px-6 py-3 text-slate-600 hidden xl:table-cell text-xs">{doc.documentType || '-'}</td>
-                                        <td className="px-6 py-3 text-slate-900 max-w-xs truncate" title={doc.title}>{doc.title}</td>
-                                        <td className="px-6 py-3 text-slate-600 hidden md:table-cell">
+                                    <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors group text-sm">
+                                        <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">{doc.documentNumber}</td>
+                                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{doc.revision}</td>
+                                        <td className="px-4 py-3 text-slate-600 hidden xl:table-cell text-xs">{doc.documentType || '-'}</td>
+                                        <td className="px-4 py-3 text-slate-900 min-w-[300px] max-w-sm truncate" title={doc.title}>{doc.title}</td>
+                                        <td className="px-4 py-3 text-slate-600 hidden md:table-cell">
                                             <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs whitespace-nowrap">
                                                 {doc.discipline || '-'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-3 text-slate-600 hidden lg:table-cell text-sm truncate max-w-[150px]" title={doc.consultant || '-'}>{doc.consultant || '-'}</td>
-                                        <td className="px-6 py-3 text-slate-500 text-sm whitespace-nowrap">{doc.issueDate}</td>
-                                        <td className="px-6 py-3">
+                                        <td className="px-4 py-3 text-slate-600 hidden lg:table-cell truncate max-w-[150px]" title={doc.consultant || '-'}>{doc.consultant || '-'}</td>
+                                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{doc.issueDate}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap">
                                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                                 {doc.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-3 text-slate-500 text-xs hidden 2xl:table-cell max-w-sm truncate" title={doc.summary || '-'}>{doc.summary || '-'}</td>
-                                        <td className="px-6 py-3 text-right">
+                                        <td className="px-4 py-3 text-slate-500 text-xs hidden 2xl:table-cell max-w-sm truncate" title={doc.summary || '-'}>{doc.summary || '-'}</td>
+                                        <td className="px-4 py-3 text-right">
                                             <button
                                                 onClick={(e) => handleDeleteDocument(e, doc.id, doc.documentNumber)}
                                                 className="text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
