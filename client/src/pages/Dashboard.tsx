@@ -869,7 +869,7 @@ const Dashboard = () => {
                                     <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors group text-sm">
                                         <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">{doc.documentNumber}</td>
                                         <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{doc.revision}</td>
-                                        <td className="px-4 py-3 text-slate-600 hidden xl:table-cell text-xs">{doc.documentType || '-'}</td>
+                                        <td className="px-4 py-3 text-slate-600 hidden xl:table-cell text-xs font-semibold">{doc.documentType || (doc.filename ? doc.filename.split('.').pop()?.toUpperCase() : '-')}</td>
                                         <td className="px-4 py-3 text-slate-900 min-w-[300px] max-w-sm truncate" title={doc.title}>{doc.title}</td>
                                         <td className="px-4 py-3 text-slate-600 hidden md:table-cell">
                                             <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs whitespace-nowrap">
