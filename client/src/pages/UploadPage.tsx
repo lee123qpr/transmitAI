@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { Upload, X, File, FileText, FileSpreadsheet, FileImage, FileCode, CheckCircle, AlertCircle, Eye, Download, Edit2, Save, RotateCcw, FileCheck, ShieldCheck, Zap, Layers } from 'lucide-react';
 import { useDocumentStore } from '../services/store';
 import JSZip from 'jszip';
@@ -41,6 +42,7 @@ const UploadPage = () => {
     const { user } = useUser();
     const { getToken } = useAuth();
     const { showToast } = useToast();
+    const navigate = useNavigate();
     // Global sync in App.tsx handles the initial fetch now.
     // We only need to worry about local state here.
 
@@ -839,6 +841,10 @@ const UploadPage = () => {
                             </button>
                             <button onClick={handleExportPDF} className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
                                 <Download size={16} /> Export PDF
+                            </button>
+                            <div className="w-px h-8 bg-slate-200 mx-1"></div>
+                            <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20 text-sm font-semibold active:scale-95">
+                                Return to Dashboard
                             </button>
                         </div>
                     </div>
