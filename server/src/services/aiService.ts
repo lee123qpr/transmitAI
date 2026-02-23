@@ -22,6 +22,8 @@ export interface ExtractedData {
     documentType?: string; // e.g., "Drawing", "Specification", "Report", "Transmittal", "Schedule"
     status?: string; // e.g., "S2", "S3", "S4", "A1", "B1", "For Construction", "Preliminary"
     fileHash?: string; // MD5 hash for duplicate detection
+    confidence_score?: number; // AI confidence score 1-100
+    reasoning_notes?: string;   // AI's reasoning for the score or missing fields
 }
 
 export const extractDocumentData = async (fileBuffer: Buffer, fileName: string): Promise<ExtractedData> => {
@@ -240,6 +242,10 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             - status: (string) The drawing/document status (e.g., "For Construction", "Preliminary", "S2", etc).
             - summary: (string) Brief description of the content.
             - documentType: (string) Document classification: one of "Drawing", "Specification", "Report", "Schedule", "Transmittal", "Letter", "Form", or "Other".
+            
+            QUALITY SCORE INSTRUCTIONS:
+            - confidence_score: (number) Choose a value from 1 to 100 representing how confident you are in the extracted data. Deduct points if core fields (documentNumber, title, revision, status) are missing, if text is blurry/hard to read, or if standard naming conventions are not followed. High confidence (90+) means almost all fields found and standard formats used.
+            - reasoning_notes: (string) Provide a concise, helpful explanation for the user if the score is not 100. Specficially mention any missing fields, poor image quality, or deviations from ISO 19650/standard naming conventions, and suggest how to improve it. Keep this to one sentence if possible (e.g. "We couldn't locate a standard title block or document number, try standardizing your file format."). If the score is 100, return an empty string.
 
             Return NULL if a field is not found.
             Return ONLY raw JSON object. No markdown.

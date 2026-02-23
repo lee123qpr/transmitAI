@@ -20,9 +20,11 @@ interface ExtractedData {
     issueDate?: string;
     discipline?: string;
     consultant?: string;
+    status?: string;
     summary?: string;
     documentType?: string;
-    status?: string;
+    confidence_score?: number;
+    reasoning_notes?: string;
 }
 
 interface ResultItem {
@@ -859,6 +861,33 @@ const UploadPage = () => {
                                             {result.filename}
                                         </h3>
                                         <span className="text-[10px] font-mono bg-slate-200 px-1.5 py-0.5 rounded text-slate-600">AI</span>
+                                        {result.data.confidence_score !== undefined && (
+                                            <div className="group relative flex items-center z-10">
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 cursor-help border
+                                                    ${result.data.confidence_score >= 90 ? 'bg-green-50 text-green-700 border-green-200' :
+                                                        result.data.confidence_score >= 70 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                            'bg-red-50 text-red-700 border-red-200'}`}
+                                                >
+                                                    {result.data.confidence_score >= 90 ? <ShieldCheck size={12} /> :
+                                                        result.data.confidence_score >= 70 ? <AlertCircle size={12} /> :
+                                                            <AlertCircle size={12} />}
+                                                    {result.data.confidence_score}%
+                                                </span>
+                                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-xl pointer-events-none">
+                                                    <div className="font-semibold text-slate-200 mb-1 flex items-center justify-between">
+                                                        <span>Data Quality</span>
+                                                        <span className={
+                                                            result.data.confidence_score >= 90 ? 'text-green-400' :
+                                                                result.data.confidence_score >= 70 ? 'text-amber-400' : 'text-red-400'
+                                                        }>{result.data.confidence_score}%</span>
+                                                    </div>
+                                                    <p className="text-slate-300 leading-relaxed font-medium">
+                                                        {result.data.reasoning_notes || 'All key data points successfully captured with high confidence.'}
+                                                    </p>
+                                                    <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-slate-900"></div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex gap-1">
                                         <button
