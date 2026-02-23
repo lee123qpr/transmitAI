@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Upload, X, File, FileText, FileSpreadsheet, FileImage, FileCode, CheckCircle, AlertCircle, Eye, Download, Edit2, Save, RotateCcw, FileCheck, ShieldCheck, Zap, Layers } from 'lucide-react';
 import { useDocumentStore } from '../services/store';
 import JSZip from 'jszip';
@@ -42,7 +42,6 @@ const UploadPage = () => {
     const { user } = useUser();
     const { getToken } = useAuth();
     const { showToast } = useToast();
-    const navigate = useNavigate();
     // Global sync in App.tsx handles the initial fetch now.
     // We only need to worry about local state here.
 
