@@ -63,12 +63,10 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
 
     fetchUserStatus: async (userId, email, token) => {
         try {
-            const url = new URL(`${API_URL}/user`);
-            url.searchParams.append('userId', userId);
-            if (email) url.searchParams.append('email', email);
-            url.searchParams.append('_t', Date.now().toString());
+            let urlStr = `${API_URL}/user?userId=${encodeURIComponent(userId)}&_t=${Date.now()}`;
+            if (email) urlStr += `&email=${encodeURIComponent(email)}`;
 
-            const res = await fetch(url.toString(), {
+            const res = await fetch(urlStr, {
                 headers: token ? { 'Authorization': `Bearer ${token}` } : {}
             });
             if (!res.ok) throw new Error('Failed to fetch user status');
