@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FileSpreadsheet, Brain, Layers, CheckCircle, ArrowRight, FileText } from 'lucide-react';
 import { SignUpButton } from '@clerk/clerk-react';
 
@@ -14,13 +14,36 @@ const WORDS = ['Documents', 'Drawings', 'Reports', 'Specifications', 'Surveys'];
 const LandingPage = () => {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
     const [wordIndex, setWordIndex] = useState(0);
+    const [displayText, setDisplayText] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setWordIndex((prev) => (prev + 1) % WORDS.length);
-        }, 2500);
-        return () => clearInterval(interval);
-    }, []);
+        let timer: NodeJS.Timeout;
+        const currentWord = WORDS[wordIndex];
+
+        if (isDeleting) {
+            timer = setTimeout(() => {
+                setDisplayText(currentWord.substring(0, displayText.length - 1));
+            }, 40);
+
+            if (displayText === '') {
+                setIsDeleting(false);
+                setWordIndex((prev) => (prev + 1) % WORDS.length);
+            }
+        } else {
+            timer = setTimeout(() => {
+                setDisplayText(currentWord.substring(0, displayText.length + 1));
+            }, 80);
+
+            if (displayText === currentWord) {
+                timer = setTimeout(() => {
+                    setIsDeleting(true);
+                }, 2000);
+            }
+        }
+
+        return () => clearTimeout(timer);
+    }, [displayText, isDeleting, wordIndex]);
 
     return (
         <div className="flex flex-col">
@@ -33,26 +56,18 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center relative z-10">
                     {/* Left Column: Text */}
                     <div className="text-left">
-                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start gap-0">
-                            <span className="leading-[0.9]">Automate</span>
-                            <span className="leading-[0.9]">Construction</span>
-                            <span className="bg-slate-200/60 rounded-xl px-3 -ml-3 my-1 overflow-hidden">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 inline-grid relative align-top pt-2 pb-1">
-                                    <AnimatePresence mode="popLayout">
-                                        <motion.span
-                                            key={wordIndex}
-                                            initial={{ y: "-100%", opacity: 0 }}
-                                            animate={{ y: "0%", opacity: 1 }}
-                                            exit={{ y: "100%", opacity: 0 }}
-                                            transition={{ duration: 0.4, ease: "easeOut" }}
-                                            className="col-start-1 row-start-1 leading-[0.9]"
-                                        >
-                                            {WORDS[wordIndex]}
-                                        </motion.span>
-                                    </AnimatePresence>
-                                </span>
+                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start gap-1">
+                            <span className="leading-[1.1]">Automate</span>
+                            <span className="leading-[1.1]">Construction</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center min-h-[1.2em]">
+                                {displayText}
+                                <motion.span
+                                    animate={{ opacity: [1, 0] }}
+                                    transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                                    className="w-[4px] h-[0.9em] bg-blue-600 ml-1 inline-block"
+                                />
                             </span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 leading-[0.9]">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 leading-[1.1]">
                                 Extraction
                             </span>
                         </h1>
