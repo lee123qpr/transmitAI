@@ -10,10 +10,11 @@ import { useDocumentStore } from '../services/store';
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
-    const { subscriptionTier, isAdmin } = useDocumentStore();
+    const { subscriptionTier } = useDocumentStore();
     const { user } = useUser();
 
-    const isActuallyAdmin = isAdmin || user?.primaryEmailAddress?.emailAddress?.toLowerCase() === 'leekilcoyne1@gmail.com';
+    const adminEmails = ['leekilcoyne1@gmail.com', 'lee_kilcoyne@hotmail.com'];
+    const isActuallyAdmin = adminEmails.includes(user?.primaryEmailAddress?.emailAddress?.toLowerCase() || '');
 
     React.useEffect(() => {
         const handleOpenModal = () => {

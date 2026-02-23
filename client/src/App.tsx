@@ -75,9 +75,13 @@ const SystemConfigSync = () => {
 };
 
 const ProtectedLayout = () => {
-  const { maintenanceMode, isAdmin } = useDocumentStore();
+  const { maintenanceMode } = useDocumentStore();
+  const { user } = useUser();
 
-  if (maintenanceMode && !isAdmin) {
+  const adminEmails = ['leekilcoyne1@gmail.com', 'lee_kilcoyne@hotmail.com'];
+  const isActuallyAdmin = adminEmails.includes(user?.primaryEmailAddress?.emailAddress?.toLowerCase() || '');
+
+  if (maintenanceMode && !isActuallyAdmin) {
     return <MaintenanceOverlay />;
   }
 

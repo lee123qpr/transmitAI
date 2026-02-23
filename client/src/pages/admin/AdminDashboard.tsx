@@ -237,10 +237,11 @@ const AdminDashboard = () => {
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
     const { showToast } = useToast();
-    const { isInitialized, isAdmin } = useDocumentStore();
+    const { isInitialized } = useDocumentStore();
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'content' | 'newsletter' | 'emails' | 'security' | 'settings'>('overview');
 
-    const isActuallyAdmin = isAdmin || user?.primaryEmailAddress?.emailAddress?.toLowerCase() === 'leekilcoyne1@gmail.com';
+    const adminEmails = ['leekilcoyne1@gmail.com', 'lee_kilcoyne@hotmail.com'];
+    const isActuallyAdmin = adminEmails.includes(user?.primaryEmailAddress?.emailAddress?.toLowerCase() || '');
 
     // Data States
     const [stats, setStats] = useState<Stats | null>(null);
