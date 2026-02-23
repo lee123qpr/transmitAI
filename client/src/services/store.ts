@@ -14,6 +14,8 @@ export interface DocumentData {
     transmittalTitle?: string;
     summary?: string;
     documentType?: string;
+    confidence_score?: number;
+    reasoning_notes?: string;
 }
 
 interface UserState {

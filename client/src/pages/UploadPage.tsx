@@ -843,7 +843,7 @@ const UploadPage = () => {
                                 <Download size={16} /> Export PDF
                             </button>
                             <div className="w-px h-8 bg-slate-200 mx-1"></div>
-                            <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20 text-sm font-semibold active:scale-95">
+                            <button onClick={() => navigate('/app')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20 text-sm font-semibold active:scale-95">
                                 Return to Dashboard
                             </button>
                         </div>

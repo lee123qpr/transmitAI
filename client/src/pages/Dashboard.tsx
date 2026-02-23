@@ -7,7 +7,7 @@ import { useDocumentStore, type DocumentData } from '../services/store';
 // import autoTable from 'jspdf-autotable';
 import UpgradeModal from '../components/UpgradeModal';
 import Modal from '../components/Modal';
-import { Zap, Folder, Calendar, ChevronRight, ArrowLeft, Trash2, Download } from 'lucide-react';
+import { Zap, Folder, Calendar, ChevronRight, ArrowLeft, Trash2, Download, ShieldCheck, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -789,9 +789,32 @@ const Dashboard = () => {
                                 </div>
                             </div>
                             <h3 className="text-lg font-bold text-slate-900 mb-1 line-clamp-1" title={title}>{title}</h3>
-                            <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-                                <Calendar size={14} />
-                                <span>{new Date(docs[0].uploadedAt).toLocaleDateString()}</span>
+                            <div className="flex items-center gap-3 text-sm text-slate-500 mb-4 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                    <Calendar size={14} />
+                                    <span>{new Date(docs[0].uploadedAt).toLocaleDateString()}</span>
+                                </div>
+                                {(() => {
+                                    const scoredDocs = docs.filter(d => typeof d.confidence_score === 'number');
+                                    if (scoredDocs.length === 0) return null;
+                                    const avgScore = Math.round(scoredDocs.reduce((acc, curr) => acc + (curr.confidence_score || 0), 0) / scoredDocs.length);
+                                    return (
+                                        <div className="flex justify-start"> {/* Force left alignment, ignore flex-between text sizing */}
+                                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 border
+                                            ${avgScore >= 90 ? 'bg-green-50 text-green-700 border-green-200' :
+                                                    avgScore >= 70 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                        'bg-red-50 text-red-700 border-red-200'}`}
+                                                title="Average AI Data Quality Score"
+                                            >
+                                                <span className="opacity-75">AI</span>
+                                                {avgScore >= 90 ? <ShieldCheck size={12} /> :
+                                                    avgScore >= 70 ? <AlertCircle size={12} /> :
+                                                        <AlertCircle size={12} />}
+                                                {avgScore}%
+                                            </span>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                             <div className="w-full pt-4 border-t border-slate-100 flex justify-between items-center">
                                 <span className="text-sm font-medium text-slate-600">View Files</span>
@@ -869,7 +892,38 @@ const Dashboard = () => {
                             <tbody className="divide-y divide-slate-100">
                                 {transmittals[selectedTransmittal]?.map((doc) => (
                                     <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors group text-sm">
-                                        <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">{doc.documentNumber}</td>
+                                        <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                {doc.documentNumber}
+                                                {doc.confidence_score !== undefined && (
+                                                    <div className="group/tooltip relative flex items-center z-10 hidden sm:flex">
+                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 cursor-help border
+                                                            ${doc.confidence_score >= 90 ? 'bg-green-50 text-green-700 border-green-200' :
+                                                                doc.confidence_score >= 70 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                                    'bg-red-50 text-red-700 border-red-200'}`}
+                                                        >
+                                                            {doc.confidence_score >= 90 ? <ShieldCheck size={12} /> :
+                                                                doc.confidence_score >= 70 ? <AlertCircle size={12} /> :
+                                                                    <AlertCircle size={12} />}
+                                                            {doc.confidence_score}%
+                                                        </span>
+                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-xl pointer-events-none z-50">
+                                                            <div className="font-semibold text-slate-200 mb-1 flex items-center justify-between">
+                                                                <span>Data Quality</span>
+                                                                <span className={
+                                                                    doc.confidence_score >= 90 ? 'text-green-400' :
+                                                                        doc.confidence_score >= 70 ? 'text-amber-400' : 'text-red-400'
+                                                                }>{doc.confidence_score}%</span>
+                                                            </div>
+                                                            <p className="text-slate-300 leading-relaxed font-medium whitespace-normal">
+                                                                {doc.reasoning_notes || 'All key data points successfully captured with high confidence.'}
+                                                            </p>
+                                                            <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-slate-900"></div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{doc.revision}</td>
                                         <td className="px-4 py-3 text-slate-600 hidden xl:table-cell text-xs font-semibold">{doc.documentType || (doc.filename ? doc.filename.split('.').pop()?.toUpperCase() : '-')}</td>
                                         <td className="px-4 py-3 text-slate-900 min-w-[300px] max-w-sm truncate" title={doc.title}>{doc.title}</td>
