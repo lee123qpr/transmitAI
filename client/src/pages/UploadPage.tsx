@@ -851,8 +851,8 @@ const UploadPage = () => {
 
                     <div className="grid gap-6">
                         {results.map((result) => (
-                            <div key={result.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-lg transition-all">
-                                <div className="px-3 py-2 border-b flex justify-between items-center bg-slate-50 border-slate-200">
+                            <div key={result.id} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-lg transition-all">
+                                <div className="px-3 py-2 border-b flex justify-between items-center bg-slate-50 border-slate-200 rounded-t-xl">
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-semibold text-sm text-slate-800 flex items-center gap-2">
                                             {(() => {
