@@ -56,6 +56,10 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                     const pdfDataUrl = `data:application/pdf;base64,${pdfBase64}`;
 
                     // Read first 3 pages for better metadata extraction
+                    // Vercel bundle hack: Force @vercel/nft to trace the ESM dependency tree
+                    // @ts-ignore
+                    if (process.env.VERCEL_FORCE_BUNDLE === 'true') require('pdf-to-img');
+
                     // Workaround for TypeScript converting dynamic import to require() in CommonJS
                     const { pdf: pdfImg } = await Function('return import("pdf-to-img")')();
                     const document = await pdfImg(pdfDataUrl, { scale: 2.0 });
