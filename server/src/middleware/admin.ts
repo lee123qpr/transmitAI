@@ -3,6 +3,7 @@ import { getUser } from '../services/userService';
 
 const ADMIN_EMAILS = [
     'leekilcoyne1@gmail.com',
+    'lee_kilcoyne@hotmail.com',
     ...(process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase())
 ].filter(Boolean);
 
