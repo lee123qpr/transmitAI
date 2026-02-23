@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
-import { Upload, X, File, FileText, FileSpreadsheet, FileImage, FileCode, CheckCircle, AlertCircle, Eye, Download, Edit2, Save, RotateCcw, FileCheck, ShieldCheck, Zap } from 'lucide-react';
+import { Upload, X, File, FileText, FileSpreadsheet, FileImage, FileCode, CheckCircle, AlertCircle, Eye, Download, Edit2, Save, RotateCcw, FileCheck, ShieldCheck, Zap, Layers } from 'lucide-react';
 import { useDocumentStore } from '../services/store';
 import JSZip from 'jszip';
 // Lazy load heavy dependencies to reduce initial bundle size
@@ -301,12 +301,12 @@ const UploadPage = () => {
                     // Handle Specific Error Cases
                     if (response.status === 400) {
                         showToast(`Analysis failed: ${file.name}`, 'error');
-                        const msg = errorData.message || 'The AI could not read this document format.';
+                        const msg = errorData.message || errorData.error || 'The AI could not read this document format.';
                         setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
                         continue;
                     }
 
-                    const msg = errorData.error || `Server error during processing.`;
+                    const msg = errorData.details || errorData.message || errorData.error || `Server error during processing.`;
                     setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
                     continue;
                 }
@@ -664,33 +664,52 @@ const UploadPage = () => {
 
             {/* Batch Upload Errors - Persistent List */}
             {uploadErrors.length > 0 && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 animate-in fade-in slide-in-from-top-4">
-                    <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold text-amber-800 flex items-center gap-2">
-                            <AlertCircle size={18} />
-                            {uploadErrors.length} File{uploadErrors.length > 1 ? 's' : ''} failed to process
-                        </h4>
+                <div className="bg-red-50 border border-red-200 rounded-xl overflow-hidden shadow-sm animate-in fade-in slide-in-from-top-4">
+                    <div className="px-5 py-4 bg-red-100/50 border-b border-red-200 flex justify-between items-center">
+                        <div className="flex items-center gap-3 text-red-800">
+                            <div className="bg-red-200/50 p-1.5 rounded-full">
+                                <AlertCircle size={20} className="text-red-700" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-red-900">{uploadErrors.length} File{uploadErrors.length > 1 ? 's' : ''} Encountered Issues</h4>
+                                <p className="text-xs text-red-700/80 mt-0.5">These files could not be processed and were not deducted from your limits.</p>
+                            </div>
+                        </div>
                         <button
                             onClick={() => setUploadErrors([])}
-                            className="text-xs text-amber-600 hover:text-amber-800 font-medium px-2 py-1 rounded hover:bg-amber-100 transition-colors"
+                            className="text-xs font-semibold text-red-700 hover:text-red-900 px-3 py-1.5 rounded-md hover:bg-red-200/50 transition-colors"
                         >
-                            Dismiss
+                            Dismiss All
                         </button>
                     </div>
-                    <ul className="space-y-2 text-sm">
+                    <ul className="divide-y divide-red-100 bg-white">
                         {uploadErrors.map((err, idx) => {
                             const isUpgradeError = err.reason.includes('Please upgrade to Pro');
                             const baseMessage = isUpgradeError ? err.reason.split('Please upgrade')[0] : err.reason;
 
+                            // Transform technical errors to user-friendly messages
+                            let friendlyMessage = baseMessage;
+                            if (friendlyMessage.includes('Cannot find package') || friendlyMessage.includes('Cannot find module') || friendlyMessage.includes('internal/modules') || friendlyMessage.includes('DOMMatrix')) {
+                                friendlyMessage = 'System dependencies missing for scanned documents. Please provide a standard digital PDF.';
+                            } else if (friendlyMessage.includes('corrupt') || friendlyMessage.includes('unreadable')) {
+                                friendlyMessage = 'Document is corrupt, password-protected, or completely unreadable.';
+                            } else if (friendlyMessage.includes('Failed to read PDF')) {
+                                friendlyMessage = 'Failed to read PDF format. The file might be corrupted or locked.';
+                            } else if (friendlyMessage.includes('empty')) {
+                                friendlyMessage = 'The document appears to be empty and contains no readable text.';
+                            } else if (friendlyMessage.includes('500') || friendlyMessage.includes('Server error')) {
+                                friendlyMessage = 'Internal system error occurred during extraction. Our engineers have been alerted.';
+                            }
+
                             return (
-                                <li key={idx} className="flex gap-2 text-amber-700 bg-white/50 p-2 rounded border border-amber-100/50">
-                                    <span className="font-medium text-slate-700 break-all min-w-[30%]">{err.filename}:</span>
-                                    <span className="flex-1">
-                                        {baseMessage}
+                                <li key={idx} className="flex gap-4 p-4 items-start">
+                                    <span className="font-semibold text-slate-800 break-all w-1/3 truncate" title={err.filename}>{err.filename}</span>
+                                    <span className="flex-1 text-red-700 text-sm">
+                                        {friendlyMessage}
                                         {isUpgradeError && (
                                             <button
                                                 onClick={() => setIsUpgradeModalOpen(true)}
-                                                className="font-bold underline hover:text-amber-900 transition-colors ml-1"
+                                                className="font-bold underline hover:text-red-900 transition-colors ml-1"
                                             >
                                                 Please upgrade to Pro.
                                             </button>
@@ -759,33 +778,46 @@ const UploadPage = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="p-4 bg-slate-50 border-t border-slate-200">
-                        <div className="flex justify-end">
+                    {isUploading ? (
+                        <div className="p-10 bg-slate-900 border-t border-slate-800 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+                            <div className="relative mb-6">
+                                <div className="absolute inset-0 border-4 border-blue-500/30 rounded-full animate-ping"></div>
+                                <div className="relative bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-full p-5 shadow-[0_0_30px_rgba(37,99,235,0.4)]">
+                                    <Layers size={36} className="text-white animate-pulse" />
+                                </div>
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-2">Analyzing {files.length} Document{files.length !== 1 ? 's' : ''}...</h3>
+                            <p className="text-blue-400 font-medium tracking-widest uppercase text-sm animate-pulse">
+                                Extracting metadata via AI
+                            </p>
+                            <div className="w-full max-w-sm mt-6">
+                                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="h-full bg-blue-500 w-1/2 rounded-full animate-[progress_2s_ease-in-out_infinite]"></div>
+                                </div>
+                            </div>
+                            <p className="text-sm text-slate-400 mt-6 max-w-md text-center">
+                                This process takes roughly 3-5 seconds per document. <br />
+                                <span className="text-amber-400 font-medium">Please do not close or refresh this page.</span>
+                            </p>
+                            <style>{`
+                                @keyframes progress {
+                                    0% { width: 0%; transform: translateX(-100%); }
+                                    50% { width: 40%; }
+                                    100% { width: 100%; transform: translateX(100%); }
+                                }
+                            `}</style>
+                        </div>
+                    ) : (
+                        <div className="p-5 bg-slate-50 border-t border-slate-200 flex justify-end">
                             <button
                                 onClick={processFiles}
-                                disabled={isUploading}
-                                className={`btn-primary flex items-center gap-2 px-6 py-2.5 rounded-lg active:scale-95 transition-all
-                                    ${isUploading ? 'opacity-80 cursor-wait' : 'hover:shadow-md'}`}
+                                className="btn-primary flex items-center gap-2 px-8 py-3 text-lg font-semibold rounded-xl active:scale-95 transition-all hover:shadow-lg shadow-blue-600/20"
                             >
-                                {isUploading ? (
-                                    <>
-                                        <LoadingSpinner size="small" />
-                                        <span>Processing {files.length} files...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Start AI Extraction</span>
-                                        <CheckCircle size={18} />
-                                    </>
-                                )}
+                                <span>Start AI Extraction</span>
+                                <CheckCircle size={22} />
                             </button>
                         </div>
-                        {isUploading && (
-                            <p className="text-xs text-amber-700 mt-3 text-center bg-amber-50 py-2 px-4 rounded-lg border border-amber-200">
-                                ⏱️ This may take a moment. Please don't refresh or close this page.
-                            </p>
-                        )}
-                    </div>
+                    )}
                 </div>
             )}
 
