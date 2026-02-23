@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const BillingSettings: React.FC = () => {
     const { user } = useUser();
-    const { subscriptionTier } = useDocumentStore();
+    const { subscriptionTier, usage, createdAt, renewalDate } = useDocumentStore();
     const [isLoading, setIsLoading] = React.useState(false);
 
     const handleManageSubscription = async () => {
@@ -64,12 +64,38 @@ const BillingSettings: React.FC = () => {
                             {subscriptionTier === 'pro' && 'Great for individuals.'}
                             {subscriptionTier === 'business' && 'Powering your entire team.'}
                         </p>
+                        <div className={`mt-4 pt-4 border-t ${subscriptionTier === 'business' ? 'border-slate-800' : 'border-slate-100'}`}>
+                            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
+                                <div>
+                                    <p className={`text-xs uppercase tracking-wider mb-1 ${subscriptionTier === 'business' ? 'text-slate-500' : 'text-slate-400'}`}>Member Since</p>
+                                    <p className={`text-sm font-medium ${subscriptionTier === 'business' ? 'text-slate-300' : 'text-slate-700'}`}>
+                                        {createdAt ? new Date(createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Unknown'}
+                                    </p>
+                                </div>
+                                {subscriptionTier !== 'free' && renewalDate && (
+                                    <div>
+                                        <p className={`text-xs uppercase tracking-wider mb-1 ${subscriptionTier === 'business' ? 'text-slate-500' : 'text-slate-400'}`}>Renews On</p>
+                                        <p className={`text-sm font-medium ${subscriptionTier === 'business' ? 'text-slate-300' : 'text-slate-700'}`}>
+                                            {new Date(renewalDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
-                    <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide 
-                        ${subscriptionTier === 'free' ? 'bg-slate-100 text-slate-600' :
-                            subscriptionTier === 'pro' ? 'bg-blue-100 text-blue-700' :
-                                'bg-yellow-400 text-slate-900'}`}>
-                        {subscriptionTier}
+                    <div className="flex flex-col items-end gap-3">
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide 
+                            ${subscriptionTier === 'free' ? 'bg-slate-100 text-slate-600' :
+                                subscriptionTier === 'pro' ? 'bg-blue-100 text-blue-700' :
+                                    'bg-yellow-400 text-slate-900'}`}>
+                            {subscriptionTier}
+                        </div>
+                        <div className={`text-right ${subscriptionTier === 'business' ? 'text-slate-300' : 'text-slate-600'}`}>
+                            <p className="text-xs uppercase tracking-wider mb-1 opacity-70">Current Usage</p>
+                            <p className="text-lg font-bold">
+                                {usage.current} <span className="text-sm font-normal opacity-75">/ {usage.limit} Docs</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

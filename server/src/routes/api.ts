@@ -1,4 +1,4 @@
-import { Router, Request } from 'express'; // Added Request type
+import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
@@ -6,6 +6,7 @@ import { extractDocumentData } from '../services/aiService';
 import { createUser, getUser, updateUser, checkLimit, incrementUsage, updateUserTier, getActualDocumentCount, syncUsage } from '../services/userService';
 import { query } from '../db';
 import paymentRoutes from './payments';
+import Stripe from 'stripe';
 import { requireAuth } from '../middleware/auth'; // Import Auth Middleware
 import { sendWelcomeNewsletter, sendWelcomeUser } from '../services/emailService';
 
@@ -130,9 +131,34 @@ router.get('/user', requireAuth, async (req: Request, res) => {
             syncUsage(userId).catch(err => console.error('Background sync failed:', err));
         }
 
+        let renewalDate = null;
+        if (user.subscription_tier !== 'free') {
+            try {
+                // Determine renewal date by looking up subscription in Stripe
+                const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-12-18.acacia' as any });
+                const searchEmail = String(email || user.email);
+                const customers = await stripe.customers.list({ email: searchEmail, limit: 1 });
+                if (customers.data.length > 0) {
+                    const subscriptions = await stripe.subscriptions.list({
+                        customer: customers.data[0].id,
+                        status: 'active',
+                        limit: 1
+                    });
+                    if (subscriptions.data.length > 0) {
+                        const sub = subscriptions.data[0] as any;
+                        renewalDate = sub.current_period_end * 1000; // UNIX to MS
+                    }
+                }
+            } catch (stripeErr) {
+                console.error('[API] Failed to fetch stripe subscription date:', stripeErr);
+            }
+        }
+
         res.json({
             ...user,
-            documents_usage: actualCount // Return real count to frontend
+            documents_usage: actualCount, // Return real count to frontend
+            createdAt: user.created_at, // Map DB column to frontend format
+            renewalDate: renewalDate
         });
     } catch (error) {
         console.error('[API] Get User Error:', error);

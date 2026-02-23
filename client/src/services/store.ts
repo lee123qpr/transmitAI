@@ -22,6 +22,8 @@ interface UserState {
         limit: number;
     };
     subscriptionTier: string;
+    createdAt: string | null;
+    renewalDate: number | null;
     isInitialized: boolean;
     fetchUserStatus: (userId: string, email?: string, token?: string) => Promise<void>;
 }
@@ -55,6 +57,8 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
     // User Stats
     usage: { current: 0, limit: 10 },
     subscriptionTier: 'free',
+    createdAt: null,
+    renewalDate: null,
     isInitialized: false,
 
     // System Stats
@@ -76,6 +80,8 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
             set({
                 usage: { current: data.documents_usage, limit: data.documents_limit },
                 subscriptionTier: data.subscription_tier,
+                createdAt: data.createdAt,
+                renewalDate: data.renewalDate
             });
         } catch (err) {
             console.error('[Store] fetchUserStatus error:', err);
