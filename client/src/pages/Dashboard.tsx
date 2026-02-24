@@ -941,30 +941,19 @@ const Dashboard = () => {
                                             <div className="flex items-center gap-2">
                                                 {doc.documentNumber}
                                                 {doc.confidence_score !== undefined && doc.confidence_score !== null && !isNaN(Number(doc.confidence_score)) && (
-                                                    <div className="group/tooltip relative flex items-center z-10 hidden sm:flex">
-                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 cursor-help border
+                                                    <div className="flex items-center z-10 hidden sm:flex">
+                                                        <span
+                                                            title={`Data Quality: ${Number(doc.confidence_score)}%\n\n${doc.reasoning_notes || 'All key data points successfully captured with high confidence.'}`}
+                                                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 cursor-help border
                                                             ${Number(doc.confidence_score) >= 90 ? 'bg-green-50 text-green-700 border-green-200' :
-                                                                Number(doc.confidence_score) >= 70 ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                                                                    'bg-red-50 text-red-700 border-red-200'}`}
+                                                                    Number(doc.confidence_score) >= 70 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                                        'bg-red-50 text-red-700 border-red-200'}`}
                                                         >
                                                             {Number(doc.confidence_score) >= 90 ? <ShieldCheck size={12} /> :
                                                                 Number(doc.confidence_score) >= 70 ? <AlertCircle size={12} /> :
                                                                     <AlertCircle size={12} />}
                                                             {Number(doc.confidence_score)}%
                                                         </span>
-                                                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-xl pointer-events-none z-50">
-                                                            <div className="font-semibold text-slate-200 mb-1 flex items-center justify-between">
-                                                                <span>Data Quality</span>
-                                                                <span className={
-                                                                    Number(doc.confidence_score) >= 90 ? 'text-green-400' :
-                                                                        Number(doc.confidence_score) >= 70 ? 'text-amber-400' : 'text-red-400'
-                                                                }>{Number(doc.confidence_score)}%</span>
-                                                            </div>
-                                                            <p className="text-slate-300 leading-relaxed font-medium whitespace-normal">
-                                                                {doc.reasoning_notes || 'All key data points successfully captured with high confidence.'}
-                                                            </p>
-                                                            <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-900"></div>
-                                                        </div>
                                                     </div>
                                                 )}
                                             </div>
