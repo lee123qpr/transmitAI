@@ -31,7 +31,11 @@ export const getDocuments = async (req: Request, res: Response) => {
                 consultant: excerpt?.consultant || 'Unknown',
                 status: doc.status || 'Pending',
                 uploadedAt: doc.created_at,
-                transmittalTitle: excerpt?.transmittalTitle
+                transmittalTitle: excerpt?.transmittalTitle,
+                summary: excerpt?.summary || excerpt?.description || '',
+                documentType: excerpt?.documentType || excerpt?.document_type || excerpt?.type || 'N/A',
+                confidence_score: excerpt?.confidence_score,
+                reasoning_notes: excerpt?.reasoning_notes
             };
         });
 
