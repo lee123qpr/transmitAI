@@ -791,12 +791,7 @@ const Dashboard = () => {
                             <h3 className="text-lg font-bold text-slate-900 mb-1 line-clamp-1" title={title}>
                                 {title}
                             </h3>
-                            <div className="text-xs text-red-500 font-bold bg-red-50 p-1 rounded inline-block mb-2 text-left">
-                                {(() => {
-                                    console.log('TRANS-GROUP:', title, 'DOC0:', docs[0]);
-                                    return `DEBUG Keys: ${Object.keys(docs[0] || {}).join(',')} | SCORE: ${docs[0]?.confidence_score}`;
-                                })()}
-                            </div>
+
                             <div className="flex items-center gap-3 text-sm text-slate-500 mb-4 flex-wrap">
                                 <div className="flex items-center gap-1.5">
                                     <Calendar size={14} />
