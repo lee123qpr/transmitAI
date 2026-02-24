@@ -1,14 +1,22 @@
 import { motion } from 'framer-motion';
-import { Building2, Component, HardHat, Landmark, Mountain, Triangle } from 'lucide-react';
 
-const LogoItem = ({ icon: Icon, name, fontStyle = "font-bold" }: { icon: React.ElementType, name: string, fontStyle?: string }) => (
-    <div className="flex items-center gap-3 text-slate-400 grayscale hover:grayscale-0 hover:text-slate-800 transition-all duration-300 cursor-pointer mx-10">
-        <Icon size={36} strokeWidth={1.5} />
-        <span className={`text-xl tracking-tight ${fontStyle}`}>{name}</span>
+const LogoImage = ({ src, alt }: { src: string; alt: string }) => (
+    <div className="flex items-center justify-center h-16 w-48 text-slate-400 grayscale hover:grayscale-0 hover:scale-105 transition-all duration-300 cursor-pointer mx-10">
+        <img src={src} alt={alt} className="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity" />
     </div>
 );
 
 const TrustedByStrip = () => {
+    // List of uploaded partner logos
+    const partners = [
+        { src: "/partners/ConstructionHub.png", alt: "Construction Hub" },
+        { src: "/partners/DextrickNew.png", alt: "Dextrick" },
+        { src: "/partners/EngTecGreyscale.png", alt: "EngTec" },
+        { src: "/partners/HertsCSGreyscale.png", alt: "Herts CS" },
+        { src: "/partners/Salford Ltd1.png", alt: "Salford Ltd" },
+        { src: "/partners/Untitled design.png", alt: "Partner" }
+    ];
+
     return (
         <section className="py-12 bg-white border-b border-slate-100 overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-8 text-center">
@@ -33,28 +41,19 @@ const TrustedByStrip = () => {
                     }}
                 >
                     {/* First Set */}
-                    <LogoItem icon={Building2} name="STRATTON & CO" fontStyle="font-serif font-bold" />
-                    <LogoItem icon={Triangle} name="Vanguard Engineering" fontStyle="font-semibold uppercase" />
-                    <LogoItem icon={Landmark} name="Meridian Infrastructure" fontStyle="font-medium" />
-                    <LogoItem icon={HardHat} name="HELIX CONTRUCTORS" fontStyle="font-black tracking-tighter" />
-                    <LogoItem icon={Component} name="Nexus Consultants" fontStyle="font-semibold" />
-                    <LogoItem icon={Mountain} name="Summit Group" fontStyle="font-serif font-bold italic" />
+                    {partners.map((partner, i) => (
+                        <LogoImage key={`set1-${i}`} src={partner.src} alt={partner.alt} />
+                    ))}
 
                     {/* Second Set (Duplicate) */}
-                    <LogoItem icon={Building2} name="STRATTON & CO" fontStyle="font-serif font-bold" />
-                    <LogoItem icon={Triangle} name="Vanguard Engineering" fontStyle="font-semibold uppercase" />
-                    <LogoItem icon={Landmark} name="Meridian Infrastructure" fontStyle="font-medium" />
-                    <LogoItem icon={HardHat} name="HELIX CONTRUCTORS" fontStyle="font-black tracking-tighter" />
-                    <LogoItem icon={Component} name="Nexus Consultants" fontStyle="font-semibold" />
-                    <LogoItem icon={Mountain} name="Summit Group" fontStyle="font-serif font-bold italic" />
+                    {partners.map((partner, i) => (
+                        <LogoImage key={`set2-${i}`} src={partner.src} alt={partner.alt} />
+                    ))}
 
                     {/* Third Set (Duplicate for safety) */}
-                    <LogoItem icon={Building2} name="STRATTON & CO" fontStyle="font-serif font-bold" />
-                    <LogoItem icon={Triangle} name="Vanguard Engineering" fontStyle="font-semibold uppercase" />
-                    <LogoItem icon={Landmark} name="Meridian Infrastructure" fontStyle="font-medium" />
-                    <LogoItem icon={HardHat} name="HELIX CONTRUCTORS" fontStyle="font-black tracking-tighter" />
-                    <LogoItem icon={Component} name="Nexus Consultants" fontStyle="font-semibold" />
-                    <LogoItem icon={Mountain} name="Summit Group" fontStyle="font-serif font-bold italic" />
+                    {partners.map((partner, i) => (
+                        <LogoImage key={`set3-${i}`} src={partner.src} alt={partner.alt} />
+                    ))}
                 </motion.div>
             </div>
         </section>

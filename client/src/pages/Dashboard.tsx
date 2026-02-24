@@ -22,7 +22,7 @@ const Dashboard = () => {
     const {
         documents, usage, subscriptionTier,
         fetchDocuments, fetchUserStatus, deleteDocument, deleteTransmittal,
-        isLoading, isInitialized, companyName, companyLogoUrl
+        isLoading, isInitialized, companyLogoUrl
     } = useDocumentStore();
     const { showToast } = useToast();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
