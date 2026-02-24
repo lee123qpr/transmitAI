@@ -32,7 +32,7 @@ router.use('/', paymentRoutes);
 
 // Health/Test endpoint
 router.get('/test', (req, res) => {
-    res.json({ message: 'API is working', timestamp: new Date().toISOString() });
+    res.json({ message: 'API is working', deploy_version: 'v8-confidence-debug-99' });
 });
 
 // System Config & Announcements
