@@ -911,7 +911,7 @@ const Dashboard = () => {
                                                                     <AlertCircle size={12} />}
                                                             {Number(doc.confidence_score)}%
                                                         </span>
-                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-xl pointer-events-none z-50">
+                                                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-xl pointer-events-none z-50">
                                                             <div className="font-semibold text-slate-200 mb-1 flex items-center justify-between">
                                                                 <span>Data Quality</span>
                                                                 <span className={
@@ -922,7 +922,7 @@ const Dashboard = () => {
                                                             <p className="text-slate-300 leading-relaxed font-medium whitespace-normal">
                                                                 {doc.reasoning_notes || 'All key data points successfully captured with high confidence.'}
                                                             </p>
-                                                            <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-slate-900"></div>
+                                                            <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-900"></div>
                                                         </div>
                                                     </div>
                                                 )}
