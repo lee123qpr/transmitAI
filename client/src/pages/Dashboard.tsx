@@ -22,7 +22,7 @@ const Dashboard = () => {
     const {
         documents, usage, subscriptionTier,
         fetchDocuments, fetchUserStatus, deleteDocument, deleteTransmittal,
-        isLoading, isInitialized
+        isLoading, isInitialized, companyName, companyLogoUrl
     } = useDocumentStore();
     const { showToast } = useToast();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
@@ -131,6 +131,26 @@ const Dashboard = () => {
             dateCell.alignment = { vertical: 'middle', horizontal: 'center' };
             worksheet.getRow(2).height = 20;
 
+            // Optional Company Logo
+            if (companyLogoUrl) {
+                try {
+                    const match = companyLogoUrl.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+                    if (match) {
+                        const extension = match[1] === 'jpeg' ? 'jpeg' : 'png';
+                        const base64Data = match[2];
+                        const logoId = workbook.addImage({
+                            base64: base64Data,
+                            extension: extension as any,
+                        });
+                        worksheet.addImage(logoId, {
+                            tl: { col: 0.2, row: 0.2 },
+                            ext: { width: 140, height: 50 },
+                            editAs: 'absolute'
+                        });
+                    }
+                } catch (e) { console.error('Failed to embed excel logo', e); }
+            }
+
             // Define columns (starting at row 4)
             worksheet.columns = [
                 { header: 'Doc Number', key: 'documentNumber', width: 22 },
@@ -227,6 +247,14 @@ const Dashboard = () => {
                 }
             });
 
+            // Add Transmit.AI Stamp
+            currentRow += 2;
+            worksheet.mergeCells(`A${currentRow}:C${currentRow}`);
+            const brandCell = worksheet.getCell(`A${currentRow}`);
+            brandCell.value = { text: 'Made by Transmit.AI - transmittal.co.uk', hyperlink: 'https://transmittal.co.uk' };
+            brandCell.font = { italic: true, color: { argb: 'FF3B82F6' }, underline: true };
+            brandCell.alignment = { vertical: 'middle', horizontal: 'left' };
+
             // Freeze header rows
             worksheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 4 }];
 
@@ -293,6 +321,15 @@ const Dashboard = () => {
             doc.setFont('helvetica', 'normal');
             doc.text(`Exported: ${new Date().toLocaleDateString('en-GB')}`, 105, 22, { align: 'center' });
             doc.text(`Total Documents: ${docsToExport.length}`, 105, 28, { align: 'center' });
+
+            if (companyLogoUrl) {
+                try {
+                    const imgFormat = companyLogoUrl.includes('jpeg') || companyLogoUrl.includes('jpg') ? 'JPEG' : 'PNG';
+                    doc.addImage(companyLogoUrl, imgFormat, 14, 5, 25, 25, undefined, 'FAST');
+                } catch (e) {
+                    console.error('PDF logo add error', e);
+                }
+            }
 
             doc.setTextColor(0, 0, 0); // Reset to black
             let yPos = 42;
@@ -403,6 +440,10 @@ const Dashboard = () => {
                         doc.setFontSize(8);
                         doc.setTextColor(128, 128, 128);
                         doc.text(`Page ${(doc as unknown as { internal: { getCurrentPageInfo: () => { pageNumber: number } } }).internal.getCurrentPageInfo().pageNumber} of ${pageCount}`, 105, pageHeight - 10, { align: 'center' });
+
+                        // User branding
+                        doc.setTextColor(59, 130, 246);
+                        doc.text('Made by Transmit.AI - transmittal.co.uk', 283, pageHeight - 10, { align: 'right' });
                     }
                 });
 
