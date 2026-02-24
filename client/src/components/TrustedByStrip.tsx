@@ -13,8 +13,7 @@ const TrustedByStrip = () => {
         { src: "/partners/DextrickNew.png", alt: "Dextrick" },
         { src: "/partners/EngTecGreyscale.png", alt: "EngTec" },
         { src: "/partners/HertsCSGreyscale.png", alt: "Herts CS" },
-        { src: "/partners/Salford Ltd1.png", alt: "Salford Ltd" },
-        { src: "/partners/Untitled design.png", alt: "Partner" }
+        { src: "/partners/Salford Ltd1.png", alt: "Salford Ltd" }
     ];
 
     return (
