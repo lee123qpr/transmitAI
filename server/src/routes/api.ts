@@ -249,34 +249,27 @@ router.get('/documents', requireAuth, async (req: Request, res) => {
     }
 });
 
-router.get('/debug-docs', async (req: Request, res) => {
+router.get('/debug-docs', requireAuth, async (req: Request, res) => {
     try {
-        const userId = 'user_39zdtD99DfbFptGBHucdll1CTuy';
-        const result = await query('SELECT * FROM documents WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [userId]);
-        const documents = result.rows.map(doc => {
-            let excerpt = doc.excerpt_data;
-            if (typeof excerpt === 'string') {
-                try { excerpt = JSON.parse(excerpt); } catch (e) { excerpt = {}; }
+        const userId = req.auth.userId;
+        const result = await query('SELECT id, created_at, filename, excerpt_data FROM documents WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [userId]);
+
+        const rawOutput = result.rows.map(row => {
+            let parsedExcerpt = row.excerpt_data;
+            if (typeof parsedExcerpt === 'string') {
+                try { parsedExcerpt = JSON.parse(parsedExcerpt); } catch (e) { }
             }
             return {
-                id: doc.id,
-                filename: doc.filename,
-                documentNumber: doc.doc_number,
-                revision: doc.revision,
-                title: doc.title,
-                issueDate: doc.issue_date,
-                discipline: excerpt?.discipline || 'Unknown',
-                consultant: excerpt?.consultant || 'Unknown',
-                status: doc.status || 'Pending',
-                uploadedAt: doc.created_at,
-                transmittalTitle: excerpt?.transmittalTitle,
-                summary: excerpt?.summary || excerpt?.description || '',
-                documentType: excerpt?.documentType || excerpt?.document_type || excerpt?.type || 'N/A',
-                confidence_score: excerpt?.confidence_score,
-                reasoning_notes: excerpt?.reasoning_notes
+                id: row.id,
+                filename: row.filename,
+                title: parsedExcerpt?.transmittalTitle,
+                confidence_score_exists: 'confidence_score' in (parsedExcerpt || {}),
+                confidence_score_value: parsedExcerpt?.confidence_score,
+                raw_excerpt: parsedExcerpt
             };
         });
-        res.json({ deployed_at: Date.now(), data: documents });
+
+        res.json({ deployed_at: Date.now(), userId, docs: rawOutput });
     } catch (e: any) {
         res.status(500).json({ error: e.message });
     }
