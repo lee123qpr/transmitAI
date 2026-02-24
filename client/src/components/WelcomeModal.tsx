@@ -15,6 +15,7 @@ const WelcomeModal = () => {
 
         // If not seen, show it
         if (!hasSeenWelcome) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsOpen(true);
         }
     }, [user]);

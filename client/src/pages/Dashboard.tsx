@@ -50,7 +50,7 @@ const Dashboard = () => {
             }
         };
         sync();
-    }, [user?.id, getToken, fetchUserStatus, fetchDocuments]);
+    }, [user?.id, user?.primaryEmailAddress?.emailAddress, getToken, fetchUserStatus, fetchDocuments]);
 
     const isPro = subscriptionTier === 'pro' || subscriptionTier === 'business';
     const documentLimit = usage.limit;
@@ -140,7 +140,7 @@ const Dashboard = () => {
                         const base64Data = match[2];
                         const logoId = workbook.addImage({
                             base64: base64Data,
-                            extension: extension as any,
+                            extension: extension as 'jpeg' | 'png',
                         });
                         worksheet.addImage(logoId, {
                             tl: { col: 0.2, row: 0.2 },

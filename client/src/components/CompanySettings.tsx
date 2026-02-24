@@ -5,9 +5,7 @@ import { useToast } from './Toast';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-interface CompanySettingsProps { }
-
-const CompanySettings: React.FC<CompanySettingsProps> = () => {
+const CompanySettings: React.FC = () => {
     const { user } = useUser();
     const { getToken } = useAuth();
     const { showToast } = useToast();

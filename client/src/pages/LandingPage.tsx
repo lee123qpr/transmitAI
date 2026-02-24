@@ -27,6 +27,7 @@ const LandingPage = () => {
             }, 40);
 
             if (displayText === '') {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setIsDeleting(false);
                 setWordIndex((prev) => (prev + 1) % WORDS.length);
             }

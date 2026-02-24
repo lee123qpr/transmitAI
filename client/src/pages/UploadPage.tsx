@@ -292,11 +292,11 @@ const UploadPage = () => {
                 });
 
                 if (!response.ok) {
-                    let errorData: any = {};
+                    let errorData: Record<string, unknown> = {};
                     const text = await response.text();
                     try {
                         errorData = JSON.parse(text);
-                    } catch (_e) {
+                    } catch {
                         console.error('[Upload] Non-JSON error response:', text.substring(0, 100));
                         errorData = { error: `Server error (${response.status}). The service might be timing out or unavailable.` };
                     }
@@ -304,12 +304,12 @@ const UploadPage = () => {
                     // Handle Specific Error Cases
                     if (response.status === 400) {
                         showToast(`Analysis failed: ${file.name}`, 'error');
-                        const msg = errorData.message || errorData.error || 'The AI could not read this document format.';
+                        const msg = (errorData.message as string) || (errorData.error as string) || 'The AI could not read this document format.';
                         setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
                         continue;
                     }
 
-                    const msg = errorData.details || errorData.message || errorData.error || `Server error during processing.`;
+                    const msg = (errorData.details as string) || (errorData.message as string) || (errorData.error as string) || `Server error during processing.`;
                     setUploadErrors(prev => [...prev, { filename: file.name, reason: msg }]);
                     continue;
                 }
