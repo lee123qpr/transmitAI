@@ -251,7 +251,7 @@ router.get('/documents', requireAuth, async (req: Request, res) => {
 
 router.get('/debug-docs', async (req: Request, res) => {
     try {
-        const userId = 'user_2qXN4L6jW1bY8kXn4vT7i2gZ9fX';
+        const userId = 'user_39zdtD99DfbFptGBHucdll1CTuy';
         const result = await query('SELECT * FROM documents WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [userId]);
         const documents = result.rows.map(doc => {
             let excerpt = doc.excerpt_data;
