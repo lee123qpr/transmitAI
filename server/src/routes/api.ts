@@ -249,6 +249,26 @@ router.get('/documents', requireAuth, async (req: Request, res) => {
     }
 });
 
+router.get('/debug-docs', async (req: Request, res) => {
+    try {
+        const result = await query('SELECT * FROM documents ORDER BY created_at DESC LIMIT 1');
+        const documents = result.rows.map(doc => {
+            let excerpt = doc.excerpt_data;
+            if (typeof excerpt === 'string') {
+                try { excerpt = JSON.parse(excerpt); } catch (e) { excerpt = {}; }
+            }
+            return {
+                id: doc.id,
+                confidence_score: excerpt?.confidence_score,
+                raw_excerpt: doc.excerpt_data
+            };
+        });
+        res.json({ deployed_at: Date.now(), data: documents });
+    } catch (e: any) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Upload Document
 router.post('/upload', requireAuth, uploadLimiter, upload.single('file'), async (req: Request, res) => {
     try {
