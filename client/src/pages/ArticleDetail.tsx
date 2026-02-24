@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, User, ArrowLeft, ChevronRight, Newspaper } from 'lucide-react';
+import { Calendar, User, ArrowLeft, ChevronRight, Newspaper, Linkedin, Twitter, Link2 } from 'lucide-react';
 import SEO from '../components/SEO';
+import { useToast } from '../components/Toast';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -20,6 +21,21 @@ const ArticleDetail = () => {
     const navigate = useNavigate();
     const [article, setArticle] = useState<Article | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { showToast } = useToast();
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(window.location.href);
+        showToast('Article link copied to clipboard!', 'success');
+    };
+
+    const shareOnLinkedIn = () => {
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank', 'width=600,height=600');
+    };
+
+    const shareOnTwitter = () => {
+        if (!article) return;
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`, '_blank', 'width=600,height=600');
+    };
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -112,6 +128,20 @@ const ArticleDetail = () => {
                             ))}
                         </div>
                     )}
+
+                    {/* Social Share Strip */}
+                    <div className="flex items-center gap-3 pt-6 pb-8 border-t border-slate-100">
+                        <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mr-2">Share</span>
+                        <button onClick={shareOnLinkedIn} className="p-2.5 rounded-full bg-slate-50 text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white transition-all shadow-sm">
+                            <Linkedin size={18} />
+                        </button>
+                        <button onClick={shareOnTwitter} className="p-2.5 rounded-full bg-slate-50 text-slate-800 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+                            <Twitter size={18} />
+                        </button>
+                        <button onClick={handleCopyLink} className="p-2.5 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-all shadow-sm" title="Copy Link">
+                            <Link2 size={18} />
+                        </button>
+                    </div>
 
                     {article.header_image ? (
                         <div className="rounded-3xl overflow-hidden shadow-2xl mb-12 aspect-[21/9]">
