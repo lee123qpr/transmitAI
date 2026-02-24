@@ -241,6 +241,7 @@ router.get('/documents', requireAuth, async (req: Request, res) => {
             };
         });
 
+        console.log(`[API] Returning ${documents.length} docs with score checking`);
         res.json(documents);
     } catch (error) {
         console.error('[API] Get Documents Error:', error);
