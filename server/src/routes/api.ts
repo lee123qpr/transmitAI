@@ -251,7 +251,8 @@ router.get('/documents', requireAuth, async (req: Request, res) => {
 
 router.get('/debug-docs', async (req: Request, res) => {
     try {
-        const result = await query('SELECT * FROM documents ORDER BY created_at DESC LIMIT 1');
+        const userId = 'user_2qXN4L6jW1bY8kXn4vT7i2gZ9fX';
+        const result = await query('SELECT * FROM documents WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [userId]);
         const documents = result.rows.map(doc => {
             let excerpt = doc.excerpt_data;
             if (typeof excerpt === 'string') {
@@ -259,8 +260,20 @@ router.get('/debug-docs', async (req: Request, res) => {
             }
             return {
                 id: doc.id,
+                filename: doc.filename,
+                documentNumber: doc.doc_number,
+                revision: doc.revision,
+                title: doc.title,
+                issueDate: doc.issue_date,
+                discipline: excerpt?.discipline || 'Unknown',
+                consultant: excerpt?.consultant || 'Unknown',
+                status: doc.status || 'Pending',
+                uploadedAt: doc.created_at,
+                transmittalTitle: excerpt?.transmittalTitle,
+                summary: excerpt?.summary || excerpt?.description || '',
+                documentType: excerpt?.documentType || excerpt?.document_type || excerpt?.type || 'N/A',
                 confidence_score: excerpt?.confidence_score,
-                raw_excerpt: doc.excerpt_data
+                reasoning_notes: excerpt?.reasoning_notes
             };
         });
         res.json({ deployed_at: Date.now(), data: documents });
