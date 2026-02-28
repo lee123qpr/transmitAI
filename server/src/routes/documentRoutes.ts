@@ -10,8 +10,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 // Rate limiter for upload endpoint
 const uploadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: 'Too many upload requests from this IP, please try again after 15 minutes.',
+    max: 1000,
+    message: 'Too many upload requests. Please wait a few minutes before uploading more.',
     standardHeaders: true,
     legacyHeaders: false,
 });

@@ -125,6 +125,16 @@ const UploadPage = () => {
     const isValidFile = (file: File) => {
         const allowedExtensions = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.doc', '.docx', '.xls', '.xlsx', '.txt', '.csv', '.dxf'];
         const name = file.name.toLowerCase();
+        const MAX_SIZE_BYTES = 4.5 * 1024 * 1024; // 4.5MB limit for Vercel
+
+        if (file.size > MAX_SIZE_BYTES) {
+            setUploadErrors(prev => [...prev, {
+                filename: file.name,
+                reason: `File size (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds the maximum allowed size of 4.5MB.`
+            }]);
+            return false;
+        }
+
         return allowedExtensions.some(ext => name.endsWith(ext));
     };
 
@@ -641,7 +651,8 @@ const UploadPage = () => {
                             <Upload size={32} />
                         </div>
                         <h3 className="text-xl font-semibold text-slate-900">Drop files, folders, or ZIPs here</h3>
-                        <p className="text-slate-500 mt-2 mb-6">or click to browse from your computer</p>
+                        <p className="text-slate-500 mt-2 mb-2">or click to browse from your computer</p>
+                        <p className="text-sm font-medium text-amber-600 mb-6 bg-amber-50 inline-block px-3 py-1 rounded-full border border-amber-100">Maximum file size: 4.5MB</p>
                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">PDF • DOCX • XLSX • TXT • CSV • DXF • ZIP / Folders</p>
                     </>
                 )}
