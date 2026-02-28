@@ -137,6 +137,55 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
             break;
         }
 
+        case 'customer.subscription.updated': {
+            const subscription = event.data.object as Stripe.Subscription;
+            const customerId = subscription.customer as string;
+            const status = subscription.status;
+
+            if (status === 'active' || status === 'trialing') {
+                const priceId = subscription.items.data[0].price.id;
+
+                let planType = 'pro';
+                if (
+                    priceId === process.env.STRIPE_PRICE_ID_BUSINESS_MONTHLY ||
+                    priceId === process.env.STRIPE_PRICE_ID_BUSINESS_YEARLY
+                ) {
+                    planType = 'business';
+                }
+
+                try {
+                    const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+                    if (customer && customer.email && typeof customer.email === 'string') {
+                        const userRes = await query('SELECT id FROM users WHERE email = $1', [customer.email]);
+                        const userId = userRes.rows[0]?.id;
+
+                        if (userId) {
+                            console.log(`[Webhook] Subscription updated. Syncing user ${userId} to ${planType}`);
+                            await processSubscription(userId, planType);
+                        }
+                    }
+                } catch (err) {
+                    console.error(`[Webhook] Failed to handle subscription update:`, err);
+                }
+            } else if (status === 'unpaid') {
+                try {
+                    const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+                    if (customer && customer.email && typeof customer.email === 'string') {
+                        const userRes = await query('SELECT id FROM users WHERE email = $1', [customer.email]);
+                        const userId = userRes.rows[0]?.id;
+
+                        if (userId) {
+                            console.log(`[Webhook] Subscription unpaid. Downgrading user ${userId} to free plan`);
+                            await updateUserTier(userId, 'free', 10);
+                        }
+                    }
+                } catch (err) {
+                    console.error(`[Webhook] Failed to handle unpaid downgrade:`, err);
+                }
+            }
+            break;
+        }
+
         default:
             console.log(`[Webhook] Unhandled event type ${event.type}`);
     }
