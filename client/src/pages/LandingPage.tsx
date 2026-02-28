@@ -57,11 +57,11 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center relative z-10">
                     {/* Left Column: Text */}
                     <div className="text-left">
-                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start -space-y-1 lg:-space-y-3">
+                        <h1 className="text-3xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start -space-y-1 lg:-space-y-3">
                             <span className="leading-[1.1] pb-1">Automate</span>
                             <span className="leading-[1.1] pb-1">Construction</span>
                             <span className="flex items-center min-h-[1.2em]">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-4 -mb-4">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-4 -mb-4 whitespace-nowrap">
                                     {displayText}
                                 </span>
                                 <motion.span

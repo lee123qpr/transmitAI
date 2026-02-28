@@ -911,16 +911,16 @@ const UploadPage = () => {
                                         </button>
                                     </div>
                                 </div>
-                                <div className="p-3 grid grid-cols-4 gap-3 bg-white">
+                                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-white">
                                     {/* Row 1: Type | Doc Num | Rev | Date */}
-                                    <div className="col-span-1 border-r border-slate-100 pr-2">
-                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Type</p>
+                                    <div className="col-span-1 sm:border-r border-slate-100 pr-2">
+                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1">Type</p>
                                         <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase border border-slate-200">
                                             {result.filename.split('.').pop()}
                                         </span>
                                     </div>
-                                    <div className="col-span-1 border-r border-slate-100 px-2">
-                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Document Number</p>
+                                    <div className="col-span-1 sm:border-r border-slate-100 px-0 sm:px-2">
+                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1">Document Number</p>
                                         {result.isEditing ? (
                                             <input
                                                 type="text"
@@ -934,8 +934,8 @@ const UploadPage = () => {
                                             </p>
                                         )}
                                     </div>
-                                    <div className="col-span-1 border-r border-slate-100 px-2">
-                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Revision</p>
+                                    <div className="col-span-1 group sm:border-r border-slate-100 px-0 sm:px-2">
+                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1">Revision</p>
                                         {result.isEditing ? (
                                             <input
                                                 type="text"
@@ -949,8 +949,8 @@ const UploadPage = () => {
                                             </p>
                                         )}
                                     </div>
-                                    <div className="col-span-1 pl-2">
-                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Date</p>
+                                    <div className="col-span-1 pl-0 sm:pl-2">
+                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1">Date</p>
                                         {result.isEditing ? (
                                             <input
                                                 type="text"
@@ -966,8 +966,8 @@ const UploadPage = () => {
                                     </div>
 
                                     {/* Row 2: Discipline | Consultant | Title (Span 2) */}
-                                    <div className="col-span-1 border-r border-slate-100 pr-2">
-                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Discipline</p>
+                                    <div className="col-span-1 sm:border-r border-slate-100 pr-2 mt-2 sm:mt-0">
+                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1">Discipline</p>
                                         {result.isEditing ? (
                                             <input
                                                 type="text"
@@ -981,8 +981,8 @@ const UploadPage = () => {
                                             </p>
                                         )}
                                     </div>
-                                    <div className="col-span-1 border-r border-slate-100 px-2">
-                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Consultant</p>
+                                    <div className="col-span-1 sm:border-r border-slate-100 px-0 sm:px-2 mt-2 sm:mt-0">
+                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1">Consultant</p>
                                         {result.isEditing ? (
                                             <input
                                                 type="text"
@@ -996,8 +996,8 @@ const UploadPage = () => {
                                             </p>
                                         )}
                                     </div>
-                                    <div className="col-span-2 pl-2">
-                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Title</p>
+                                    <div className="col-span-full lg:col-span-2 pl-0 sm:pl-2 mt-2 sm:mt-0">
+                                        <p className="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1">Title</p>
                                         {result.isEditing ? (
                                             <input
                                                 type="text"

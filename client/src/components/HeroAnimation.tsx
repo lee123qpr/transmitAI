@@ -64,7 +64,7 @@ const MetadataRow = ({ id, name, rev, title, index }: MetadataRowProps) => (
 
 const HeroAnimation = () => {
     return (
-        <div className="relative w-full max-w-5xl mx-auto h-[400px] flex items-stretch gap-4 md:gap-8 px-4 scale-95 origin-center">
+        <div className="relative w-full max-w-5xl mx-auto h-auto md:h-[400px] flex flex-col md:flex-row items-stretch gap-6 md:gap-8 px-4 scale-95 origin-center pb-8 md:pb-0">
             {/* Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -87,7 +87,7 @@ const HeroAnimation = () => {
             </div>
 
             {/* Middle: Data Stream Animation */}
-            <div className="flex items-center justify-center gap-2 z-10 opacity-80 shrink-0 self-center w-12">
+            <div className="hidden md:flex items-center justify-center gap-2 z-10 opacity-80 shrink-0 self-center w-12">
                 <div className="relative w-full h-1 bg-slate-100/50 rounded-full overflow-hidden">
                     {[...Array(3)].map((_, i) => (
                         <motion.div

@@ -1,62 +1,51 @@
-/* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext } from 'react';
+import React from 'react';
 
-// Mock User Data
 const mockUser = {
     id: 'test_user_123',
     firstName: 'Test',
     lastName: 'User',
     fullName: 'Test User',
-    primaryEmailAddress: { emailAddress: 'test@example.com' },
+    primaryEmailAddress: { emailAddress: 'leekilcoyne1@gmail.com' },
     imageUrl: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
 };
 
-type UserContextType = {
-    user: typeof mockUser;
-    isLoaded: boolean;
-    isSignedIn: boolean;
-};
-
-// Context
-const UserContext = createContext<UserContextType | null>(null);
-
-// Provider
 export const ClerkProvider = ({ children }: { children: React.ReactNode }) => {
-    const value = React.useMemo(() => ({ user: mockUser, isLoaded: true, isSignedIn: true }), []);
     return (
-        <UserContext.Provider value={value}>
+        <div data-testid="clerk-provider-mock">
             {children}
-        </UserContext.Provider>
+        </div>
     );
 };
 
-// Hooks
-export const useUser = () => {
-    const context = useContext(UserContext);
-    if (!context) return { user: null, isLoaded: false, isSignedIn: false };
-    return context;
-};
-
-export const useClerk = () => {
-    return React.useMemo(() => ({
-        signOut: () => console.log('Mock signOut called'),
-        openSignIn: () => console.log('Mock openSignIn called'),
-    }), []);
-};
-
-export const useAuth = () => {
-    const getToken = React.useCallback(async () => 'mock_token', []);
-    return React.useMemo(() => ({
-        userId: mockUser.id,
-        sessionId: 'mock_session',
-        getToken
-    }), [getToken]);
-};
-
-// Components
 export const SignedIn = ({ children }: { children: React.ReactNode }) => <>{children}</>;
-export const SignedOut = () => null;
-export const RedirectToSignIn = () => <div>Redirecting to Sign In...</div>;
-export const SignInButton = () => <button>Sign In</button>;
-export const SignUpButton = () => <button>Sign Up</button>;
-export const UserButton = () => <button className="text-xs font-mono text-slate-400">Mock Profile (E2E)</button>;
+export const SignedOut = (_props: { children: React.ReactNode }) => null;
+export const RedirectToSignIn = () => <div>Mock Redirect to Sign In</div>;
+
+interface MockButtonProps {
+    children: React.ReactNode;
+    mode?: string;
+    forceRedirectUrl?: string;
+    afterSignInUrl?: string;
+    afterSignUpUrl?: string;
+}
+
+export const SignInButton = ({ children }: MockButtonProps) => <div data-testid="signin-button-mock">{children}</div>;
+export const SignUpButton = ({ children }: MockButtonProps) => <div data-testid="signup-button-mock">{children}</div>;
+
+export const UserButton = (_props: { afterSignOutUrl?: string }) => <div data-testid="user-button-mock">Mock Profile</div>;
+UserButton.MenuItems = ({ children }: { children: React.ReactNode }) => <>{children}</>;
+UserButton.Action = (_props: { label: string; labelIcon?: React.ReactNode; onClick?: () => void }) => null;
+UserButton.UserProfilePage = ({ children }: { children: React.ReactNode; label: string; labelIcon?: React.ReactNode; url: string }) => <>{children}</>;
+
+export const useUser = () => ({
+    user: mockUser,
+    isLoaded: true,
+    isSignedIn: true,
+});
+
+export const useAuth = () => ({
+    getToken: async () => 'mock-token',
+    userId: 'test_user_123',
+    isSignedIn: true,
+    signOut: async () => console.log('Mock Sign Out'),
+});

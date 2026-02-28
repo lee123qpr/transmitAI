@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useUser } from '@clerk/clerk-react';
+import { useUser, SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
 import { Menu, X, Layers, CreditCard, Zap, Building2 } from 'lucide-react';
 import BillingSettings from './BillingSettings';
 import CompanySettings from './CompanySettings';
@@ -162,10 +162,14 @@ const Header = () => {
                         <>
                             <Link to="/app" className="text-base font-medium text-slate-600 py-2">Dashboard</Link>
                             <Link to="/app/upload" className="text-base font-medium text-slate-600 py-2">Upload</Link>
+                            {isActuallyAdmin && (
+                                <Link to="/app/admin" className="text-base font-medium text-slate-600 py-2">Admin</Link>
+                            )}
                         </>
                     ) : (
                         <>
                             <a href="/#features" className="text-base font-medium text-slate-600 py-2">Features</a>
+                            <Link to="/how-it-works" className="text-base font-medium text-slate-600 py-2">How it Works</Link>
                             <a href="/#pricing" className="text-base font-medium text-slate-600 py-2">Pricing</a>
                         </>
                     )}
@@ -188,7 +192,7 @@ const Header = () => {
                             <UserButton afterSignOutUrl="/">
                                 <UserButton.MenuItems>
                                     <UserButton.Action
-                                        label={subscriptionTier === 'free' ? 'Upgrade to Pro' : `Plan: ${subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)}`}
+                                        label={subscriptionTier === 'free' ? 'Upgrade to Pro' : `Plan: ${subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)} `}
                                         labelIcon={<Zap size={14} />}
                                         onClick={() => setIsUpgradeModalOpen(true)}
                                     />

@@ -582,7 +582,7 @@ const Dashboard = () => {
             />
 
             {/* Header */}
-            <header className="flex justify-between items-end">
+            <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 md:gap-4">
                 <div>
                     {selectedTransmittal ? (
                         <div className="flex items-center gap-2 mb-1">
