@@ -1,6 +1,7 @@
 import express from 'express';
 import Stripe from 'stripe';
 import { updateUserTier } from '../services/userService';
+import { query } from '../db';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -102,6 +103,37 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
                 // Fallback: search for customer by email if metadata is missing? 
                 // Risky, better to log and fix the source.
             }
+            break;
+        }
+
+        case 'customer.subscription.deleted': {
+            const subscription = event.data.object as Stripe.Subscription;
+            const customerId = subscription.customer as string;
+
+            try {
+                const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+                if (customer && customer.email) {
+                    const userRes = await query('SELECT id FROM users WHERE email = $1', [customer.email]);
+                    const userId = userRes.rows[0]?.id;
+
+                    if (userId) {
+                        console.log(`[Webhook] Subscription deleted. Downgrading user ${userId} to free plan`);
+                        await updateUserTier(userId, 'free', 10);
+                    } else {
+                        console.warn(`[Webhook] Could not find user with email ${customer.email} to downgrade`);
+                    }
+                }
+            } catch (err) {
+                console.error(`[Webhook] Failed to handle subscription deletion:`, err);
+            }
+            break;
+        }
+
+        case 'invoice.payment_failed': {
+            const invoice = event.data.object as Stripe.Invoice;
+            console.warn(`[Webhook] Invoice payment failed for customer: ${invoice.customer}. They may lose access soon.`);
+            // Usually, Stripe handles dunning (retries). If it completely fails, customer.subscription.deleted will fire.
+            // We just log this for now.
             break;
         }
 
