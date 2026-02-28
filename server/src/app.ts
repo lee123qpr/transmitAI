@@ -70,9 +70,15 @@ app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 // Legacy/Payment Routes (Fallback)
 app.use('/api', apiRoutes);
 
-// Health Check
-app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+// Health Check (Database Ping for Neon)
+app.get('/health', async (req: Request, res: Response) => {
+  try {
+    await query('SELECT 1 as ping');
+    res.status(200).json({ status: 'ok', database: 'connected', timestamp: new Date().toISOString() });
+  } catch (err: any) {
+    console.error('[Health] DB Ping failed:', err);
+    res.status(500).json({ status: 'error', database: 'disconnected', error: err.message });
+  }
 });
 
 // Direct Test Route (Debugging)
