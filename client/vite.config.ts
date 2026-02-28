@@ -29,4 +29,15 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'zustand', 'framer-motion'],
+          clerk: ['@clerk/clerk-react'],
+          utils: ['exceljs', 'jspdf', 'jspdf-autotable', 'jszip']
+        }
+      }
+    }
+  }
 })

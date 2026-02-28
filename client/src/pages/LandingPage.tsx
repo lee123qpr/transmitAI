@@ -46,6 +46,21 @@ const LandingPage = () => {
         return () => clearTimeout(timer);
     }, [displayText, isDeleting, wordIndex]);
 
+    // Handle hash links when navigating from other pages or same page
+    useEffect(() => {
+        if (window.location.hash) {
+            const id = window.location.hash.replace('#', '');
+            const scrollToElement = () => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+            // Small timeout to allow React to render the DOM elements
+            setTimeout(scrollToElement, 150);
+        }
+    }, []);
+
     return (
         <div className="flex flex-col">
             <SEO
@@ -147,7 +162,7 @@ const LandingPage = () => {
                     <div className="text-center mb-16">
                         <h2 className="text-3xl font-bold text-slate-900 mb-4">Built for Construction Professionals</h2>
                         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                            Designed specifically for Architects, Engineers, and Quantity Surveyors. Create audit-ready transmittal records that serve as irrefutable evidence in disputes.
+                            Designed specifically for Architects, Engineers, Project Managers, Estimators and Quantity Surveyors. Create audit-ready transmittal records that serve as irrefutable evidence in disputes.
                         </p>
                     </div>
 

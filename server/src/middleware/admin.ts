@@ -2,9 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { getUser } from '../services/userService';
 
 const ADMIN_EMAILS = [
-    'leekilcoyne1@gmail.com',
-    'lee_kilcoyne@hotmail.com',
-    ...(process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase())
+    (process.env.ADMIN_EMAIL || '').toLowerCase().trim()
 ].filter(Boolean);
 
 export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {

@@ -13,8 +13,8 @@ const Header = () => {
     const { subscriptionTier } = useDocumentStore();
     const { user } = useUser();
 
-    const adminEmails = ['leekilcoyne1@gmail.com', 'lee_kilcoyne@hotmail.com'];
-    const isActuallyAdmin = adminEmails.includes(user?.primaryEmailAddress?.emailAddress?.toLowerCase() || '');
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL?.toLowerCase() || '';
+    const isActuallyAdmin = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === adminEmail && adminEmail !== '';
 
     React.useEffect(() => {
         const handleOpenModal = () => {
@@ -168,9 +168,9 @@ const Header = () => {
                         </>
                     ) : (
                         <>
-                            <a href="/#features" className="text-base font-medium text-slate-600 py-2">Features</a>
-                            <Link to="/how-it-works" className="text-base font-medium text-slate-600 py-2">How it Works</Link>
-                            <a href="/#pricing" className="text-base font-medium text-slate-600 py-2">Pricing</a>
+                            <a href="/#features" className="text-base font-medium text-slate-600 py-2" onClick={() => setIsMenuOpen(false)}>Features</a>
+                            <Link to="/how-it-works" className="text-base font-medium text-slate-600 py-2" onClick={() => setIsMenuOpen(false)}>How it Works</Link>
+                            <a href="/#pricing" className="text-base font-medium text-slate-600 py-2" onClick={() => setIsMenuOpen(false)}>Pricing</a>
                         </>
                     )}
                     <hr className="border-slate-100" />
@@ -184,11 +184,15 @@ const Header = () => {
                     </SignedOut>
                     <SignedIn>
                         {!isApp && (
-                            <Link to="/app" className="w-full text-center py-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md">
-                                Dashboard
+                            <Link to="/app" className="w-full text-center py-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md mb-2">
+                                Go to Dashboard
                             </Link>
                         )}
-                        <div className="flex justify-center py-2">
+                        <div className="flex items-center justify-between py-3 px-4 bg-slate-50 border border-slate-100 rounded-lg">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-semibold text-slate-900">Account Settings</span>
+                                <span className="text-xs text-slate-500">Manage billing & company details</span>
+                            </div>
                             <UserButton afterSignOutUrl="/">
                                 <UserButton.MenuItems>
                                     <UserButton.Action
@@ -203,6 +207,13 @@ const Header = () => {
                                     url="billing"
                                 >
                                     <BillingSettings />
+                                </UserButton.UserProfilePage>
+                                <UserButton.UserProfilePage
+                                    label="Company"
+                                    labelIcon={<Building2 size={14} />}
+                                    url="company"
+                                >
+                                    <CompanySettings />
                                 </UserButton.UserProfilePage>
                             </UserButton>
                         </div>

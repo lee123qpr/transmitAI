@@ -78,8 +78,8 @@ const ProtectedLayout = () => {
   const { maintenanceMode } = useDocumentStore();
   const { user } = useUser();
 
-  const adminEmails = ['leekilcoyne1@gmail.com', 'lee_kilcoyne@hotmail.com'];
-  const isActuallyAdmin = adminEmails.includes(user?.primaryEmailAddress?.emailAddress?.toLowerCase() || '');
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL?.toLowerCase() || '';
+  const isActuallyAdmin = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === adminEmail && adminEmail !== '';
 
   if (maintenanceMode && !isActuallyAdmin) {
     return <MaintenanceOverlay />;

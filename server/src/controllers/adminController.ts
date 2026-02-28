@@ -298,7 +298,7 @@ export const sendTestWelcomeEmail = async (req: Request, res: Response) => {
     if (!process.env.RESEND_API_KEY) return res.status(400).json({ error: 'Resend API key not configured' });
 
     try {
-        const targetEmail = email || 'leekilcoyne1@gmail.com'; // Fallback to admin
+        const targetEmail = email || process.env.ADMIN_EMAIL; // Fallback to admin
         await resend.emails.send({
             from: 'Welcome <onboarding@transmit.ai>',
             to: targetEmail,
@@ -317,7 +317,7 @@ export const sendTestNewsletterEmail = async (req: Request, res: Response) => {
     if (!process.env.RESEND_API_KEY) return res.status(400).json({ error: 'Resend API key not configured' });
 
     try {
-        const targetEmail = email || 'leekilcoyne1@gmail.com';
+        const targetEmail = email || process.env.ADMIN_EMAIL;
         await resend.emails.send({
             from: 'Newsletter <newsletter@transmit.ai>',
             to: targetEmail,

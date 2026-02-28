@@ -14,7 +14,7 @@ const SEO: React.FC<SEOProps> = ({
     description,
     name = "Transmit.AI",
     type = "website",
-    image = "/og-image.png" // We should create this placeholder or use a real one
+    image = "https://www.transmittal.co.uk/og-image.png"
 }) => {
     const siteTitle = title ? `${title} | ${name}` : name;
     const metaDescription = description || "Automate construction document extraction with AI. Convert PDFs to Excel, extract metadata, and manage revisions effortlessly.";

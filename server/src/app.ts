@@ -3,6 +3,8 @@ dotenv.config();
 
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import apiRoutes from './routes/api'; // Keep for legacy/payment routes during transition
 import userRoutes from './routes/userRoutes';
 import documentRoutes from './routes/documentRoutes';
@@ -18,8 +20,31 @@ const PORT = process.env.PORT || 3000;
 
 import { securityMiddleware } from './middleware/security';
 
-// Middleware
-app.use(cors());
+// Security Middleware
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5177', 'https://transmit.ai', 'https://transmit-ai.vercel.app', 'https://www.transmittal.co.uk', 'https://transmittal.co.uk'];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Required to allow frontend to load images/PDFs from server
+}));
+
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Limit each IP to 1000 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use('/api/', globalLimiter);
 
 // Stripe Webhook (MUST be before express.json() but middleware is now inside the router)
 app.use('/api/webhooks/stripe', stripeWebhook);
