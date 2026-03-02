@@ -1,5 +1,3 @@
-import { DocumentData } from '../services/store';
-
 export interface DocumentExportData {
     documentNumber?: string;
     revision?: string;
@@ -15,8 +13,8 @@ export interface DocumentExportData {
 export const exportToExcel = async (
     docsToExport: DocumentExportData[],
     filename: string,
-    companyLogoUrl?: string,
-    companyName?: string
+    companyLogoUrl?: string | null,
+    companyName?: string | null
 ) => {
     const ExcelJS = (await import('exceljs')).default;
     const workbook = new ExcelJS.Workbook();
@@ -194,8 +192,8 @@ export const exportToExcel = async (
 export const exportToPDF = async (
     docsToExport: DocumentExportData[],
     filename: string,
-    companyLogoUrl?: string,
-    companyName?: string
+    companyLogoUrl?: string | null,
+    companyName?: string | null
 ) => {
     // Dynamically import jsPDF and autoTable only when needed
     const jsPDF = (await import('jspdf')).default;
