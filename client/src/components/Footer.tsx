@@ -53,7 +53,7 @@ const Footer = () => {
                     <div className="lg:col-span-1">
                         <h4 className="font-semibold text-slate-900 mb-4">Follow Us</h4>
                         <div className="flex gap-4">
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-pink-50 hover:text-pink-600 transition-all">
+                            <a href="https://www.instagram.com/transmit_ai/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-pink-50 hover:text-pink-600 transition-all">
                                 <Instagram size={18} />
                             </a>
                             <a href="https://www.linkedin.com/company/transmit-ai" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all">

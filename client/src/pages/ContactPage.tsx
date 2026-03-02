@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone, Instagram } from 'lucide-react';
 import SEO from '../components/SEO';
 
 const ContactPage = () => {
@@ -70,6 +70,19 @@ const ContactPage = () => {
                                 </div>
                             </div>
 
+                            {/* Social Media */}
+                            <div className="flex gap-4 items-start mt-6">
+                                <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600 shrink-0">
+                                    <Instagram size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-slate-900 mb-1">Social Media</h3>
+                                    <a href="https://www.instagram.com/transmit_ai/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 transition-colors">
+                                        @transmit_ai on Instagram
+                                    </a>
+                                    <p className="text-sm text-slate-500 mt-1">Follow us for updates and news</p>
+                                </div>
+                            </div>
 
                         </div>
 
