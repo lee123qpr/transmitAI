@@ -41,7 +41,7 @@ export const sendWelcomeNewsletter = async (email: string) => {
                 You've successfully signed up for the <strong>Transmit AI</strong> newsletter. We are thrilled to have you join our community!
             </p>
             <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-                At Transmit AI, we are revolutionizing document control for the construction industry. By combining powerful AI with seamless workflow automation, our platform empowers you to:
+                At Transmit AI, we are revolutionising document control for the construction industry. By combining powerful AI with seamless workflow automation, our platform empowers you to:
             </p>
             <ul style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 24px; padding-left: 20px;">
                 <li style="margin-bottom: 8px;">Instantly extract intelligent data from thousands of complex engineering drawings and PDFs.</li>
