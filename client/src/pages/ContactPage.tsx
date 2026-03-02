@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Instagram } from 'lucide-react';
+import { Mail, MapPin, Instagram, Linkedin, Youtube } from 'lucide-react';
 import SEO from '../components/SEO';
 
 const ContactPage = () => {
@@ -35,23 +35,10 @@ const ContactPage = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-slate-900 mb-1">Email</h3>
-                                        <a href="mailto:support@transmit.ai" className="text-blue-600 hover:text-blue-700 transition-colors">
-                                            support@transmit.ai
+                                        <a href="mailto:support@transmittal.co.uk" className="text-blue-600 hover:text-blue-700 transition-colors">
+                                            support@transmittal.co.uk
                                         </a>
                                         <p className="text-sm text-slate-500 mt-1">We'll respond within 24 hours</p>
-                                    </div>
-                                </div>
-
-                                {/* Phone */}
-                                <div className="flex gap-4 items-start">
-                                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 shrink-0">
-                                        <Phone size={24} />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900 mb-1">Phone</h3>
-                                        <a href="tel:+442078901234" className="text-blue-600 hover:text-blue-700 transition-colors">
-                                            +44 (0) 20 7890 1234
-                                        </a>
                                     </div>
                                 </div>
 
@@ -62,25 +49,31 @@ const ContactPage = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-slate-900 mb-1">Location</h3>
-                                        <p className="text-slate-600">
-                                            London, United Kingdom
+                                        <p className="text-slate-600 leading-relaxed">
+                                            71-75 Shelton Street<br />
+                                            Covent Garden<br />
+                                            London<br />
+                                            WC2H 9JQ
                                         </p>
-                                        <p className="text-sm text-slate-500 mt-1">Serving clients worldwide</p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Social Media */}
-                            <div className="flex gap-4 items-start mt-6">
-                                <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600 shrink-0">
-                                    <Instagram size={24} />
-                                </div>
+                            {/* Follow Us */}
+                            <div className="flex gap-4 items-start mt-8">
                                 <div>
-                                    <h3 className="font-semibold text-slate-900 mb-1">Social Media</h3>
-                                    <a href="https://www.instagram.com/transmit_ai/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 transition-colors">
-                                        @transmit_ai on Instagram
-                                    </a>
-                                    <p className="text-sm text-slate-500 mt-1">Follow us for updates and news</p>
+                                    <h3 className="font-semibold text-slate-900 mb-4">Follow Us</h3>
+                                    <div className="flex gap-4">
+                                        <a href="https://www.instagram.com/transmit_ai/" target="_blank" rel="noopener noreferrer" className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-pink-50 hover:text-pink-600 transition-all">
+                                            <Instagram size={22} />
+                                        </a>
+                                        <a href="https://www.linkedin.com/company/transmit-ai" target="_blank" rel="noopener noreferrer" className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                                            <Linkedin size={22} />
+                                        </a>
+                                        <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
+                                            <Youtube size={22} />
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 
