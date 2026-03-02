@@ -382,11 +382,13 @@ const AdminDashboard = () => {
                 },
                 body: body ? JSON.stringify(body) : undefined
             });
-            if (!res.ok) throw new Error('Action failed');
-            showToast('Success', 'success');
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) throw new Error(data.error || 'Action failed');
+            showToast(data.message || 'Success', 'success');
             fetchData();
-        } catch {
-            showToast('Action failed', 'error');
+        } catch (err: any) {
+            showToast(err.message || 'Action failed', 'error');
         } finally {
             setIsActionLoading(false);
         }
