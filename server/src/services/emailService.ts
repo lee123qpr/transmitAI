@@ -131,10 +131,10 @@ export const sendContactFormMessage = async (name: string, fromEmail: string, su
             from: 'Contact Form <admin@transmit.ai>',
             to: 'support@transmittal.co.uk',
             replyTo: fromEmail,
-            subject: \`[Contact Form] \${subject}\`,
+            subject: `[Contact Form] ${subject}`,
             html: html
         });
-        console.log(\`[EmailService] Contact message from \${fromEmail} sent successfully.\`);
+        console.log(`[EmailService] Contact message from ${fromEmail} sent successfully.`);
         return true;
     } catch (error) {
         console.error('[EmailService] Contact form email error:', error);

@@ -10,6 +10,38 @@ export interface DocumentExportData {
     summary?: string;
 }
 
+const fetchImageAsBase64 = async (url: string): Promise<{ base64: string, extension: string } | null> => {
+    try {
+        if (url.startsWith('data:image')) {
+            const match = url.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+            if (match) {
+                const ext = (match[1] === 'jpeg' || match[1] === 'jpg') ? 'jpeg' : 'png';
+                return { base64: match[2], extension: ext };
+            }
+            return null;
+        }
+
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const arrayBuffer = await blob.arrayBuffer();
+
+        // Convert strict binary to base64 robustly
+        let binary = '';
+        const bytes = new Uint8Array(arrayBuffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = window.btoa(binary);
+        const ext = (blob.type.includes('jpeg') || blob.type.includes('jpg')) ? 'jpeg' : 'png';
+
+        return { base64, extension: ext };
+    } catch (e) {
+        console.error('Failed to fetch image as base64', e);
+        return null;
+    }
+};
+
 export const exportToExcel = async (
     docsToExport: DocumentExportData[],
     filename: string,
@@ -42,25 +74,29 @@ export const exportToExcel = async (
 
     // Optional Company Logo
     if (companyLogoUrl) {
-        try {
-            const match = companyLogoUrl.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
-            if (match) {
-                const extension = match[1] === 'jpeg' ? 'jpeg' : 'png';
-                const base64Data = match[2];
+        const logoData = await fetchImageAsBase64(companyLogoUrl);
+        if (logoData) {
+            try {
                 const logoId = workbook.addImage({
-                    base64: base64Data,
-                    extension: extension as 'jpeg' | 'png',
+                    base64: logoData.base64,
+                    extension: logoData.extension as 'jpeg' | 'png',
                 });
                 worksheet.addImage(logoId, {
                     tl: { col: 0.2, row: 0.2 },
                     ext: { width: 140, height: 50 },
                     editAs: 'absolute'
                 });
-            } else if (companyName) {
-                worksheet.getCell('G1').value = companyName;
-                worksheet.getCell('G1').font = { size: 14, bold: true, color: { argb: 'FF3B82F6' } };
+            } catch (e) {
+                console.error('Failed to embed excel logo', e);
+                if (companyName) {
+                    worksheet.getCell('G1').value = companyName;
+                    worksheet.getCell('G1').font = { size: 14, bold: true, color: { argb: 'FF3B82F6' } };
+                }
             }
-        } catch (e) { console.error('Failed to embed excel logo', e); }
+        } else if (companyName) {
+            worksheet.getCell('G1').value = companyName;
+            worksheet.getCell('G1').font = { size: 14, bold: true, color: { argb: 'FF3B82F6' } };
+        }
     } else if (companyName) {
         worksheet.getCell('G1').value = companyName;
         worksheet.getCell('G1').font = { size: 14, bold: true, color: { argb: 'FF3B82F6' } };
@@ -217,11 +253,23 @@ export const exportToPDF = async (
     doc.text(`Total Documents: ${docsToExport.length}`, 105, 28, { align: 'center' });
 
     if (companyLogoUrl) {
-        try {
-            const imgFormat = companyLogoUrl.includes('jpeg') || companyLogoUrl.includes('jpg') ? 'JPEG' : 'PNG';
-            doc.addImage(companyLogoUrl, imgFormat, 14, 5, 25, 25, undefined, 'FAST');
-        } catch (e) {
-            console.error('PDF logo add error', e);
+        const logoData = await fetchImageAsBase64(companyLogoUrl);
+        if (logoData) {
+            try {
+                const imgFormat = logoData.extension.toUpperCase();
+                // Pass the data URI format expected by jsPDF
+                const dataUri = \`data:image/\${logoData.extension};base64,\${logoData.base64}\`;
+                doc.addImage(dataUri, imgFormat, 14, 5, 25, 25, undefined, 'FAST');
+            } catch (e) {
+                console.error('PDF logo add error', e);
+                if (companyName) {
+                    doc.setFontSize(14);
+                    doc.text(companyName, 14, 20);
+                }
+            }
+        } else if (companyName) {
+            doc.setFontSize(14);
+            doc.text(companyName, 14, 20);
         }
     } else if (companyName) {
         doc.setFontSize(14);
@@ -284,7 +332,7 @@ export const exportToPDF = async (
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(55, 65, 81);
-        doc.text(`${discipline.toUpperCase()}`, 16, yPos + 5.5);
+        doc.text(`${ discipline.toUpperCase() } `, 16, yPos + 5.5);
         yPos += 10;
 
         doc.setTextColor(0, 0, 0);
@@ -337,7 +385,7 @@ export const exportToPDF = async (
                 const pageHeight = doc.internal.pageSize.height;
                 doc.setFontSize(8);
                 doc.setTextColor(128, 128, 128);
-                doc.text(`Page ${(doc as any).internal.getCurrentPageInfo().pageNumber} of ${pageCount}`, 105, pageHeight - 10, { align: 'center' });
+                doc.text(`Page ${ (doc as any).internal.getCurrentPageInfo().pageNumber } of ${ pageCount } `, 105, pageHeight - 10, { align: 'center' });
 
                 // User branding
                 doc.setTextColor(59, 130, 246);
@@ -348,7 +396,7 @@ export const exportToPDF = async (
         yPos = (doc as any).lastAutoTable.finalY + 8;
     });
 
-    const finalFilename = filename ? `${filename.replace(/[^a-z0-9]/gi, '_')}.pdf` : 'extracted_data.pdf';
+    const finalFilename = filename ? `${ filename.replace(/[^a-z0-9]/gi, '_') }.pdf` : 'extracted_data.pdf';
     doc.save(finalFilename);
 
     return finalFilename;

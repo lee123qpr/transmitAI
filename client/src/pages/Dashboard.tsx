@@ -23,7 +23,7 @@ const Dashboard = () => {
     const {
         documents, usage, subscriptionTier,
         fetchDocuments, fetchUserStatus, deleteDocument, deleteTransmittal,
-        isLoading, isInitialized, companyLogoUrl
+        isLoading, isInitialized, companyLogoUrl, companyName
     } = useDocumentStore();
     const { showToast } = useToast();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
@@ -109,7 +109,7 @@ const Dashboard = () => {
 
         setIsExporting(true);
         try {
-            const finalFilename = await exportToExcel(docsToExport, filename, companyLogoUrl);
+            const finalFilename = await exportToExcel(docsToExport, filename, companyLogoUrl, companyName);
             showToast(
                 `✅ Exported ${docsToExport.length} documents to ${finalFilename}`,
                 'success',
@@ -131,7 +131,7 @@ const Dashboard = () => {
 
         setIsExporting(true);
         try {
-            const finalFilename = await exportToPDF(docsToExport, filename, companyLogoUrl);
+            const finalFilename = await exportToPDF(docsToExport, filename, companyLogoUrl, companyName);
             showToast(
                 `✅ Exported ${docsToExport.length} documents to ${finalFilename}`,
                 'success',
