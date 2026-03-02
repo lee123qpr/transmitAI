@@ -28,33 +28,49 @@ export const sendWelcomeNewsletter = async (email: string) => {
     }
 
     const defaultHtml = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <div style="display: inline-block; width: 40px; height: 40px; background: #2563eb; border-radius: 8px; line-height: 44px; color: white; font-size: 24px; font-weight: bold; text-align: center;">T</div>
-                <h1 style="color: #1e293b; margin-top: 10px; font-size: 24px; font-family: sans-serif;">Transmit<span style="color: #2563eb;">.AI</span></h1>
+        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <!-- Try to load site logo from public folder, fallback to stylized text -->
+                <img src="https://transmit.ai/logo.png" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
+                <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">Transmit<span style="color: #2563eb;">.AI</span></h1>
             </div>
-            <h2 style="color: #1a1a1a;">Thanks for subscribing!</h2>
-            <p style="color: #4a4a4a; line-height: 1.6;">
-                You've successfully signed up for the Transmittal newsletter. We'll keep you updated with the latest news, 
-                articles, and system updates.
+            
+            <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; text-align: center;">Thanks for subscribing!</h2>
+            
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                You've successfully signed up for the <strong>Transmit AI</strong> newsletter. We are thrilled to have you join our community!
             </p>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="https://transmit.ai" style="display: inline-block; background: #2563eb; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-                    Visit our Website
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                At Transmit AI, we are revolutionizing document control for the construction industry. By combining powerful AI with seamless workflow automation, our platform empowers you to:
+            </p>
+            <ul style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 24px; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">Instantly extract intelligent data from thousands of complex engineering drawings and PDFs.</li>
+                <li style="margin-bottom: 8px;">Auto-generate flawless Drawing Registers and transmittal logs in seconds.</li>
+                <li style="margin-bottom: 8px;">Ensure perfect document version control without the manual data-entry headaches.</li>
+            </ul>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+                We'll keep you updated with the latest construction insights, AI breakthroughs, and new features coming to the platform.
+            </p>
+
+            <div style="text-align: center; margin-top: 32px;">
+                <a href="https://transmit.ai" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+                    Visit Transmit AI
                 </a>
             </div>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
-            <p style="font-size: 12px; color: #999; text-align: center;">
-                © 2026 Transmit.AI Ltd. All rights reserved.
+            
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0 20px;" />
+            
+            <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
+                © 2026 Transmit AI Ltd. All rights reserved.
             </p>
         </div>
     `;
 
-    const template = await getEmailTemplate('email_template_newsletter', 'Welcome to our Newsletter!', defaultHtml);
+    const template = await getEmailTemplate('email_template_newsletter', 'Welcome to the Transmit AI Newsletter!', defaultHtml);
 
     try {
         await resend.emails.send({
-            from: 'Transmit.AI <admin@transmit.ai>',
+            from: 'Transmit AI <admin@transmit.ai>',
             to: email,
             subject: template.subject,
             html: template.html
@@ -72,33 +88,44 @@ export const sendWelcomeUser = async (email: string) => {
     }
 
     const defaultHtml = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <div style="display: inline-block; width: 40px; height: 40px; background: #2563eb; border-radius: 8px; line-height: 44px; color: white; font-size: 24px; font-weight: bold; text-align: center;">T</div>
-                <h1 style="color: #1e293b; margin-top: 10px; font-size: 24px; font-family: sans-serif;">Transmit<span style="color: #2563eb;">.AI</span></h1>
+        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <img src="https://transmit.ai/logo.png" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
+                <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">Transmit<span style="color: #2563eb;">.AI</span></h1>
             </div>
-            <h2 style="color: #1a1a1a;">Welcome aboard!</h2>
-            <p style="color: #4a4a4a; line-height: 1.6;">
-                Your account has been created successfully. You can now start uploading and analyzing your transmittals 
-                with the power of AI.
+            
+            <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; text-align: center;">Welcome aboard!</h2>
+            
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Your account has been created successfully. Welcome to <strong>Transmit AI</strong>, the most intelligent document control platform built for modern engineering and construction.
             </p>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="https://transmit.ai/app" style="display: inline-block; background: #2563eb; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 16px;">
+                With your new account, you can now:
+            </p>
+            <ul style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 24px; padding-left: 20px;">
+                <li style="margin-bottom: 8px;"><strong>Upload PDFs blindly:</strong> Drop hundreds of complex drawings into Transmit AI.</li>
+                <li style="margin-bottom: 8px;"><strong>Extract Intel instantly:</strong> Our AI will perfectly strip titles, revisions, and dates from Title Blocks.</li>
+                <li style="margin-bottom: 8px;"><strong>Generate Document Logs:</strong> Export precise, ready-to-send Excel and PDF Drawing Registers in an instant.</li>
+            </ul>
+
+            <div style="text-align: center; margin-top: 32px;">
+                <a href="https://transmit.ai/app" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
                     Go to Dashboard
                 </a>
             </div>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
-            <p style="font-size: 12px; color: #999; text-align: center;">
-                Need help? Reply to this email or visit our <a href="https://transmit.ai/faq" style="color: #2563eb; text-decoration: none;">FAQ</a>.
+            
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0 20px;" />
+            <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
+                Need help? Reply to this email or visit our <a href="https://transmit.ai/faq" style="color: #2563eb; text-decoration: none; font-weight: 600;">FAQ</a>.
             </p>
         </div>
     `;
 
-    const template = await getEmailTemplate('email_template_user_welcome', 'Welcome to Transmittal!', defaultHtml);
+    const template = await getEmailTemplate('email_template_user_welcome', 'Welcome to Transmit AI!', defaultHtml);
 
     try {
         await resend.emails.send({
-            from: 'Transmit.AI <admin@transmit.ai>',
+            from: 'Transmit AI <onboarding@transmit.ai>',
             to: email,
             subject: template.subject,
             html: template.html
