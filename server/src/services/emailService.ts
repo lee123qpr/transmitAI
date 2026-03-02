@@ -53,13 +53,22 @@ export const sendWelcomeNewsletter = async (email: string) => {
             </p>
 
             <div style="text-align: center; margin-top: 32px;">
-                <a href="https://transmit.ai" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
-                    Visit Transmit AI
+                <a href="https://transmit.ai/app" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+                    Go to App
+                </a>
+                <a href="https://transmit.ai" style="display: inline-block; background: #f1f5f9; color: #334155; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px;">
+                    Visit Website
                 </a>
             </div>
             
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0 20px;" />
             
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="https://www.instagram.com/transmit_ai/" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">Instagram</a>
+                <a href="https://www.linkedin.com/company/transmit-ai" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">LinkedIn</a>
+                <a href="https://youtube.com" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
+            </div>
+
             <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
                 © 2026 Transmit AI Ltd. All rights reserved.
             </p>
@@ -109,12 +118,22 @@ export const sendWelcomeUser = async (email: string) => {
             </ul>
 
             <div style="text-align: center; margin-top: 32px;">
-                <a href="https://transmit.ai/app" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
-                    Go to Dashboard
+                <a href="https://transmit.ai/app/upload" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+                    Start Uploading
+                </a>
+                <a href="https://transmit.ai/app" style="display: inline-block; background: #f1f5f9; color: #334155; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px;">
+                    View Dashboard
                 </a>
             </div>
             
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0 20px;" />
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="https://www.instagram.com/transmit_ai/" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">Instagram</a>
+                <a href="https://www.linkedin.com/company/transmit-ai" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">LinkedIn</a>
+                <a href="https://youtube.com" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
+            </div>
+
             <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
                 Need help? Reply to this email or visit our <a href="https://transmit.ai/faq" style="color: #2563eb; text-decoration: none; font-weight: 600;">FAQ</a>.
             </p>
