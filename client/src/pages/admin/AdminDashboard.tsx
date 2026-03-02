@@ -1148,6 +1148,16 @@ const AdminDashboard = () => {
                 className="w-full h-full max-w-none rounded-none m-0"
             >
                 <div className="space-y-4 pt-4 flex flex-col h-full">
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-1 uppercase tracking-wider">Article Title</label>
+                        <input
+                            type="text"
+                            value={selectedArticle.title || ''}
+                            onChange={(e) => setSelectedArticle({ ...selectedArticle, title: e.target.value })}
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-lg font-bold transition-all shadow-sm"
+                            placeholder="How to Manage Construction Documents..."
+                        />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-bold text-slate-700 mb-1 font-mono uppercase tracking-wider">Category (e.g., Guide, AI, News)</label>

@@ -144,11 +144,15 @@ const ArticleDetail = () => {
                     </div>
 
                     {article.header_image ? (
-                        <div className="rounded-3xl overflow-hidden shadow-2xl mb-12 aspect-[21/9]">
+                        <div className="rounded-3xl overflow-hidden shadow-2xl mb-12 aspect-[21/9] bg-slate-100 flex items-center justify-center relative">
+                            <Newspaper size={80} className="absolute z-0 text-slate-300" />
                             <img
                                 src={article.header_image}
                                 alt={article.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover relative z-10"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                }}
                             />
                         </div>
                     ) : (

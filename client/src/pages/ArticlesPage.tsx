@@ -87,8 +87,8 @@ const ArticlesPage = () => {
                                     key={cat}
                                     onClick={() => setActiveCategory(cat)}
                                     className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${activeCategory === cat
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-105'
-                                            : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'
+                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-105'
+                                        : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'
                                         }`}
                                 >
                                     {cat}
@@ -126,19 +126,20 @@ const ArticlesPage = () => {
                                     to={`/articles/${article.slug}`}
                                     className="group bg-white rounded-[2rem] border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-slate-200/50 transition-all flex flex-col h-full"
                                 >
-                                    <div className="relative h-56 overflow-hidden">
-                                        {article.header_image ? (
+                                    <div className="relative h-56 overflow-hidden bg-slate-100 flex items-center justify-center text-slate-400">
+                                        <Newspaper size={40} className="absolute z-0" />
+                                        {article.header_image && (
                                             <img
                                                 src={article.header_image}
                                                 alt={article.title}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 relative z-10"
+                                                onError={(e) => {
+                                                    // Hide broken image to reveal the fallback icon behind it
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
                                             />
-                                        ) : (
-                                            <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
-                                                <Newspaper size={40} />
-                                            </div>
                                         )}
-                                        <div className="absolute top-4 left-4">
+                                        <div className="absolute top-4 left-4 z-20">
                                             <span className="bg-white/90 backdrop-blur-sm text-blue-600 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
                                                 Article
                                             </span>
