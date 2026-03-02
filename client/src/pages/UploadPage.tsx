@@ -3,6 +3,7 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 import { Link } from 'react-router-dom';
 import { Upload, X, File, FileText, FileSpreadsheet, FileImage, FileCode, CheckCircle, AlertCircle, Eye, Download, Edit2, Save, RotateCcw, FileCheck, ShieldCheck, Zap, Layers } from 'lucide-react';
 import { useDocumentStore } from '../services/store';
+import { exportToExcel, exportToPDF, type DocumentExportData } from '../utils/exportUtils';
 import JSZip from 'jszip';
 // Lazy load heavy dependencies to reduce initial bundle size
 // import jsPDF from 'jspdf';
@@ -379,84 +380,33 @@ const UploadPage = () => {
 
     const handleExportExcel = async () => {
         try {
-            // Dynamically import ExcelJS only when needed
-            const ExcelJS = (await import('exceljs')).default;
+            const mappedDocs: DocumentExportData[] = results.map(r => ({
+                documentNumber: r.data.documentNumber || '',
+                revision: r.data.revision || '',
+                documentType: r.filename.split('.').pop()?.toUpperCase() || '',
+                title: r.data.title || r.filename,
+                issueDate: r.data.issueDate || '',
+                discipline: r.data.discipline || 'General',
+                consultant: r.data.consultant || '',
+                status: r.data.status || 'Pending',
+                summary: r.data.summary || ''
+            }));
 
-            const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('Extracted Data');
-
-            // Add Transmittal Title if exists
-            let currentRow = 1;
-
-            // Add Company Logo/Name if present
-            if (companySettings.name || companySettings.logo) {
-                // If we have a logo, we can add it (ExcelJS supports images)
-                // For MVP, just putting Company Name in big text at A1
-                if (companySettings.name) {
-                    worksheet.mergeCells('A1:B1');
-                    const cell = worksheet.getCell('A1');
-                    cell.value = companySettings.name;
-                    cell.font = { bold: true, size: 16, color: { argb: 'FF2563EB' } }; // Blue color
-                    currentRow += 2;
-                }
-            }
-
-            if (transmittalTitle) {
-                worksheet.getRow(currentRow).values = [transmittalTitle];
-                worksheet.getCell(`A${currentRow}`).font = { bold: true, size: 14 };
-                worksheet.mergeCells(`A${currentRow}:I${currentRow}`); // Merge across 9 columns
-                currentRow += 2; // Leave a blank row
-            }
-
-            worksheet.getRow(currentRow).values = ['Filename', 'Type', 'Document Number', 'Revision', 'Title', 'Issue Date', 'Discipline', 'Consultant', 'Status', 'Summary'];
-            worksheet.getRow(currentRow).font = { bold: true };
-
-            // Define Columns (for width only)
-            worksheet.columns = [
-                { key: 'filename', width: 30 },
-                { key: 'type', width: 10 },
-                { key: 'documentNumber', width: 20 },
-                { key: 'revision', width: 10 },
-                { key: 'title', width: 40 },
-                { key: 'issueDate', width: 15 },
-                { key: 'discipline', width: 15 },
-                { key: 'consultant', width: 20 },
-                { key: 'status', width: 15 },
-                { key: 'summary', width: 50 },
-            ];
-
-            results.forEach(r => {
-                worksheet.addRow([
-                    r.filename,
-                    r.filename.split('.').pop()?.toUpperCase() || '',
-                    r.data.documentNumber || '',
-                    r.data.revision || '',
-                    r.data.title || '',
-                    r.data.issueDate || '',
-                    r.data.discipline || '',
-                    r.data.consultant || '',
-                    r.data.status || 'Pending',
-                    r.data.summary || ''
-                ]);
-            });
-
-            const buffer = await workbook.xlsx.writeBuffer();
-            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            // Use transmittal title for filename if available
-            a.download = transmittalTitle ? `${transmittalTitle.replace(/[^a-z0-9]/gi, '_')}.xlsx` : 'extracted_data.xlsx';
-            a.click();
-            URL.revokeObjectURL(url);
+            const finalFilename = await exportToExcel(
+                mappedDocs,
+                transmittalTitle || 'extracted_data',
+                companySettings.logo,
+                companySettings.name
+            );
 
             showToast(
-                `✅ Exported ${results.length} documents to ${transmittalTitle ? `${transmittalTitle.replace(/[^a-z0-9]/gi, '_')}.xlsx` : 'extracted_data.xlsx'}`,
+                `✅ Exported ${results.length} documents to ${finalFilename}`,
                 'success',
                 5000
             );
-        } catch {
-            showToast('Excel export failed', 'error');
+        } catch (error) {
+            console.error('Excel export error:', error);
+            showToast('Failed to export Excel. Please try again or contact support.', 'error', 7000);
         }
     };
 
@@ -464,84 +414,33 @@ const UploadPage = () => {
 
     const handleExportPDF = async () => {
         try {
-            // Dynamically import jsPDF and autoTable only when needed
-            const jsPDF = (await import('jspdf')).default;
-            const autoTable = (await import('jspdf-autotable')).default;
+            const mappedDocs: DocumentExportData[] = results.map(r => ({
+                documentNumber: r.data.documentNumber || '',
+                revision: r.data.revision || '',
+                documentType: r.filename.split('.').pop()?.toUpperCase() || '',
+                title: r.data.title || r.filename,
+                issueDate: r.data.issueDate || '',
+                discipline: r.data.discipline || 'General',
+                consultant: r.data.consultant || '',
+                status: r.data.status || 'Pending',
+                summary: r.data.summary || ''
+            }));
 
-            const doc = new jsPDF({ orientation: 'landscape' });
-            let yPos = 15;
-
-            // Add Header with Company Info
-            if (companySettings.logo) {
-                try {
-                    doc.addImage(companySettings.logo, 'PNG', 250, 10, 30, 15); // Adjusted for landscape
-                } catch (e) {
-                    console.warn('Failed to add logo to PDF', e);
-                }
-            }
-
-            if (companySettings.name) {
-                doc.setFontSize(20);
-                doc.setTextColor(37, 99, 235); // Blue
-                doc.text(companySettings.name, 14, 20);
-                doc.setTextColor(0, 0, 0); // Reset
-                yPos = 35;
-            }
-
-            // Add Transmittal Title
-            if (transmittalTitle) {
-                doc.setFontSize(14);
-                doc.text(transmittalTitle, 14, yPos);
-                yPos += 10;
-                doc.setFontSize(10); // Reset for table
-            }
-
-            const tableBody = results.map(r => [
-                r.filename,
-                r.filename.split('.').pop()?.toUpperCase() || '',
-                r.data.documentNumber || '',
-                r.data.revision || '',
-                r.data.title || '',
-                r.data.issueDate || '',
-                r.data.discipline || '',
-                r.data.consultant || '',
-                r.data.status || 'Pending',
-                r.data.summary || ''
-            ]);
-
-            autoTable(doc, {
-                startY: yPos,
-                head: [['Filename', 'Type', 'Doc Num', 'Rev', 'Title', 'Date', 'Disc', 'Cons', 'Status', 'Summary']],
-                body: tableBody,
-                columnStyles: {
-                    0: { cellWidth: 40 }, // Filename
-                    1: { cellWidth: 15 }, // Type
-                    2: { cellWidth: 35 }, // Doc Num
-                    3: { cellWidth: 12 }, // Rev
-                    4: { cellWidth: 50 }, // Title
-                    5: { cellWidth: 20 }, // Date
-                    6: { cellWidth: 20 }, // Disc
-                    7: { cellWidth: 25 }, // Cons
-                    8: { cellWidth: 20 }, // Status
-                    9: { cellWidth: 35 }  // Summary
-                }
-            });
-
-            const filename = transmittalTitle ? `${transmittalTitle.replace(/[^a-z0-9]/gi, '_')}.pdf` : 'extracted_data.pdf';
-            doc.save(filename);
+            const finalFilename = await exportToPDF(
+                mappedDocs,
+                transmittalTitle || 'extracted_data',
+                companySettings.logo,
+                companySettings.name
+            );
 
             showToast(
-                `✅ Exported ${results.length} documents to ${filename}`,
+                `✅ Exported ${results.length} documents to ${finalFilename}`,
                 'success',
                 5000
             );
-        } catch {
-            console.error('PDF export error: Failed to export PDF.');
-            showToast(
-                'Failed to export PDF. Please try again or contact support.',
-                'error',
-                7000
-            );
+        } catch (error) {
+            console.error('PDF export error:', error);
+            showToast('Failed to export PDF. Please try again or contact support.', 'error', 7000);
         }
     };
 
