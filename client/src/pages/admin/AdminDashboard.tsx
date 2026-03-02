@@ -440,30 +440,26 @@ const AdminDashboard = () => {
         if (!e.target.files || e.target.files.length === 0) return;
 
         const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
+        // Validate file size (e.g., max 2MB to keep DB small)
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('Image must be less than 2MB', 'error');
+            return;
+        }
 
         setIsUploading(true);
-        try {
-            const token = await getToken();
-            const res = await fetch(`${API_URL}/upload`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
 
-            if (!res.ok) throw new Error('Upload failed');
-
-            const data = await res.json();
-            setSelectedArticle({ ...selectedArticle, header_image: data.url });
-            showToast('Image uploaded successfully', 'success');
-        } catch {
-            showToast('Failed to upload image', 'error');
-        } finally {
+        // Use FileReader to convert image to Base64 Data URL (bypasses Vercel read-only FS)
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setSelectedArticle({ ...selectedArticle, header_image: reader.result as string });
+            showToast('Image loaded successfully', 'success');
             setIsUploading(false);
-        }
+        };
+        reader.onerror = () => {
+            showToast('Failed to read image file', 'error');
+            setIsUploading(false);
+        };
+        reader.readAsDataURL(file);
     };
 
 
