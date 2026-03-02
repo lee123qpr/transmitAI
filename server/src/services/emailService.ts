@@ -108,3 +108,36 @@ export const sendWelcomeUser = async (email: string) => {
         console.error('[EmailService] User welcome error:', error);
     }
 };
+
+export const sendContactFormMessage = async (name: string, fromEmail: string, subject: string, message: string) => {
+    if (!process.env.RESEND_API_KEY) {
+        console.warn('[EmailService] Resend API key missing, skipping contact form email');
+        return false;
+    }
+
+    const html = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #1a1a1a;">New Contact Form Submission</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${fromEmail}</p>
+            <p><strong>Subject:</strong> ${subject}</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+            <p style="color: #4a4a4a; line-height: 1.6; white-space: pre-wrap;">${message}</p>
+        </div>
+    `;
+
+    try {
+        await resend.emails.send({
+            from: 'Contact Form <admin@transmit.ai>',
+            to: 'support@transmittal.co.uk',
+            replyTo: fromEmail,
+            subject: \`[Contact Form] \${subject}\`,
+            html: html
+        });
+        console.log(\`[EmailService] Contact message from \${fromEmail} sent successfully.\`);
+        return true;
+    } catch (error) {
+        console.error('[EmailService] Contact form email error:', error);
+        return false;
+    }
+};

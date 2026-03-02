@@ -8,7 +8,7 @@ import { query } from '../db';
 import paymentRoutes from './payments';
 import Stripe from 'stripe';
 import { requireAuth } from '../middleware/auth'; // Import Auth Middleware
-import { sendWelcomeNewsletter, sendWelcomeUser } from '../services/emailService';
+import { sendWelcomeNewsletter, sendWelcomeUser, sendContactFormMessage } from '../services/emailService';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -476,6 +476,28 @@ router.put('/transmittals/rename', requireAuth, async (req: Request, res) => {
     } catch (error) {
         console.error('[API] Rename Transmittal Error:', error);
         res.status(500).json({ error: 'Failed to rename transmittal' });
+    }
+});
+
+// New Endpoint: Contact Form
+router.post('/contact', async (req: Request, res: Response) => {
+    try {
+        const { name, email, subject, message } = req.body;
+
+        if (!name || !email || !subject || !message) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+
+        const success = await sendContactFormMessage(name, email, subject, message);
+
+        if (success) {
+            res.json({ success: true, message: 'Your message has been sent successfully.' });
+        } else {
+            res.status(500).json({ error: 'Failed to send message' });
+        }
+    } catch (error) {
+        console.error('[API] Contact Form Error:', error);
+        res.status(500).json({ error: 'Internal server error while sending message' });
     }
 });
 

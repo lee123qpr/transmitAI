@@ -1,7 +1,53 @@
-import { Mail, MapPin, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { useState } from 'react';
+import { Mail, MapPin, Instagram, Linkedin, Youtube, Send } from 'lucide-react';
 import SEO from '../components/SEO';
+import { useToast } from '../components/Toast';
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const ContactPage = () => {
+    const { showToast } = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        try {
+            const res = await fetch(`${API_URL}/contact`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showToast('✅ Your message has been sent successfully!', 'success', 5000);
+                setFormData({ name: '', email: '', subject: '', message: '' }); // Reset form
+            } else {
+                throw new Error(data.error || 'Failed to send message');
+            }
+        } catch (error: any) {
+            console.error('Contact form error:', error);
+            showToast(error.message || 'Failed to send message. Please try again later.', 'error', 7000);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
     return (
         <div className="flex flex-col min-h-screen">
             <SEO
@@ -82,7 +128,7 @@ const ContactPage = () => {
                         {/* Contact Form */}
                         <div>
                             <h2 className="text-3xl font-bold text-slate-900 mb-8">Send us a Message</h2>
-                            <form className="space-y-6">
+                            <form className="space-y-6" onSubmit={handleSubmit}>
                                 {/* Name */}
                                 <div>
                                     <label htmlFor="name" className="block text-sm font-medium text-slate-900 mb-2">
@@ -92,9 +138,12 @@ const ContactPage = () => {
                                         type="text"
                                         id="name"
                                         name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                        placeholder="John Smith"
+                                        disabled={isSubmitting}
+                                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50"
+                                        placeholder="John Doe"
                                     />
                                 </div>
 
@@ -107,8 +156,11 @@ const ContactPage = () => {
                                         type="email"
                                         id="email"
                                         name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        disabled={isSubmitting}
+                                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50"
                                         placeholder="john@company.com"
                                     />
                                 </div>
@@ -122,8 +174,11 @@ const ContactPage = () => {
                                         type="text"
                                         id="subject"
                                         name="subject"
+                                        value={formData.subject}
+                                        onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        disabled={isSubmitting}
+                                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50"
                                         placeholder="How can we help?"
                                     />
                                 </div>
@@ -136,9 +191,12 @@ const ContactPage = () => {
                                     <textarea
                                         id="message"
                                         name="message"
+                                        value={formData.message}
+                                        onChange={handleChange}
                                         rows={6}
                                         required
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                                        disabled={isSubmitting}
+                                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none disabled:opacity-50"
                                         placeholder="Tell us more about your inquiry..."
                                     />
                                 </div>
@@ -146,9 +204,15 @@ const ContactPage = () => {
                                 {/* Submit Button */}
                                 <button
                                     type="submit"
-                                    className="w-full px-8 py-4 text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg shadow-blue-500/20 transition-all hover:scale-105"
+                                    disabled={isSubmitting}
+                                    className="w-full flex items-center justify-center gap-2 px-8 py-4 text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
                                 >
-                                    Send Message
+                                    {isSubmitting ? 'Sending...' : (
+                                        <>
+                                            <Send size={20} />
+                                            Send Message
+                                        </>
+                                    )}
                                 </button>
 
                                 <p className="text-xs text-slate-500 text-center">
