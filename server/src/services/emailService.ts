@@ -66,7 +66,7 @@ export const sendWelcomeNewsletter = async (email: string) => {
             <div style="text-align: center; margin-bottom: 20px;">
                 <a href="https://www.instagram.com/transmit_ai/" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">Instagram</a>
                 <a href="https://www.linkedin.com/company/transmit-ai" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">LinkedIn</a>
-                <a href="https://youtube.com" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
+                <a href="https://www.youtube.com/@Transmit_AI" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
             </div>
 
             <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
@@ -131,7 +131,7 @@ export const sendWelcomeUser = async (email: string) => {
             <div style="text-align: center; margin-bottom: 20px;">
                 <a href="https://www.instagram.com/transmit_ai/" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">Instagram</a>
                 <a href="https://www.linkedin.com/company/transmit-ai" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">LinkedIn</a>
-                <a href="https://youtube.com" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
+                <a href="https://www.youtube.com/@Transmit_AI" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
             </div>
 
             <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">

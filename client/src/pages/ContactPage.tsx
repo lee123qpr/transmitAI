@@ -116,7 +116,7 @@ const ContactPage = () => {
                                         <a href="https://www.linkedin.com/company/transmit-ai" target="_blank" rel="noopener noreferrer" className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all">
                                             <Linkedin size={22} />
                                         </a>
-                                        <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
+                                        <a href="https://www.youtube.com/@Transmit_AI" target="_blank" rel="noopener noreferrer" className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
                                             <Youtube size={22} />
                                         </a>
                                     </div>
