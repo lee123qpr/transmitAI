@@ -50,27 +50,8 @@ export const exportToExcel = async (
 ) => {
     const ExcelJS = (await import('exceljs')).default;
     const workbook = new ExcelJS.Workbook();
-
-    // Excel worksheet names must be <= 31 characters
     const safeSheetName = (filename || 'Transmittal Register').substring(0, 31).replace(/[\[\]\*\/\\\?\:]/g, '_');
     const worksheet = workbook.addWorksheet(safeSheetName);
-
-    // Add Title Row
-    worksheet.mergeCells('A1:G1');
-    const titleCell = worksheet.getCell('A1');
-    titleCell.value = filename || 'Transmittal Register';
-    titleCell.font = { size: 16, bold: true, color: { argb: 'FF1F2937' } };
-    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
-    titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
-    worksheet.getRow(1).height = 30;
-
-    // Add Date Row
-    worksheet.mergeCells('A2:G2');
-    const dateCell = worksheet.getCell('A2');
-    dateCell.value = `Exported: ${new Date().toLocaleDateString('en-GB')}`;
-    dateCell.font = { size: 10, italic: true, color: { argb: 'FF6B7280' } };
-    dateCell.alignment = { vertical: 'middle', horizontal: 'center' };
-    worksheet.getRow(2).height = 20;
 
     // Optional Company Logo
     if (companyLogoUrl) {
@@ -82,135 +63,57 @@ export const exportToExcel = async (
                     extension: logoData.extension as 'jpeg' | 'png',
                 });
                 worksheet.addImage(logoId, {
-                    tl: { col: 0.2, row: 0.2 },
-                    ext: { width: 140, height: 50 },
+                    tl: { col: 7, row: 0 }, // Column H
+                    ext: { width: 120, height: 40 },
                     editAs: 'absolute'
                 });
             } catch (e) {
                 console.error('Failed to embed excel logo', e);
-                if (companyName) {
-                    worksheet.getCell('G1').value = companyName;
-                    worksheet.getCell('G1').font = { size: 14, bold: true, color: { argb: 'FF3B82F6' } };
-                }
             }
-        } else if (companyName) {
-            worksheet.getCell('G1').value = companyName;
-            worksheet.getCell('G1').font = { size: 14, bold: true, color: { argb: 'FF3B82F6' } };
         }
-    } else if (companyName) {
-        worksheet.getCell('G1').value = companyName;
-        worksheet.getCell('G1').font = { size: 14, bold: true, color: { argb: 'FF3B82F6' } };
     }
 
-    // Define columns (starting at row 4)
     worksheet.columns = [
-        { header: 'Doc Number', key: 'documentNumber', width: 22 },
-        { header: 'Revision', key: 'revision', width: 12 },
-        { header: 'Type', key: 'documentType', width: 15 },
-        { header: 'Title', key: 'title', width: 45 },
-        { header: 'Status', key: 'status', width: 18 },
-        { header: 'Issue Date', key: 'issueDate', width: 15 },
-        { header: 'Discipline', key: 'discipline', width: 18 },
-        { header: 'Consultant', key: 'consultant', width: 25 },
-        { header: 'Summary', key: 'summary', width: 50 },
+        { key: 'documentNumber', width: 22 },
+        { key: 'revision', width: 12 },
+        { key: 'documentType', width: 15 },
+        { key: 'title', width: 45 },
+        { key: 'status', width: 18 },
+        { key: 'issueDate', width: 15 },
+        { key: 'discipline', width: 18 },
+        { key: 'consultant', width: 25 },
+        { key: 'summary', width: 80 },
     ];
 
-    // Style header row (row 4)
-    worksheet.getRow(4).font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
-    worksheet.getRow(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
-    worksheet.getRow(4).alignment = { vertical: 'middle', horizontal: 'center' };
-    worksheet.getRow(4).height = 25;
-    worksheet.getRow(4).border = {
-        bottom: { style: 'thick', color: { argb: 'FF374151' } }
-    };
+    worksheet.getCell('A1').value = filename || 'Transmittal Register';
+    worksheet.getCell('A1').font = { size: 14, bold: true };
+    worksheet.getCell('A2').value = `Exported: ${new Date().toLocaleDateString('en-GB')}`;
+    worksheet.getCell('A2').font = { size: 10, italic: true };
 
-    // Sort documents by discipline
-    const disciplineOrder: Record<string, number> = {
-        'Architectural': 1, 'Structural': 2, 'Civil': 3, 'Mechanical': 4,
-        'Electrical': 5, 'Plumbing': 6, 'MEP': 7, 'Landscape': 8, 'General': 9
-    };
+    if (companyName) {
+        worksheet.getCell('A3').value = `Company: ${companyName}`;
+        worksheet.getCell('A3').font = { size: 11, bold: true };
+    }
 
+    // Set headers
+    const headerRow = worksheet.getRow(5);
+    headerRow.values = ['Doc Number', 'Revision', 'Type', 'Title', 'Status', 'Issue Date', 'Discipline', 'Consultant', 'Summary'];
+    headerRow.font = { bold: true };
+    headerRow.border = { bottom: { style: 'thin' } };
+
+    // Sort documents simply by Doc Number
     const sortedDocs = [...docsToExport].sort((a, b) => {
-        const disciplineA = a.discipline || 'General';
-        const disciplineB = b.discipline || 'General';
-        const orderA = disciplineOrder[disciplineA] || 999;
-        const orderB = disciplineOrder[disciplineB] || 999;
-
-        if (orderA !== orderB) return orderA - orderB;
         return (a.documentNumber || '').localeCompare(b.documentNumber || '');
     });
 
-    // Group by discipline colors
-    let currentRow = 5;
-    const disciplineColors: Record<string, string> = {
-        'Architectural': 'FFF3E8FF', 'Structural': 'FFDBEAFE', 'Civil': 'FFFEF3C7',
-        'Mechanical': 'FFBFDBFE', 'Electrical': 'FFFEF9C3', 'Plumbing': 'FFD1FAE5',
-        'MEP': 'FFE0E7FF', 'Landscape': 'FFD1FAE5', 'General': 'FFF3F4F6'
-    };
-
-    // Add documents with discipline grouping
-    let currentDiscipline = '';
     sortedDocs.forEach((doc) => {
-        const discipline = doc.discipline || 'General';
-
-        // Add discipline header if discipline changes
-        if (discipline !== currentDiscipline) {
-            currentDiscipline = discipline;
-            const disciplineRow = worksheet.getRow(currentRow);
-            worksheet.mergeCells(`A${currentRow}:G${currentRow}`);
-            const disciplineCell = worksheet.getCell(`A${currentRow}`);
-            disciplineCell.value = `━━━ ${discipline.toUpperCase()} ━━━`;
-            disciplineCell.font = { bold: true, size: 11, color: { argb: 'FF374151' } };
-            disciplineCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-            disciplineCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: disciplineColors[discipline] || 'FFF3F4F6' } };
-            disciplineRow.height = 22;
-            currentRow++;
-        }
-
-        // Add document row
         worksheet.addRow({
             ...doc,
             documentType: doc.documentType || doc.title?.split('.').pop()?.toUpperCase() || ''
         });
-        const row = worksheet.getRow(currentRow);
-
-        // Zebra striping within discipline
-        const isEven = (currentRow % 2 === 0);
-        row.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: isEven ? 'FFFFFFFF' : 'FFFAFAFA' }
-        };
-
-        row.alignment = { vertical: 'middle' };
-        row.height = 20;
-        currentRow++;
     });
 
-    // Add borders to all data cells
-    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-        if (rowNumber >= 4) {
-            row.eachCell((cell) => {
-                cell.border = {
-                    top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                    left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                    bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                    right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
-                };
-            });
-        }
-    });
-
-    // Add Transmit.AI Stamp
-    currentRow += 2;
-    worksheet.mergeCells(`A${currentRow}:C${currentRow}`);
-    const brandCell = worksheet.getCell(`A${currentRow}`);
-    brandCell.value = { text: 'Made by Transmit.AI - transmittal.co.uk', hyperlink: 'https://transmittal.co.uk' };
-    brandCell.font = { italic: true, color: { argb: 'FF3B82F6' }, underline: true };
-    brandCell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-    // Freeze header rows
-    worksheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 4 }];
+    worksheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 5 }];
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -252,6 +155,7 @@ export const exportToPDF = async (
     doc.text(`Exported: ${new Date().toLocaleDateString('en-GB')}`, 105, 22, { align: 'center' });
     doc.text(`Total Documents: ${docsToExport.length}`, 105, 28, { align: 'center' });
 
+    let hasLogo = false;
     if (companyLogoUrl) {
         const logoData = await fetchImageAsBase64(companyLogoUrl);
         if (logoData) {
@@ -260,20 +164,17 @@ export const exportToPDF = async (
                 // Pass the data URI format expected by jsPDF
                 const dataUri = `data:image/${logoData.extension};base64,${logoData.base64}`;
                 doc.addImage(dataUri, imgFormat, 14, 5, 25, 25, undefined, 'FAST');
+                hasLogo = true;
             } catch (e) {
                 console.error('PDF logo add error', e);
-                if (companyName) {
-                    doc.setFontSize(14);
-                    doc.text(companyName, 14, 20);
-                }
             }
-        } else if (companyName) {
-            doc.setFontSize(14);
-            doc.text(companyName, 14, 20);
         }
-    } else if (companyName) {
+    }
+
+    if (companyName) {
         doc.setFontSize(14);
-        doc.text(companyName, 14, 20);
+        doc.setFont('helvetica', 'bold');
+        doc.text(companyName, hasLogo ? 43 : 14, 20);
     }
 
     doc.setTextColor(0, 0, 0); // Reset to black
