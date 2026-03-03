@@ -62,7 +62,7 @@ const ContactPage = () => {
                         Get in Touch
                     </h1>
                     <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                        Have questions about Transmit.AI? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                        Have questions about Transmit AI? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
                     </p>
                 </div>
             </section>
