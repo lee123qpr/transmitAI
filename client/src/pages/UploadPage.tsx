@@ -36,6 +36,7 @@ interface ResultItem {
     file: File;
     isEditing: boolean;
     isDuplicate?: boolean;
+    duplicateOf?: string;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -338,12 +339,17 @@ const UploadPage = () => {
                 const extractedRevision = json.data.revision || '';
 
                 let isDuplicate = false;
+                let duplicateOf = '';
                 if (extractedDocNumber) {
                     const allCurrentResults = [...results, ...newResults];
-                    isDuplicate = allCurrentResults.some(r =>
+                    const existingMatch = allCurrentResults.find(r =>
                         r.data.documentNumber === extractedDocNumber &&
                         (r.data.revision || '') === extractedRevision
                     );
+                    if (existingMatch) {
+                        isDuplicate = true;
+                        duplicateOf = existingMatch.filename;
+                    }
                 }
 
                 newResults.push({
@@ -352,7 +358,8 @@ const UploadPage = () => {
                     data: json.data,
                     file: file,
                     isEditing: false,
-                    isDuplicate
+                    isDuplicate,
+                    duplicateOf
                 });
             } catch (err: unknown) {
                 console.error('Upload failed:', err);
@@ -792,9 +799,14 @@ const UploadPage = () => {
                                         </h3>
                                         <span className="text-[10px] font-mono bg-slate-200 px-1.5 py-0.5 rounded text-slate-600">AI</span>
                                         {result.isDuplicate && (
-                                            <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200 ml-1" title="Another document in this batch shares the same Document Number and Revision.">
+                                            <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200 ml-1 group relative cursor-help">
                                                 <AlertCircle size={12} />
                                                 <span className="text-[10px] font-bold uppercase tracking-wider">Potential Duplicate</span>
+                                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-max max-w-[250px] p-2 bg-slate-900 text-white text-xs rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none z-50">
+                                                    <p className="font-semibold mb-0.5 text-amber-400">Exact Match Found</p>
+                                                    <p className="text-slate-300 leading-snug">The AI extracted the identical Document Number and Revision as: <br /><strong className="text-white mt-1 inline-block truncate max-w-full">{result.duplicateOf}</strong></p>
+                                                    <div className="absolute left-1/2 -translate-x-1/2 top-full border-[5px] border-transparent border-t-slate-900"></div>
+                                                </div>
                                             </div>
                                         )}
                                         {result.data.confidence_score !== undefined && (
