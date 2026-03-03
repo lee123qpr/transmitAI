@@ -78,12 +78,18 @@ export const sendWelcomeNewsletter = async (email: string) => {
     const template = await getEmailTemplate('email_template_newsletter', 'Welcome to the Transmit AI Newsletter!', defaultHtml);
 
     try {
-        await resend.emails.send({
-            from: 'Transmit AI <admin@transmit.ai>',
+        const { error } = await resend.emails.send({
+            from: 'Transmit AI <admin@transmittal.co.uk>',
             to: email,
             subject: template.subject,
             html: template.html
         });
+
+        if (error) {
+            console.error('[Resend Error]', error);
+            return;
+        }
+
         console.log(`[EmailService] Newsletter welcome sent to ${email}`);
     } catch (error) {
         console.error('[EmailService] Newsletter error:', error);
@@ -143,12 +149,18 @@ export const sendWelcomeUser = async (email: string) => {
     const template = await getEmailTemplate('email_template_user_welcome', 'Welcome to Transmit AI!', defaultHtml);
 
     try {
-        await resend.emails.send({
-            from: 'Transmit AI <onboarding@transmit.ai>',
+        const { error } = await resend.emails.send({
+            from: 'Transmit AI <onboarding@transmittal.co.uk>',
             to: email,
             subject: template.subject,
             html: template.html
         });
+
+        if (error) {
+            console.error('[Resend Error]', error);
+            return;
+        }
+
         console.log(`[EmailService] User welcome sent to ${email}`);
     } catch (error) {
         console.error('[EmailService] User welcome error:', error);
@@ -173,13 +185,19 @@ export const sendContactFormMessage = async (name: string, fromEmail: string, su
     `;
 
     try {
-        await resend.emails.send({
-            from: 'Contact Form <admin@transmit.ai>',
+        const { error } = await resend.emails.send({
+            from: 'Contact Form <admin@transmittal.co.uk>',
             to: 'support@transmittal.co.uk',
             replyTo: fromEmail,
             subject: `[Contact Form] ${subject}`,
             html: html
         });
+
+        if (error) {
+            console.error('[Resend Error]', error);
+            return false;
+        }
+
         console.log(`[EmailService] Contact message from ${fromEmail} sent successfully.`);
         return true;
     } catch (error) {

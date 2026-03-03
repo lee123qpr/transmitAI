@@ -279,7 +279,7 @@ export const sendUserEmail = async (req: Request, res: Response) => {
         }
 
         await resend.emails.send({
-            from: 'Admin <admin@transmit.ai>',
+            from: 'Admin <admin@transmittal.co.uk>',
             to: userEmail,
             subject,
             text: message
@@ -288,8 +288,9 @@ export const sendUserEmail = async (req: Request, res: Response) => {
         await logAdminAction((req as any).auth?.userId as string, 'send_email', userId, { subject });
 
         res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to send email' });
+    } catch (error: any) {
+        console.error('[Admin Email Error]', error);
+        res.status(500).json({ error: error.message || 'Failed to send email' });
     }
 };
 
@@ -299,16 +300,23 @@ export const sendTestWelcomeEmail = async (req: Request, res: Response) => {
 
     try {
         const targetEmail = email || process.env.ADMIN_EMAIL; // Fallback to admin
-        await resend.emails.send({
-            from: 'Welcome <onboarding@transmit.ai>',
+        const { error } = await resend.emails.send({
+            from: 'Welcome <onboarding@transmittal.co.uk>',
             to: targetEmail,
             subject: 'Welcome to Transmittal!',
             html: '<p>Hi there,</p><p>Welcome to Transmittal! We are excited to have you on board.</p>'
         });
+
+        if (error) {
+            console.error('[Resend Error]', error);
+            return res.status(500).json({ error: error.message || 'Failed to send test welcome email' });
+        }
+
         await logAdminAction((req as any).auth?.userId as string, 'test_welcome_email', undefined, { targetEmail });
         res.json({ success: true, message: `Test welcome email sent to ${targetEmail}` });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to send test welcome email' });
+    } catch (err: any) {
+        console.error('[Admin Email Error]', err);
+        res.status(500).json({ error: err.message || 'Failed to send test welcome email' });
     }
 };
 
@@ -318,15 +326,22 @@ export const sendTestNewsletterEmail = async (req: Request, res: Response) => {
 
     try {
         const targetEmail = email || process.env.ADMIN_EMAIL;
-        await resend.emails.send({
-            from: 'Newsletter <newsletter@transmit.ai>',
+        const { error } = await resend.emails.send({
+            from: 'Newsletter <newsletter@transmittal.co.uk>',
             to: targetEmail,
             subject: 'Transmittal Weekly Update (TEST)',
             html: '<p>This is a test of the newsletter broadcast system.</p>'
         });
+
+        if (error) {
+            console.error('[Resend Error]', error);
+            return res.status(500).json({ error: error.message || 'Failed to send test newsletter' });
+        }
+
         await logAdminAction((req as any).auth?.userId as string, 'test_newsletter_email', undefined, { targetEmail });
         res.json({ success: true, message: `Test newsletter sent to ${targetEmail}` });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to send test newsletter' });
+    } catch (err: any) {
+        console.error('[Admin Email Error]', err);
+        res.status(500).json({ error: err.message || 'Failed to send test newsletter' });
     }
 };
