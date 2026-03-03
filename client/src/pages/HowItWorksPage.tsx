@@ -54,8 +54,8 @@ const HowItWorksPage = () => {
                                 </ul>
                             </div>
                             <div className="order-1 md:order-2">
-                                <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl p-12 flex items-center justify-center aspect-square">
-                                    <Upload size={120} className="text-blue-600" strokeWidth={1.5} />
+                                <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl p-10 flex items-center justify-center aspect-square max-w-sm mx-auto shadow-sm">
+                                    <Upload size={96} className="text-blue-600" strokeWidth={1.5} />
                                 </div>
                             </div>
                         </div>
@@ -63,8 +63,8 @@ const HowItWorksPage = () => {
                         {/* Step 2 */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                             <div className="order-1">
-                                <div className="bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl p-12 flex items-center justify-center aspect-square">
-                                    <FileCheck size={120} className="text-purple-600" strokeWidth={1.5} />
+                                <div className="bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl p-10 flex items-center justify-center aspect-square max-w-sm mx-auto shadow-sm">
+                                    <FileCheck size={96} className="text-purple-600" strokeWidth={1.5} />
                                 </div>
                             </div>
                             <div className="order-2">
@@ -124,8 +124,8 @@ const HowItWorksPage = () => {
                                 </ul>
                             </div>
                             <div className="order-1 md:order-2">
-                                <div className="bg-gradient-to-br from-green-100 to-green-50 rounded-2xl p-12 flex items-center justify-center aspect-square">
-                                    <Download size={120} className="text-green-600" strokeWidth={1.5} />
+                                <div className="bg-gradient-to-br from-green-100 to-green-50 rounded-2xl p-10 flex items-center justify-center aspect-square max-w-sm mx-auto shadow-sm">
+                                    <Download size={96} className="text-green-600" strokeWidth={1.5} />
                                 </div>
                             </div>
                         </div>
