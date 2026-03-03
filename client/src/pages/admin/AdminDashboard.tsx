@@ -637,30 +637,24 @@ const AdminDashboard = () => {
                                     <Activity size={20} className="text-blue-500" /> Recent Activity
                                 </h3>
                                 <div className="space-y-4">
-                                    {stats?.recentUsers?.map((u) => (
-                                        <div key={u.id} className="flex items-center justify-between text-sm border-b border-slate-50 pb-2 last:border-0 last:pb-0">
-                                            <div className="flex items-center gap-3">
-                                                <div className="bg-green-100 text-green-700 p-1.5 rounded-full"><Users size={14} /></div>
-                                                <div>
-                                                    <p className="font-medium text-slate-700">New User Signup</p>
-                                                    <p className="text-slate-500 text-xs">{u.email}</p>
+                                    {[
+                                        ...(stats?.recentUsers?.map(u => ({ type: 'user', id: u.id, title: 'New User Signup', sub: u.email, date: u.created_at, icon: <Users size={14} />, colorClass: 'bg-green-100 text-green-700' })) || []),
+                                        ...(stats?.recentLogs?.map(l => ({ type: 'log', id: l.id, title: l.action.replace(/_/g, ' '), sub: 'Admin Action', date: l.created_at, icon: <Shield size={14} />, colorClass: 'bg-amber-100 text-amber-700' })) || [])
+                                    ]
+                                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                                        .slice(0, 10) // Display top 10 most recent overall
+                                        .map((item, idx) => (
+                                            <div key={`${item.type}-${item.id}-${idx}`} className="flex items-center justify-between text-sm border-b border-slate-50 pb-2 last:border-0 last:pb-0 leading-tight">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`p-1.5 rounded-full ${item.colorClass}`}>{item.icon}</div>
+                                                    <div>
+                                                        <p className="font-medium text-slate-700 capitalize mb-0.5">{item.title}</p>
+                                                        <p className="text-slate-500 text-xs">{item.sub}</p>
+                                                    </div>
                                                 </div>
+                                                <span className="text-xs text-slate-400">{new Date(item.date).toLocaleDateString()}</span>
                                             </div>
-                                            <span className="text-xs text-slate-400">{new Date(u.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                    ))}
-                                    {stats?.recentLogs?.map((l) => (
-                                        <div key={l.id} className="flex items-center justify-between text-sm border-b border-slate-50 pb-2 last:border-0 last:pb-0">
-                                            <div className="flex items-center gap-3">
-                                                <div className="bg-amber-100 text-amber-700 p-1.5 rounded-full"><Shield size={14} /></div>
-                                                <div>
-                                                    <p className="font-medium text-slate-700 capitalize">{l.action.replace(/_/g, ' ')}</p>
-                                                    <p className="text-slate-500 text-xs">Admin Action</p>
-                                                </div>
-                                            </div>
-                                            <span className="text-xs text-slate-400">{new Date(l.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                    ))}
+                                        ))}
                                     {!stats?.recentUsers?.length && !stats?.recentLogs?.length && (
                                         <p className="text-slate-400 text-center py-4">No recent activity found.</p>
                                     )}
