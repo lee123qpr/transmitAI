@@ -24,7 +24,17 @@ const CompanySettings: React.FC = () => {
     useEffect(() => {
         if (!user) return;
         const fetchSettings = async () => {
-            setIsLoading(true);
+            const cached = sessionStorage.getItem(`userSettings_${user.id}`);
+            if (cached) {
+                try {
+                    const data = JSON.parse(cached);
+                    if (data.company_name) setCompanyName(data.company_name);
+                    if (data.company_logo_url) setLogoUrl(data.company_logo_url);
+                } catch (e) { /* ignore parse error */ }
+            } else {
+                setIsLoading(true);
+            }
+
             try {
                 // Pass email to ensure user creation
                 const email = user.primaryEmailAddress?.emailAddress;
@@ -37,6 +47,12 @@ const CompanySettings: React.FC = () => {
                     const data = await res.json();
                     if (data.company_name) setCompanyName(data.company_name);
                     if (data.company_logo_url) setLogoUrl(data.company_logo_url);
+
+                    // Sync Cache
+                    sessionStorage.setItem(`userSettings_${user.id}`, JSON.stringify({
+                        company_name: data.company_name,
+                        company_logo_url: data.company_logo_url
+                    }));
                 }
             } catch (error) {
                 console.error('Failed to load settings:', error);
@@ -69,6 +85,13 @@ const CompanySettings: React.FC = () => {
                 console.error('Save failed:', res.status, errorData);
                 throw new Error(errorData.error || 'Failed to update settings');
             }
+
+            // Update cache
+            sessionStorage.setItem(`userSettings_${user.id}`, JSON.stringify({
+                company_name: companyName,
+                company_logo_url: logoUrl
+            }));
+
             showToast('Company name updated', 'success');
             setIsEditingName(false);
         } catch {
@@ -115,6 +138,12 @@ const CompanySettings: React.FC = () => {
                         throw new Error(errorData.error || 'Failed to update settings');
                     }
 
+                    // Update cache
+                    sessionStorage.setItem(`userSettings_${user.id}`, JSON.stringify({
+                        company_name: companyName,
+                        company_logo_url: newLogoUrl
+                    }));
+
                     setLogoUrl(newLogoUrl);
                     showToast('Logo updated successfully', 'success');
                 } catch (error) {
@@ -143,6 +172,13 @@ const CompanySettings: React.FC = () => {
                 },
                 body: JSON.stringify({ company_logo_url: '' })
             });
+
+            // Update cache
+            sessionStorage.setItem(`userSettings_${user.id}`, JSON.stringify({
+                company_name: companyName,
+                company_logo_url: ''
+            }));
+
             setLogoUrl('');
             showToast('Logo removed', 'success');
         } catch {
