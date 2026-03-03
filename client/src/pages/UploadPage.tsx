@@ -35,6 +35,7 @@ interface ResultItem {
     data: ExtractedData;
     file: File;
     isEditing: boolean;
+    isDuplicate?: boolean;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -332,12 +333,26 @@ const UploadPage = () => {
                     setUsage(json.usage.current, json.usage.limit);
                 }
 
+                // Check for duplicate within the current batch and pre-existing results
+                const extractedDocNumber = json.data.documentNumber;
+                const extractedRevision = json.data.revision;
+
+                let isDuplicate = false;
+                if (extractedDocNumber && extractedRevision) {
+                    const allCurrentResults = [...results, ...newResults];
+                    isDuplicate = allCurrentResults.some(r =>
+                        r.data.documentNumber === extractedDocNumber &&
+                        r.data.revision === extractedRevision
+                    );
+                }
+
                 newResults.push({
                     id: Math.random().toString(36).substr(2, 9),
                     filename: file.name,
                     data: json.data,
                     file: file,
-                    isEditing: false
+                    isEditing: false,
+                    isDuplicate
                 });
             } catch (err: unknown) {
                 console.error('Upload failed:', err);
@@ -776,6 +791,12 @@ const UploadPage = () => {
                                             {result.filename}
                                         </h3>
                                         <span className="text-[10px] font-mono bg-slate-200 px-1.5 py-0.5 rounded text-slate-600">AI</span>
+                                        {result.isDuplicate && (
+                                            <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200 ml-1" title="Another document in this batch shares the same Document Number and Revision.">
+                                                <AlertCircle size={12} />
+                                                <span className="text-[10px] font-bold uppercase tracking-wider">Potential Duplicate</span>
+                                            </div>
+                                        )}
                                         {result.data.confidence_score !== undefined && (
                                             <div className="group relative flex items-center z-10">
                                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 cursor-help border
