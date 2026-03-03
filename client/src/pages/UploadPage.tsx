@@ -400,6 +400,12 @@ const UploadPage = () => {
         setResults(results.map(r => r.id === id ? { ...r, data: { ...r.data, [field]: value } } : r));
     };
 
+    const generateDefaultTitle = () => {
+        const now = new Date();
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        return `Transmittal ${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}${pad(now.getMinutes())}`;
+    };
+
     const handleExportExcel = async () => {
         try {
             const mappedDocs: DocumentExportData[] = results.map(r => ({
@@ -416,7 +422,7 @@ const UploadPage = () => {
 
             const finalFilename = await exportToExcel(
                 mappedDocs,
-                transmittalTitle || 'extracted_data',
+                transmittalTitle || generateDefaultTitle(),
                 companySettings.logo,
                 companySettings.name
             );
@@ -450,7 +456,7 @@ const UploadPage = () => {
 
             const finalFilename = await exportToPDF(
                 mappedDocs,
-                transmittalTitle || 'extracted_data',
+                transmittalTitle || generateDefaultTitle(),
                 companySettings.logo,
                 companySettings.name
             );
