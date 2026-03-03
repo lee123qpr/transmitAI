@@ -959,14 +959,6 @@ const AdminDashboard = () => {
                                 </div>
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => handleExport('newsletter', 'public')}
-                                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg transition-colors font-bold text-sm border border-blue-200"
-                                        title="Export only emails from public footer signup"
-                                    >
-                                        <Download size={16} />
-                                        Export Public Signups
-                                    </button>
-                                    <button
                                         onClick={() => handleExport('newsletter', 'unified')}
                                         className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors font-bold text-sm border border-indigo-200"
                                         title="Export both public signups and registered newsletter users"
