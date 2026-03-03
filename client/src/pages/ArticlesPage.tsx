@@ -66,9 +66,9 @@ const ArticlesPage = () => {
                 description="Stay updated with the latest in construction AI, document control, and project management."
             />
 
-            <section className="py-20 px-6 lg:px-8 bg-white border-b border-slate-200">
+            <section className="py-10 px-6 lg:px-8 bg-white border-b border-slate-200">
                 <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8">
                         <div>
                             <h1 className="text-4xl lg:text-6xl font-black text-slate-900 mb-6 tracking-tight">
                                 Latest <span className="text-blue-600">Articles</span>
@@ -81,7 +81,7 @@ const ArticlesPage = () => {
 
                     {/* Category Filter */}
                     {categories.length > 1 && (
-                        <div className="flex flex-wrap gap-2 mb-12">
+                        <div className="flex flex-wrap gap-2 mb-6">
                             {categories.map((cat) => (
                                 <button
                                     key={cat}
@@ -99,7 +99,7 @@ const ArticlesPage = () => {
                 </div>
             </section>
 
-            <section className="py-16 px-6 lg:px-8">
+            <section className="py-8 px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
                     {isLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
