@@ -12,12 +12,12 @@ const FAQPage = () => {
 
     const faqItems: FAQItem[] = [
         {
-            question: "How does Transmit.AI work?",
+            question: "How does Transmit AI work?",
             answer: "Simply upload your PDF documents, and our AI-powered system automatically extracts key information like document titles, revision codes, dates, and metadata. You can then export the extracted data to Excel or PDF format for use in your project management systems."
         },
         {
             question: "What file formats do you support?",
-            answer: "We support PDF files (including scanned/legacy documents), Word documents (.docx), CAD exports, and most common construction document formats. Our AI vision technology can read both digital and scanned documents with high accuracy."
+            answer: "We currently support PDF files (including scanned and legacy documents), as this is the most common format for issued construction documents. Support for CAD exports (like DWG) and Word documents (.docx) is planned for future updates."
         },
         {
             question: "How accurate is the AI extraction?",
@@ -53,7 +53,7 @@ const FAQPage = () => {
         },
         {
             question: "Is there an API available?",
-            answer: "API access is coming soon! We're currently developing REST API endpoints for enterprise customers to integrate Transmit.AI directly into their workflows. Contact us if you're interested in early access."
+            answer: "API access is coming soon! We're currently developing REST API endpoints for enterprise customers to integrate Transmit AI directly into their workflows. Contact us if you're interested in early access."
         },
         {
             question: "What kind of support do you offer?",
@@ -80,8 +80,8 @@ const FAQPage = () => {
     return (
         <div className="flex flex-col min-h-screen">
             <SEO
-                title="Frequently Asked Questions - Transmit.AI"
-                description="Find answers to common questions about Transmit.AI's AI-powered document extraction platform for construction professionals."
+                title="Frequently Asked Questions - Transmit AI"
+                description="Find answers to common questions about Transmit AI's AI-powered document extraction platform for construction professionals."
             />
 
             {/* Hero Section */}
@@ -91,7 +91,7 @@ const FAQPage = () => {
                         Frequently Asked Questions
                     </h1>
                     <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                        Everything you need to know about Transmit.AI. Can't find what you're looking for? <a href="/contact" className="text-blue-600 hover:text-blue-700 font-medium">Contact us</a>.
+                        Everything you need to know about Transmit AI. Can't find what you're looking for? <a href="/contact" className="text-blue-600 hover:text-blue-700 font-medium">Contact us</a>.
                     </p>
                 </div>
             </section>
