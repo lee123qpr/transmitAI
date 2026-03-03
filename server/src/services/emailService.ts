@@ -79,7 +79,7 @@ export const sendWelcomeNewsletter = async (email: string) => {
 
     try {
         const { error } = await resend.emails.send({
-            from: 'Transmit AI <admin@transmittal.co.uk>',
+            from: 'Transmit AI <support@transmittal.co.uk>',
             to: email,
             subject: template.subject,
             html: template.html
@@ -150,7 +150,7 @@ export const sendWelcomeUser = async (email: string) => {
 
     try {
         const { error } = await resend.emails.send({
-            from: 'Transmit AI <onboarding@transmittal.co.uk>',
+            from: 'Transmit AI <support@transmittal.co.uk>',
             to: email,
             subject: template.subject,
             html: template.html
@@ -186,7 +186,7 @@ export const sendContactFormMessage = async (name: string, fromEmail: string, su
 
     try {
         const { error } = await resend.emails.send({
-            from: 'Contact Form <admin@transmittal.co.uk>',
+            from: 'Contact Form <support@transmittal.co.uk>',
             to: 'support@transmittal.co.uk',
             replyTo: fromEmail,
             subject: `[Contact Form] ${subject}`,

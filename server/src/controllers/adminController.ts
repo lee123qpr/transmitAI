@@ -279,7 +279,7 @@ export const sendUserEmail = async (req: Request, res: Response) => {
         }
 
         await resend.emails.send({
-            from: 'Admin <admin@transmittal.co.uk>',
+            from: 'Admin <support@transmittal.co.uk>',
             to: userEmail,
             subject,
             text: message
@@ -301,7 +301,7 @@ export const sendTestWelcomeEmail = async (req: Request, res: Response) => {
     try {
         const targetEmail = email || process.env.ADMIN_EMAIL; // Fallback to admin
         const { error } = await resend.emails.send({
-            from: 'Welcome <onboarding@transmittal.co.uk>',
+            from: 'Welcome <support@transmittal.co.uk>',
             to: targetEmail,
             subject: 'Welcome to Transmittal!',
             html: '<p>Hi there,</p><p>Welcome to Transmittal! We are excited to have you on board.</p>'
@@ -327,7 +327,7 @@ export const sendTestNewsletterEmail = async (req: Request, res: Response) => {
     try {
         const targetEmail = email || process.env.ADMIN_EMAIL;
         const { error } = await resend.emails.send({
-            from: 'Newsletter <newsletter@transmittal.co.uk>',
+            from: 'Newsletter <support@transmittal.co.uk>',
             to: targetEmail,
             subject: 'Transmittal Weekly Update (TEST)',
             html: '<p>This is a test of the newsletter broadcast system.</p>'
