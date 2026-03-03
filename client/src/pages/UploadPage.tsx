@@ -335,14 +335,14 @@ const UploadPage = () => {
 
                 // Check for duplicate within the current batch and pre-existing results
                 const extractedDocNumber = json.data.documentNumber;
-                const extractedRevision = json.data.revision;
+                const extractedRevision = json.data.revision || '';
 
                 let isDuplicate = false;
-                if (extractedDocNumber && extractedRevision) {
+                if (extractedDocNumber) {
                     const allCurrentResults = [...results, ...newResults];
                     isDuplicate = allCurrentResults.some(r =>
                         r.data.documentNumber === extractedDocNumber &&
-                        r.data.revision === extractedRevision
+                        (r.data.revision || '') === extractedRevision
                     );
                 }
 
