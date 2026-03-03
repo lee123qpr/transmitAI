@@ -72,20 +72,20 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center relative z-10">
                     {/* Left Column: Text */}
                     <div className="text-left">
-                        <h1 className="text-3xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start -space-y-1 lg:-space-y-3">
-                            <span className="leading-[1.1] pb-1">Automate</span>
-                            <span className="leading-[1.1] pb-1">Construction</span>
+                        <h1 className="text-[2.5rem] leading-[1] sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start space-y-0 sm:-space-y-1 lg:-space-y-3">
+                            <span className="pb-1">Automate</span>
+                            <span className="pb-1">Construction</span>
                             <span className="flex items-center min-h-[1.2em]">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-4 -mb-4 whitespace-nowrap">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-4 mb-[-1rem] sm:-mb-4 whitespace-nowrap">
                                     {displayText}
                                 </span>
                                 <motion.span
                                     animate={{ opacity: [1, 0] }}
                                     transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                                    className="w-[4px] h-[0.9em] bg-blue-600 ml-1 inline-block"
+                                    className="w-[3px] sm:w-[4px] h-[0.9em] bg-blue-600 ml-1 inline-block"
                                 />
                             </span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 leading-[1.1] pb-2 -mb-2">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-2 -mb-2">
                                 Extraction
                             </span>
                         </h1>
