@@ -135,12 +135,12 @@ const LandingPage = () => {
                         </div>
 
                         {/* Visual Cards */}
-                        <div className="relative mt-8 lg:mt-0">
+                        <div className="flex flex-col gap-6 mt-8 lg:mt-0 items-end">
                             <motion.div
                                 initial={{ opacity: 0, x: 20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
-                                className="bg-slate-800/50 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-2xl relative z-10"
+                                className="bg-slate-800/50 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-lg w-full max-w-md lg:max-w-lg"
                             >
                                 <div className="flex items-start gap-4 mb-6">
                                     <div className="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center shrink-0">
@@ -159,11 +159,11 @@ const LandingPage = () => {
                             </motion.div>
 
                             <motion.div
-                                initial={{ opacity: 0, x: 20, y: 40 }}
+                                initial={{ opacity: 0, x: 20, y: 20 }}
                                 whileInView={{ opacity: 1, x: 0, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.2 }}
-                                className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-2xl shadow-xl absolute -bottom-10 -right-4 lg:-right-12 left-8 sm:left-16 z-20"
+                                className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-2xl shadow-2xl w-full max-w-md lg:max-w-lg lg:-translate-x-12"
                             >
                                 <div className="flex items-start gap-4 mb-4">
                                     <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shrink-0">
