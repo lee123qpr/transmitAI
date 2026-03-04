@@ -31,6 +31,7 @@ import {
     setUserStatus,
     toggleNewsletter
 } from '../services/userService';
+import { sendWelcomeUser, sendWelcomeNewsletter } from '../services/emailService';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
 
@@ -295,21 +296,27 @@ export const sendUserEmail = async (req: Request, res: Response) => {
 };
 
 export const sendTestWelcomeEmail = async (req: Request, res: Response) => {
-    const { email } = req.body;
+    const { email, subject, html } = req.body;
     if (!process.env.RESEND_API_KEY) return res.status(400).json({ error: 'Resend API key not configured' });
 
     try {
         const targetEmail = email || process.env.ADMIN_EMAIL; // Fallback to admin
-        const { error } = await resend.emails.send({
-            from: 'Welcome <support@transmittal.co.uk>',
-            to: targetEmail,
-            subject: 'Welcome to Transmittal!',
-            html: '<p>Hi there,</p><p>Welcome to Transmittal! We are excited to have you on board.</p>'
-        });
+        if (!targetEmail) return res.status(400).json({ error: 'No target email specified' });
 
-        if (error) {
-            console.error('[Resend Error]', error);
-            return res.status(500).json({ error: error.message || 'Failed to send test welcome email' });
+        if (subject && html) {
+            // If frontend provides draft template, send that instead of DB version
+            await resend.emails.send({
+                from: 'Transmit AI <support@transmittal.co.uk>',
+                to: targetEmail,
+                subject,
+                html
+            });
+        } else {
+            // Fallback to sending the live DB version
+            const success = await sendWelcomeUser(targetEmail);
+            if (success === false) {
+                return res.status(500).json({ error: 'Failed to send test welcome email via Resend' });
+            }
         }
 
         await logAdminAction((req as any).auth?.userId as string, 'test_welcome_email', undefined, { targetEmail });
@@ -321,21 +328,26 @@ export const sendTestWelcomeEmail = async (req: Request, res: Response) => {
 };
 
 export const sendTestNewsletterEmail = async (req: Request, res: Response) => {
-    const { email } = req.body;
+    const { email, subject, html } = req.body;
     if (!process.env.RESEND_API_KEY) return res.status(400).json({ error: 'Resend API key not configured' });
 
     try {
         const targetEmail = email || process.env.ADMIN_EMAIL;
-        const { error } = await resend.emails.send({
-            from: 'Newsletter <support@transmittal.co.uk>',
-            to: targetEmail,
-            subject: 'Transmittal Weekly Update (TEST)',
-            html: '<p>This is a test of the newsletter broadcast system.</p>'
-        });
+        if (!targetEmail) return res.status(400).json({ error: 'No target email specified' });
 
-        if (error) {
-            console.error('[Resend Error]', error);
-            return res.status(500).json({ error: error.message || 'Failed to send test newsletter' });
+        if (subject && html) {
+            // If frontend provides draft template, send that instead of DB version
+            await resend.emails.send({
+                from: 'Transmit AI <support@transmittal.co.uk>',
+                to: targetEmail,
+                subject,
+                html
+            });
+        } else {
+            const success = await sendWelcomeNewsletter(targetEmail);
+            if (success === false) {
+                return res.status(500).json({ error: 'Failed to send test newsletter via Resend' });
+            }
         }
 
         await logAdminAction((req as any).auth?.userId as string, 'test_newsletter_email', undefined, { targetEmail });

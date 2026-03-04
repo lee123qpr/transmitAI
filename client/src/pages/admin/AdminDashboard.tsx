@@ -102,7 +102,7 @@ interface Subscriber {
     status: string;
 }
 
-const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Setting[], onSave: (key: string, value: { subject: string; html: string }) => void, isSaving: boolean, onTest: (type: 'newsletter' | 'user_welcome') => void }) => {
+const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Setting[], onSave: (key: string, value: { subject: string; html: string }) => void, isSaving: boolean, onTest: (type: 'newsletter' | 'user_welcome', subject?: string, html?: string) => void }) => {
     const [selectedType, setSelectedType] = useState<'newsletter' | 'user_welcome'>('newsletter');
     const [subject, setSubject] = useState('');
     const [html, setHtml] = useState('');
@@ -169,7 +169,7 @@ const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Settin
                     </div>
                     <div className="flex gap-2">
                         <button
-                            onClick={() => onTest(selectedType)}
+                            onClick={() => onTest(selectedType, subject, html)}
                             disabled={isSaving}
                             className="px-4 py-2.5 bg-slate-100 text-slate-700 text-sm font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 disabled:opacity-50 flex items-center gap-2 transition-all"
                         >
@@ -1021,7 +1021,7 @@ const AdminDashboard = () => {
                             settings={settings}
                             isSaving={isActionLoading}
                             onSave={(key, value) => handleAction('POST', `/api/admin/settings`, { key, value })}
-                            onTest={(type) => handleAction('POST', `/api/admin/emails/test-${type === 'user_welcome' ? 'welcome' : 'newsletter'}`)}
+                            onTest={(type, subject, html) => handleAction('POST', `/api/admin/emails/test-${type === 'user_welcome' ? 'welcome' : 'newsletter'}`, { subject, html })}
                         />
                     </div>
                 )}
