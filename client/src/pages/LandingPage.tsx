@@ -101,7 +101,7 @@ const LandingPage = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="text-4xl lg:text-6xl font-extrabold text-white mb-8 leading-tight tracking-tight"
+                                className="text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight"
                             >
                                 Still Manually Typing Out Document Lists?
                             </motion.h2>
@@ -111,7 +111,7 @@ const LandingPage = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 }}
-                                className="space-y-6 text-xl lg:text-2xl text-slate-300 leading-relaxed"
+                                className="space-y-6 text-lg text-slate-300 leading-relaxed"
                             >
                                 <p>
                                     If you’re a document controller or project manager, you know the pain: stacks of drawings, specs, and submittals, and hours spent manually keying data into spreadsheets or transmittal forms.
@@ -129,9 +129,9 @@ const LandingPage = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.2 }}
-                                className="mt-10 flex items-center gap-4 border-l-4 border-blue-500 pl-6 py-2"
+                                className="mt-8 flex items-center gap-4 border-l-4 border-blue-500 pl-5 py-2"
                             >
-                                <p className="text-2xl lg:text-3xl font-bold text-white">
+                                <p className="text-xl lg:text-2xl font-bold text-white">
                                     There’s a better way.
                                 </p>
                             </motion.div>
@@ -143,7 +143,7 @@ const LandingPage = () => {
                                 initial={{ opacity: 0, x: 20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
-                                className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md lg:max-w-lg relative"
+                                className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-sm lg:max-w-md relative"
                             >
                                 <div className="flex items-start gap-4 mb-6">
                                     <div className="w-12 h-12 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center justify-center shrink-0">
@@ -199,7 +199,7 @@ const LandingPage = () => {
                                 whileInView={{ opacity: 1, x: 0, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.2 }}
-                                className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8 rounded-2xl shadow-2xl shadow-blue-900/50 w-full max-w-md lg:max-w-lg lg:-translate-x-12 relative overflow-hidden border border-blue-400/30"
+                                className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-6 rounded-2xl shadow-2xl shadow-blue-900/50 w-full max-w-sm lg:max-w-md lg:-translate-x-12 relative overflow-hidden border border-blue-400/30"
                             >
                                 {/* Decorative background effects */}
                                 <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 border-[40px] border-white/5 rounded-full blur-2xl pointer-events-none"></div>
