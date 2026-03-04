@@ -101,7 +101,7 @@ const LandingPage = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="text-3xl lg:text-5xl font-bold text-white mb-6 leading-tight"
+                                className="text-4xl lg:text-6xl font-extrabold text-white mb-8 leading-tight tracking-tight"
                             >
                                 Still Manually Typing Out Document Lists?
                             </motion.h2>
@@ -111,13 +111,16 @@ const LandingPage = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 }}
-                                className="space-y-6 text-xl text-slate-300 leading-relaxed"
+                                className="space-y-6 text-xl lg:text-2xl text-slate-300 leading-relaxed"
                             >
                                 <p>
                                     If you’re a document controller or project manager, you know the pain: stacks of drawings, specs, and submittals, and hours spent manually keying data into spreadsheets or transmittal forms.
                                 </p>
                                 <p>
                                     The average construction transmittal takes 2–4 hours to compile manually. Multiply that across a project lifecycle, and you’re losing days — sometimes weeks — to data entry alone.
+                                </p>
+                                <p>
+                                    Our AI-powered <strong className="text-white font-semibold">document control software</strong> eliminates this bottleneck. By instantly extracting document numbers, revisions, and titles straight from your PDFs, Transmit.AI auto-generates flawless transmittals so your team can focus on actually delivering the project.
                                 </p>
                             </motion.div>
 
@@ -126,9 +129,9 @@ const LandingPage = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.2 }}
-                                className="mt-8 flex items-center gap-4 border-l-4 border-blue-500 pl-4 py-2"
+                                className="mt-10 flex items-center gap-4 border-l-4 border-blue-500 pl-6 py-2"
                             >
-                                <p className="text-xl font-bold text-white">
+                                <p className="text-2xl lg:text-3xl font-bold text-white">
                                     There’s a better way.
                                 </p>
                             </motion.div>

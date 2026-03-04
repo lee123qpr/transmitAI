@@ -7,7 +7,7 @@
         "server"
     ],
     "scripts": {
-        "build": "npm run build --workspace=client"
+        "build": "cd server && npx ts-node src/scripts/generate-sitemap.ts && cd .. && npm run build --workspace=client"
     },
     "dependencies": {
         "@clerk/clerk-sdk-node": "^4.13.23",
