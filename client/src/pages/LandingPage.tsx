@@ -9,42 +9,8 @@ import HeroAnimation from '../components/HeroAnimation';
 
 import TrustedByStrip from '../components/TrustedByStrip';
 
-const WORDS = ['Documents', 'Drawings', 'Reports', 'Specifications', 'Surveys'];
-
 const LandingPage = () => {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-    const [wordIndex, setWordIndex] = useState(0);
-    const [displayText, setDisplayText] = useState('');
-    const [isDeleting, setIsDeleting] = useState(false);
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        const currentWord = WORDS[wordIndex];
-
-        if (isDeleting) {
-            timer = setTimeout(() => {
-                setDisplayText(currentWord.substring(0, displayText.length - 1));
-            }, 40);
-
-            if (displayText === '') {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-                setIsDeleting(false);
-                setWordIndex((prev) => (prev + 1) % WORDS.length);
-            }
-        } else {
-            timer = setTimeout(() => {
-                setDisplayText(currentWord.substring(0, displayText.length + 1));
-            }, 80);
-
-            if (displayText === currentWord) {
-                timer = setTimeout(() => {
-                    setIsDeleting(true);
-                }, 2000);
-            }
-        }
-
-        return () => clearTimeout(timer);
-    }, [displayText, isDeleting, wordIndex]);
 
     // Handle hash links when navigating from other pages or same page
     useEffect(() => {
@@ -113,20 +79,107 @@ const LandingPage = () => {
             <TrustedByStrip />
 
             {/* PROBLEM SECTION */}
-            <section className="py-24 bg-white relative">
-                <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-                    <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-6">Still Manually Typing Out Document Lists?</h2>
+            <section className="py-32 bg-slate-900 relative overflow-hidden">
+                {/* Background Decor */}
+                <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 opacity-10">
+                    <svg viewBox="0 0 1024 1024" className="w-[800px] h-[800px]" aria-hidden="true">
+                        <circle cx="512" cy="512" r="512" fill="url(#gradient-problem)" />
+                        <defs>
+                            <radialGradient id="gradient-problem" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 512) rotate(90) scale(512)">
+                                <stop stopColor="#3b82f6" />
+                                <stop offset="1" stopColor="#0f172a" stopOpacity="0" />
+                            </radialGradient>
+                        </defs>
+                    </svg>
+                </div>
 
-                    <div className="space-y-6 text-lg text-slate-600 leading-relaxed">
-                        <p>
-                            If you’re a document controller or project manager in construction, you know the pain: stacks of drawings, specs, and submittals, and hours spent manually keying data into spreadsheets or transmittal forms.
-                        </p>
-                        <p>
-                            The average construction transmittal takes 2–4 hours to compile manually. Multiply that across a project lifecycle, and you’re losing days — sometimes weeks — to data entry alone.
-                        </p>
-                        <p className="font-bold text-slate-900 text-xl pt-4">
-                            There’s a better way.
-                        </p>
+                <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+                        {/* Text Content */}
+                        <div>
+                            <motion.h2
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="text-3xl lg:text-5xl font-bold text-white mb-6 leading-tight"
+                            >
+                                Still Manually Typing Out Document Lists?
+                            </motion.h2>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.1 }}
+                                className="space-y-6 text-xl text-slate-300 leading-relaxed"
+                            >
+                                <p>
+                                    If you’re a document controller or project manager, you know the pain: stacks of drawings, specs, and submittals, and hours spent manually keying data into spreadsheets or transmittal forms.
+                                </p>
+                                <p>
+                                    The average construction transmittal takes 2–4 hours to compile manually. Multiply that across a project lifecycle, and you’re losing days — sometimes weeks — to data entry alone.
+                                </p>
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.2 }}
+                                className="mt-8 flex items-center gap-4 border-l-4 border-blue-500 pl-4 py-2"
+                            >
+                                <p className="text-xl font-bold text-white">
+                                    There’s a better way.
+                                </p>
+                            </motion.div>
+                        </div>
+
+                        {/* Visual Cards */}
+                        <div className="relative mt-8 lg:mt-0">
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                className="bg-slate-800/50 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-2xl relative z-10"
+                            >
+                                <div className="flex items-start gap-4 mb-6">
+                                    <div className="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center shrink-0">
+                                        <FileSpreadsheet className="text-rose-400" size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-white font-bold text-lg">The Old Way</h3>
+                                        <p className="text-slate-400 mt-1">Manual data entry, scattered tracking sheets, prone to human error.</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 opacity-50">
+                                    <div className="h-4 bg-slate-700 rounded w-full"></div>
+                                    <div className="h-4 bg-slate-700 rounded w-5/6"></div>
+                                    <div className="h-4 bg-slate-700 rounded w-4/6"></div>
+                                </div>
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, x: 20, y: 40 }}
+                                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.2 }}
+                                className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-2xl shadow-xl absolute -bottom-10 -right-4 lg:-right-12 left-8 sm:left-16 z-20"
+                            >
+                                <div className="flex items-start gap-4 mb-4">
+                                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shrink-0">
+                                        <Brain className="text-white" size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-white font-bold text-lg">The Transmit.AI Way</h3>
+                                        <p className="text-blue-100 mt-1">Instant extraction, 100% accurate, export drop-in ready document lists.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 text-white font-semibold text-sm bg-white/10 px-4 py-2 rounded-lg w-fit">
+                                    <CheckCircle size={16} className="text-green-300" />
+                                    Ready in seconds
+                                </div>
+                            </motion.div>
+                        </div>
                     </div>
                 </div>
             </section>
