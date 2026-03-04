@@ -73,7 +73,7 @@ const LandingPage = () => {
                     {/* Left Column: Text */}
                     <div className="text-left">
                         <h1 className="text-[2.5rem] leading-[1] sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start space-y-0 sm:-space-y-1 lg:-space-y-3">
-                            <span className="pb-1">Automate</span>
+                            <span className="pb-1">AI-Powered</span>
                             <span className="pb-1">Construction</span>
                             <span className="flex items-center min-h-[1.2em]">
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-4 mb-[-1rem] sm:-mb-4 whitespace-nowrap">
@@ -91,7 +91,7 @@ const LandingPage = () => {
                         </h1>
 
                         <p className="text-xl text-slate-600 mb-8 max-w-lg leading-relaxed">
-                            Create legally-sound transmittal records that protect your business. Cut hours of manual entry to a few minutes.
+                            Generate automated transmittal lists and drawing registers in minutes. Stop manual data entry and let AI read your complex document title blocks.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">
@@ -160,9 +160,9 @@ const LandingPage = () => {
             <section id="features" className="py-24 bg-white relative">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Built for Construction Professionals</h2>
+                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Automate Construction Transmittals with AI</h2>
                         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                            Designed specifically for Architects, Engineers, Project Managers, Estimators and Quantity Surveyors. Create audit-ready transmittal records that serve as irrefutable evidence in disputes.
+                            The definitive document controller software UK teams trust. Create audit-ready transmittal records and drawing register automation that replaces manual data entry on Microsoft Excel.
                         </p>
                     </div>
 
