@@ -21,17 +21,17 @@ const getEmailTemplate = async (key: string, fallbackSubject: string, fallbackHt
     return { subject: fallbackSubject, html: fallbackHtml };
 };
 
-export const sendWelcomeNewsletter = async (email: string) => {
+export const sendWelcomeNewsletter = async (email: string): Promise<boolean> => {
     if (!process.env.RESEND_API_KEY) {
         console.warn('[EmailService] Resend API key missing, skipping email');
-        return;
+        return false;
     }
 
     const defaultHtml = `
         <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 24px;">
                 <!-- Try to load site logo from public folder, fallback to stylized text -->
-                <img src="https://transmit.ai/logo.png" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
+                <img src="https://www.transmittal.co.uk/favicon.ico" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
                 <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">Transmit<span style="color: #2563eb;">.AI</span></h1>
             </div>
             
@@ -53,10 +53,10 @@ export const sendWelcomeNewsletter = async (email: string) => {
             </p>
 
             <div style="text-align: center; margin-top: 32px;">
-                <a href="https://transmit.ai/app" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+                <a href="https://www.transmittal.co.uk/app" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
                     Go to App
                 </a>
-                <a href="https://transmit.ai" style="display: inline-block; background: #f1f5f9; color: #334155; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px;">
+                <a href="https://www.transmittal.co.uk" style="display: inline-block; background: #f1f5f9; color: #334155; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px;">
                     Visit Website
                 </a>
             </div>
@@ -87,25 +87,27 @@ export const sendWelcomeNewsletter = async (email: string) => {
 
         if (error) {
             console.error('[Resend Error]', error);
-            return;
+            return false;
         }
 
         console.log(`[EmailService] Newsletter welcome sent to ${email}`);
+        return true;
     } catch (error) {
         console.error('[EmailService] Newsletter error:', error);
+        return false;
     }
 };
 
-export const sendWelcomeUser = async (email: string) => {
+export const sendWelcomeUser = async (email: string): Promise<boolean> => {
     if (!process.env.RESEND_API_KEY) {
         console.warn('[EmailService] Resend API key missing, skipping email');
-        return;
+        return false;
     }
 
     const defaultHtml = `
         <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 24px;">
-                <img src="https://transmit.ai/logo.png" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
+                <img src="https://www.transmittal.co.uk/favicon.ico" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
                 <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">Transmit<span style="color: #2563eb;">.AI</span></h1>
             </div>
             
@@ -124,10 +126,10 @@ export const sendWelcomeUser = async (email: string) => {
             </ul>
 
             <div style="text-align: center; margin-top: 32px;">
-                <a href="https://transmit.ai/app/upload" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+                <a href="https://www.transmittal.co.uk/app/upload" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
                     Start Uploading
                 </a>
-                <a href="https://transmit.ai/app" style="display: inline-block; background: #f1f5f9; color: #334155; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px;">
+                <a href="https://www.transmittal.co.uk/app" style="display: inline-block; background: #f1f5f9; color: #334155; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 0 5px;">
                     View Dashboard
                 </a>
             </div>
@@ -141,7 +143,7 @@ export const sendWelcomeUser = async (email: string) => {
             </div>
 
             <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
-                Need help? Reply to this email or visit our <a href="https://transmit.ai/faq" style="color: #2563eb; text-decoration: none; font-weight: 600;">FAQ</a>.
+                Need help? Reply to this email or visit our <a href="https://www.transmittal.co.uk/faq" style="color: #2563eb; text-decoration: none; font-weight: 600;">FAQ</a>.
             </p>
         </div>
     `;
@@ -158,12 +160,14 @@ export const sendWelcomeUser = async (email: string) => {
 
         if (error) {
             console.error('[Resend Error]', error);
-            return;
+            return false;
         }
 
         console.log(`[EmailService] User welcome sent to ${email}`);
+        return true;
     } catch (error) {
         console.error('[EmailService] User welcome error:', error);
+        return false;
     }
 };
 
