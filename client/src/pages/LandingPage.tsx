@@ -42,17 +42,17 @@ const LandingPage = () => {
                             <span className="pb-1">Generate</span>
                             <span className="pb-1">Construction</span>
                             <span className="flex items-center min-h-[1.2em]">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-4 mb-[-1rem] sm:-mb-4 whitespace-nowrap">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-2 whitespace-nowrap">
                                     Transmittals
                                 </span>
                             </span>
-                            <span className="text-[1.5rem] sm:text-3xl lg:text-4xl text-slate-800 mt-2 block">
+                            <span className="text-[1.5rem] sm:text-3xl lg:text-4xl text-slate-800 mt-4 sm:mt-6 block">
                                 In Minutes, Not Hours — <span className="text-blue-600">Powered by AI</span>
                             </span>
                         </h1>
 
                         <p className="text-xl text-slate-600 mb-8 max-w-lg leading-relaxed">
-                            Transmit.AI extracts data from your construction documents automatically, turning hours of manual data entry into a document list or transmittal ready in minutes. Built for document controllers, project managers, and QS teams across the UK.
+                            Transmit.AI extracts data from your construction documents automatically, turning hours of manual data entry into a document list or transmittal ready in minutes. Built for document controllers, project managers, and QS's.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">
