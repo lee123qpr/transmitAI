@@ -140,21 +140,54 @@ const LandingPage = () => {
                                 initial={{ opacity: 0, x: 20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
-                                className="bg-slate-800/50 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-lg w-full max-w-md lg:max-w-lg"
+                                className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md lg:max-w-lg relative"
                             >
                                 <div className="flex items-start gap-4 mb-6">
-                                    <div className="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center shrink-0">
+                                    <div className="w-12 h-12 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center justify-center shrink-0">
                                         <FileSpreadsheet className="text-rose-400" size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-white font-bold text-lg">The Old Way</h3>
-                                        <p className="text-slate-400 mt-1">Manual data entry, scattered tracking sheets, prone to human error.</p>
+                                        <h3 className="text-slate-200 font-bold text-lg">The Old Way</h3>
+                                        <p className="text-slate-400 mt-1 text-sm font-medium">Manual data entry, scattered tracking sheets, prone to human error.</p>
                                     </div>
                                 </div>
-                                <div className="space-y-3 opacity-50">
-                                    <div className="h-4 bg-slate-700 rounded w-full"></div>
-                                    <div className="h-4 bg-slate-700 rounded w-5/6"></div>
-                                    <div className="h-4 bg-slate-700 rounded w-4/6"></div>
+
+                                {/* Messy Spreadsheet UI */}
+                                <div className="mt-6 bg-slate-950/50 rounded-lg p-4 border border-slate-800 relative">
+                                    <div className="absolute -top-3 -right-3 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg border border-rose-400 animate-pulse">
+                                        3 Errors Detected
+                                    </div>
+                                    <div className="flex items-center gap-2 mb-3 border-b border-slate-800 pb-2">
+                                        <div className="w-1/3 h-3 bg-slate-800 rounded"></div>
+                                        <div className="w-1/4 h-3 bg-slate-800 rounded"></div>
+                                        <div className="w-1/4 h-3 bg-slate-800 rounded"></div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="flex gap-2">
+                                            <div className="w-1/3 h-6 bg-slate-800 rounded border border-rose-500/50 relative overflow-hidden flex items-center px-2">
+                                                <span className="text-[10px] text-rose-400 font-mono">Typo: ARC-01</span>
+                                                <div className="absolute inset-0 bg-rose-500/10 animate-pulse"></div>
+                                            </div>
+                                            <div className="w-1/4 h-6 bg-slate-800 rounded"></div>
+                                            <div className="w-1/4 h-6 bg-slate-800 rounded"></div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <div className="w-1/3 h-6 bg-slate-800 rounded"></div>
+                                            <div className="w-1/4 h-6 bg-slate-800 rounded border border-rose-500/50 relative overflow-hidden flex items-center px-2">
+                                                <span className="text-[10px] text-rose-400 font-mono">Missing Rev</span>
+                                                <div className="absolute inset-0 bg-rose-500/10 animate-pulse"></div>
+                                            </div>
+                                            <div className="w-1/4 h-6 bg-slate-800 rounded"></div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <div className="w-1/3 h-6 bg-slate-800 rounded"></div>
+                                            <div className="w-1/4 h-6 bg-slate-800 rounded"></div>
+                                            <div className="w-1/4 h-6 bg-slate-800 rounded border border-rose-500/50 relative overflow-hidden flex items-center px-2">
+                                                <span className="text-[10px] text-rose-400 font-mono">Wrong Date</span>
+                                                <div className="absolute inset-0 bg-rose-500/10 animate-pulse"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
 
@@ -163,20 +196,54 @@ const LandingPage = () => {
                                 whileInView={{ opacity: 1, x: 0, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.2 }}
-                                className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-2xl shadow-2xl w-full max-w-md lg:max-w-lg lg:-translate-x-12"
+                                className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8 rounded-2xl shadow-2xl shadow-blue-900/50 w-full max-w-md lg:max-w-lg lg:-translate-x-12 relative overflow-hidden border border-blue-400/30"
                             >
-                                <div className="flex items-start gap-4 mb-4">
-                                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shrink-0">
-                                        <Brain className="text-white" size={24} />
+                                {/* Decorative background effects */}
+                                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 border-[40px] border-white/5 rounded-full blur-2xl pointer-events-none"></div>
+                                <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 border-[20px] border-white/5 rounded-full blur-xl pointer-events-none"></div>
+
+                                <div className="relative z-10">
+                                    <div className="flex items-start gap-4 mb-6">
+                                        <div className="w-14 h-14 bg-white rounded-xl shadow-lg flex items-center justify-center shrink-0 p-2 border border-white/20">
+                                            <img src="/favicon.svg" alt="Transmit.AI Logo" className="w-full h-full object-contain" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-white font-bold text-xl drop-shadow-md">The Transmit.AI Way</h3>
+                                            <p className="text-blue-100 mt-1 font-medium text-sm">Instant extraction, 100% accurate, export drop-in ready document lists.</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="text-white font-bold text-lg">The Transmit.AI Way</h3>
-                                        <p className="text-blue-100 mt-1">Instant extraction, 100% accurate, export drop-in ready document lists.</p>
+
+                                    {/* Clean Data UI */}
+                                    <div className="bg-slate-900/40 backdrop-blur-md rounded-xl p-4 mb-6 font-mono text-sm shadow-inner overflow-hidden relative">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-green-400"></div>
+                                        <div className="flex items-center gap-3 text-white/80 border-b border-white/10 pb-2 mb-2">
+                                            <span className="w-1/3 text-xs uppercase tracking-wider font-bold">Doc Number</span>
+                                            <span className="w-1/4 text-xs uppercase tracking-wider font-bold">Rev</span>
+                                            <span className="flex-1 text-xs uppercase tracking-wider font-bold">Status</span>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-3 text-white">
+                                                <span className="w-1/3 bg-white/10 px-2 py-1.5 rounded text-xs font-bold shadow-sm">ARC-001</span>
+                                                <span className="w-1/4 bg-white/10 px-2 py-1.5 rounded text-xs font-bold text-center shadow-sm">P01</span>
+                                                <span className="flex-1 flex gap-1 items-center text-xs text-green-300 bg-green-500/10 px-2 py-1.5 rounded"><CheckCircle size={14} /> Valid</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-white">
+                                                <span className="w-1/3 bg-white/10 px-2 py-1.5 rounded text-xs font-bold shadow-sm">STR-104</span>
+                                                <span className="w-1/4 bg-white/10 px-2 py-1.5 rounded text-xs font-bold text-center shadow-sm">C02</span>
+                                                <span className="flex-1 flex gap-1 items-center text-xs text-green-300 bg-green-500/10 px-2 py-1.5 rounded"><CheckCircle size={14} /> Valid</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex items-center gap-2 text-white font-semibold text-sm bg-white/10 px-4 py-2 rounded-lg w-fit">
-                                    <CheckCircle size={16} className="text-green-300" />
-                                    Ready in seconds
+
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <div className="flex items-center gap-2 text-white font-bold text-sm bg-green-500/20 border border-green-400/30 px-4 py-2 rounded-full shadow-lg backdrop-blur-sm">
+                                            <CheckCircle size={16} className="text-green-300" />
+                                            Done in seconds
+                                        </div>
+                                        <div className="flex items-center gap-2 text-white font-bold text-sm bg-white/10 border border-white/20 px-4 py-2 rounded-full shadow-lg backdrop-blur-sm">
+                                            Zero errors
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
                         </div>
