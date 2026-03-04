@@ -73,31 +73,26 @@ const LandingPage = () => {
                     {/* Left Column: Text */}
                     <div className="text-left">
                         <h1 className="text-[2.5rem] leading-[1] sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start space-y-0 sm:-space-y-1 lg:-space-y-3">
-                            <span className="pb-1">AI-Powered</span>
+                            <span className="pb-1">Generate</span>
                             <span className="pb-1">Construction</span>
                             <span className="flex items-center min-h-[1.2em]">
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-4 mb-[-1rem] sm:-mb-4 whitespace-nowrap">
-                                    {displayText}
+                                    Transmittals
                                 </span>
-                                <motion.span
-                                    animate={{ opacity: [1, 0] }}
-                                    transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                                    className="w-[3px] sm:w-[4px] h-[0.9em] bg-blue-600 ml-1 inline-block"
-                                />
                             </span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-2 -mb-2">
-                                Extraction
+                            <span className="text-[1.5rem] sm:text-3xl lg:text-4xl text-slate-800 mt-2 block">
+                                In Minutes, Not Hours — <span className="text-blue-600">Powered by AI</span>
                             </span>
                         </h1>
 
                         <p className="text-xl text-slate-600 mb-8 max-w-lg leading-relaxed">
-                            Generate automated transmittal lists and drawing registers in minutes. Stop manual data entry and let AI read your complex document title blocks.
+                            Transmit.AI extracts data from your construction documents automatically, turning hours of manual data entry into a document list or transmittal ready in minutes. Built for document controllers, project managers, and QS teams across the UK.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">
                             <SignUpButton mode="modal" forceRedirectUrl="/app">
                                 <button className="px-8 py-4 text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xl shadow-blue-500/20 transition-all hover:scale-105 hover:-translate-y-1 flex items-center justify-center gap-2">
-                                    Start for Free <ArrowRight size={20} />
+                                    Try Transmit.AI Free <ArrowRight size={20} />
                                 </button>
                             </SignUpButton>
                             <a href="#how-it-works" className="px-8 py-4 text-lg font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all hover:scale-105 flex items-center justify-center">
@@ -117,52 +112,32 @@ const LandingPage = () => {
             {/* TRUSTED BY STRIP */}
             <TrustedByStrip />
 
-            {/* BENEFITS STATS SECTION */}
+            {/* PROBLEM SECTION */}
             <section className="py-24 bg-white relative">
-                <div className="max-w-7xl mx-auto px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Why Teams Love Transmit.AI</h2>
-                        <p className="text-lg text-slate-600">Save time, reduce errors, and focus on what matters</p>
-                    </div>
+                <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+                    <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-6">Still Manually Typing Out Document Lists?</h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Stat 1 */}
-                        <div className="p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                            <h3 className="text-4xl lg:text-5xl font-bold text-blue-600 mb-2">10+ hrs</h3>
-                            <p className="text-lg font-bold text-slate-900 mb-3">Saved Per Week</p>
-                            <p className="text-slate-600 leading-relaxed">
-                                Eliminate manual data entry and free your team to focus on high-value work
-                            </p>
-                        </div>
-
-                        {/* Stat 2 */}
-                        <div className="p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                            <h3 className="text-4xl lg:text-5xl font-bold text-purple-600 mb-2">99%</h3>
-                            <p className="text-lg font-bold text-slate-900 mb-3">Accuracy Rate</p>
-                            <p className="text-slate-600 leading-relaxed">
-                                Industry-leading extraction accuracy reduces costly mistakes and rework
-                            </p>
-                        </div>
-
-                        {/* Stat 3 */}
-                        <div className="p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                            <h3 className="text-4xl lg:text-5xl font-bold text-green-600 mb-2">&lt;60s</h3>
-                            <p className="text-lg font-bold text-slate-900 mb-3">Processing Time</p>
-                            <p className="text-slate-600 leading-relaxed">
-                                Process 100+ documents in under a minute, not hours or days
-                            </p>
-                        </div>
+                    <div className="space-y-6 text-lg text-slate-600 leading-relaxed">
+                        <p>
+                            If you’re a document controller or project manager in construction, you know the pain: stacks of drawings, specs, and submittals, and hours spent manually keying data into spreadsheets or transmittal forms.
+                        </p>
+                        <p>
+                            The average construction transmittal takes 2–4 hours to compile manually. Multiply that across a project lifecycle, and you’re losing days — sometimes weeks — to data entry alone.
+                        </p>
+                        <p className="font-bold text-slate-900 text-xl pt-4">
+                            There’s a better way.
+                        </p>
                     </div>
                 </div>
             </section>
 
             {/* FEATURES SECTION */}
-            <section id="features" className="py-24 bg-white relative">
+            <section id="features" className="py-24 bg-slate-50 relative">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Automate Construction Transmittals with AI</h2>
+                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Construction Teams Choose Transmit.AI</h2>
                         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                            The definitive document controller software UK teams trust. Create audit-ready transmittal records and drawing register automation that replaces manual data entry on Microsoft Excel.
+                            Stop manual data entry and let AI automatically extract construction document metadata—number, title, revision, date, and status.
                         </p>
                     </div>
 
@@ -484,19 +459,35 @@ const LandingPage = () => {
             </section >
 
             {/* CTA SECTION */}
-            < section className="py-24 bg-white border-t border-slate-100" >
+            <section className="py-24 bg-white border-t border-slate-100">
                 <div className="max-w-4xl mx-auto px-6 text-center">
-                    <h2 className="text-4xl font-bold text-slate-900 mb-6">Ready to automate your workflow?</h2>
-                    <p className="text-lg text-slate-600 mb-10">
-                        Join 500+ professionals saving hours on document management every week.
+                    <h2 className="text-4xl font-bold text-slate-900 mb-6">Stop Spending Hours on Transmittals. Start in Minutes.</h2>
+                    <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+                        Join construction teams across the UK using Transmit.AI to automate document extraction and stop wasting time on manual data entry.
                     </p>
+
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-10 text-sm font-medium text-slate-700">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle size={18} className="text-green-500" />
+                            <span>No credit card required</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <CheckCircle size={18} className="text-green-500" />
+                            <span>Up and running in minutes</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <CheckCircle size={18} className="text-green-500" />
+                            <span>Works with your existing documents</span>
+                        </div>
+                    </div>
+
                     <SignUpButton mode="modal" forceRedirectUrl="/app">
-                        <button className="px-10 py-5 text-xl font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-2xl shadow-2xl transition-all hover:scale-105">
-                            Get Started Now
+                        <button className="px-10 py-5 text-xl font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-2xl shadow-2xl transition-all hover:scale-105 flex items-center justify-center gap-2 mx-auto">
+                            Get Started Free <ArrowRight size={24} />
                         </button>
                     </SignUpButton>
                 </div>
-            </section >
+            </section>
         </div >
     );
 };
