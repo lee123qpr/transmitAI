@@ -73,25 +73,20 @@ const LandingPage = () => {
                     {/* Left Column: Text */}
                     <div className="text-left">
                         <h1 className="text-[2.5rem] leading-[1] sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 flex flex-col items-start space-y-0 sm:-space-y-1 lg:-space-y-3">
-                            <span className="pb-1">Automate</span>
+                            <span className="pb-1">Generate</span>
                             <span className="pb-1">Construction</span>
                             <span className="flex items-center min-h-[1.2em]">
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-4 mb-[-1rem] sm:-mb-4 whitespace-nowrap">
-                                    {displayText}
+                                    Transmittals
                                 </span>
-                                <motion.span
-                                    animate={{ opacity: [1, 0] }}
-                                    transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                                    className="w-[3px] sm:w-[4px] h-[0.9em] bg-blue-600 ml-1 inline-block"
-                                />
                             </span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 pb-2 -mb-2">
-                                Extraction
+                            <span className="text-[1.5rem] sm:text-3xl lg:text-4xl text-slate-800 mt-2 block">
+                                In Minutes, Not Hours — <span className="text-blue-600">Powered by AI</span>
                             </span>
                         </h1>
 
                         <p className="text-xl text-slate-600 mb-8 max-w-lg leading-relaxed">
-                            Create legally-sound transmittal records that protect your business. Cut hours of manual entry to a few minutes.
+                            Transmit.AI extracts data from your construction documents automatically, turning hours of manual data entry into a document list or transmittal ready in minutes. Built for document controllers, project managers, and QS teams across the UK.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">
