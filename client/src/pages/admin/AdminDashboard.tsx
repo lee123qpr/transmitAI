@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import {
     Shield, Users, FileText, Search, Mail, AlertTriangle,
@@ -272,6 +272,28 @@ const AdminDashboard = () => {
 
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+
+    const editorRef = useRef<HTMLTextAreaElement>(null);
+
+    const insertMarkdown = (prefix: string, suffix: string = '') => {
+        const textarea = editorRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const currentContent = selectedArticle.content || '';
+
+        const selectedText = currentContent.substring(start, end);
+        const newText = currentContent.substring(0, start) + prefix + selectedText + suffix + currentContent.substring(end);
+
+        setSelectedArticle(prev => ({ ...prev, content: newText }));
+
+        // Restore focus and selection
+        setTimeout(() => {
+            textarea.focus();
+            textarea.setSelectionRange(start + prefix.length, end + prefix.length);
+        }, 0);
+    };
 
     // Sorting Logic
     const sortedUsers = [...users]
@@ -1183,38 +1205,29 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col min-h-0">
+                    <div className="flex-1 flex flex-col min-h-[400px]">
                         <label className="block text-sm font-bold text-slate-700 mb-1">Content</label>
                         <div className="border border-slate-200 rounded-lg flex-1 flex flex-col overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-all">
                             {/* Toolbar */}
                             <div className="flex items-center gap-1 p-2 bg-slate-50 border-b border-slate-100 overflow-x-auto shrink-0">
-                                <button title="Bold" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => setSelectedArticle(prev => ({ ...prev, content: (prev.content || '') + '**bold**' }))}><Bold size={16} /></button>
-                                <button title="Italic" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => setSelectedArticle(prev => ({ ...prev, content: (prev.content || '') + '*italic*' }))}><Italic size={16} /></button>
+                                <button title="Bold" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('**', '**')}><Bold size={16} /></button>
+                                <button title="Italic" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('*', '*')}><Italic size={16} /></button>
                                 <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                                <button title="Heading" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => setSelectedArticle(prev => ({ ...prev, content: (prev.content || '') + '\n## Heading' }))}><Heading size={16} /></button>
-                                <button title="Quote" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => setSelectedArticle(prev => ({ ...prev, content: (prev.content || '') + '\n> Quote' }))}><Quote size={16} /></button>
-                                <button title="Code" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => setSelectedArticle(prev => ({ ...prev, content: (prev.content || '') + '\n```\ncode\n```' }))}><Code size={16} /></button>
+                                <button title="Heading" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('\n## ', '')}><Heading size={16} /></button>
+                                <button title="Quote" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('\n> ', '')}><Quote size={16} /></button>
+                                <button title="Code" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('\n```\n', '\n```\n')}><Code size={16} /></button>
                                 <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                                <button title="List" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => setSelectedArticle(prev => ({ ...prev, content: (prev.content || '') + '\n- List item' }))}><List size={16} /></button>
-                                <button title="Image" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => setSelectedArticle(prev => ({ ...prev, content: (prev.content || '') + '\n![Alt](url)' }))}><ImageIcon size={16} /></button>
+                                <button title="List" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('\n- ', '')}><List size={16} /></button>
+                                <button title="Image" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('\n![AltText](', ')')}><ImageIcon size={16} /></button>
                             </div>
                             <textarea
+                                ref={editorRef}
                                 value={String(selectedArticle.content || '')}
                                 onChange={(e) => setSelectedArticle({ ...selectedArticle, content: e.target.value })}
                                 className="flex-1 w-full p-4 outline-none font-mono text-sm resize-none overflow-y-auto"
                                 placeholder="Write your article here..."
                             />
                         </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-1">Excerpt</label>
-                        <textarea
-                            value={String(selectedArticle.excerpt || '')}
-                            onChange={(e) => setSelectedArticle({ ...selectedArticle, excerpt: e.target.value })}
-                            className="w-full px-4 py-2 border border-slate-200 rounded-lg h-24 outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm resize-none"
-                            placeholder="Short summary for previews..."
-                        />
                     </div>
 
                     <div className="flex items-center gap-2 pt-2 shrink-0">
