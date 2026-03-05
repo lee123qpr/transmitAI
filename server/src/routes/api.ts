@@ -3,7 +3,7 @@ import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
 import { extractDocumentData } from '../services/aiService';
-import { createUser, getUser, updateUser, checkLimit, incrementUsage, updateUserTier, getActualDocumentCount, syncUsage } from '../services/userService';
+import { createUser, getUser, updateUser, checkLimit, incrementUsage, updateUserTier } from '../services/userService';
 import { query } from '../db';
 import paymentRoutes from './payments';
 import Stripe from 'stripe';
@@ -123,13 +123,7 @@ router.get('/user', requireAuth, async (req: Request, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Get actual count to ensure the UI is 100% accurate
-        const actualCount = await getActualDocumentCount(userId);
-
-        // Background sync to heal the DB state if it drifted
-        if (actualCount !== user.documents_usage) {
-            syncUsage(userId).catch(err => console.error('Background sync failed:', err));
-        }
+        // Background DB sync removed: Usage is append-only
 
         let renewalDate = null;
         if (user.subscription_tier !== 'free') {
@@ -156,7 +150,7 @@ router.get('/user', requireAuth, async (req: Request, res) => {
 
         res.json({
             ...user,
-            documents_usage: actualCount, // Return real count to frontend
+            documents_usage: user.documents_usage, // Return the actual incremented append-only count
             createdAt: user.created_at, // Map DB column to frontend format
             renewalDate: renewalDate
         });

@@ -138,8 +138,8 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
 
             set((state) => ({
                 documents: data,
-                isLoading: false,
-                usage: { ...state.usage, current: data.length } // Sync local usage
+                isLoading: false
+                // removed usage current sync to prevent front-end refunding deleted documents
             }));
         } catch (err) {
             set({ error: (err as Error).message, isLoading: false });
