@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, User, ArrowLeft, ChevronRight, Newspaper, Linkedin, Twitter, Link2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import SEO from '../components/SEO';
 import { useToast } from '../components/Toast';
 
@@ -163,9 +165,9 @@ const ArticleDetail = () => {
                 </header>
 
                 <div className="prose prose-lg prose-slate max-w-none">
-                    <div className="whitespace-pre-wrap text-slate-700 text-lg leading-relaxed">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {article.content}
-                    </div>
+                    </ReactMarkdown>
                 </div>
 
                 <footer className="mt-16 pt-8 border-t border-slate-100">

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
+import { XCircle, ArrowLeft } from 'lucide-react';
 import SEO from '../../components/SEO';
 
 const Cancel = () => {
@@ -20,15 +20,8 @@ const Cancel = () => {
 
                 <div className="space-y-3">
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={() => navigate('/app')}
                         className="btn-primary w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
-                    >
-                        <RefreshCw size={18} /> Try Again
-                    </button>
-
-                    <button
-                        onClick={() => navigate('/app/dashboard')}
-                        className="w-full flex items-center justify-center gap-2 py-2.5 text-slate-600 hover:text-slate-900 font-medium transition-colors"
                     >
                         <ArrowLeft size={18} /> Back to Dashboard
                     </button>
