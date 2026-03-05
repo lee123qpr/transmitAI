@@ -47,8 +47,8 @@ const Modal: React.FC<ModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
-            <div className={twMerge("bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden transform transition-all scale-100", className)}>
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50">
+            <div className={twMerge("bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden transform transition-all scale-100 flex flex-col max-h-[90vh]", className)}>
+                <div className="shrink-0 px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50">
                     <div className="shrink-0">{icons[type]}</div>
                     <h3 className={`font-semibold text-lg flex-1 ${titleColors[type]}`}>
                         {title}
@@ -58,12 +58,12 @@ const Modal: React.FC<ModalProps> = ({
                     </button>
                 </div>
 
-                <div className="p-6">
+                <div className="p-6 overflow-y-auto flex-1">
                     {message && <p className="text-slate-600 leading-relaxed mb-4">{message}</p>}
                     {children}
                 </div>
 
-                <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <div className="shrink-0 px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                     {onConfirm ? (
                         <>
                             <button

@@ -1151,7 +1151,7 @@ const AdminDashboard = () => {
                 onConfirm={handleSaveArticle}
                 confirmText={isActionLoading ? "Saving..." : "Save Article"}
                 isLoading={isActionLoading}
-                className="w-full h-full max-w-none rounded-none m-0"
+                className="w-[95vw] max-w-5xl max-h-[90vh]"
             >
                 <div className="space-y-4 pt-4 flex flex-col h-full">
                     <div>
