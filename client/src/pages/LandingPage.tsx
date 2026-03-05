@@ -46,8 +46,8 @@ const LandingPage = () => {
                                     Transmittals
                                 </span>
                             </span>
-                            <span className="text-[1.5rem] sm:text-3xl lg:text-4xl text-slate-800 mt-4 sm:mt-6 block">
-                                In Minutes, Not Hours — <span className="text-blue-600">Powered by AI</span>
+                            <span className="text-[1.5rem] sm:text-3xl lg:text-4xl text-slate-800 mt-4 sm:mt-6 block leading-tight">
+                                In Minutes, Not Hours — <br className="sm:hidden" /><span className="text-blue-600 whitespace-nowrap">Powered by AI</span>
                             </span>
                         </h1>
 
