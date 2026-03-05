@@ -136,11 +136,10 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
                 console.log('[Store] Sample Transmittal Title:', data[0].transmittalTitle);
             }
 
-            set((state) => ({
+            set({
                 documents: data,
                 isLoading: false
-                // removed usage current sync to prevent front-end refunding deleted documents
-            }));
+            });
         } catch (err) {
             set({ error: (err as Error).message, isLoading: false });
         }

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { FileSpreadsheet, Brain, Layers, CheckCircle, ArrowRight, FileText } from 'lucide-react';
 import { SignUpButton } from '@clerk/clerk-react';
 
@@ -97,20 +96,13 @@ const LandingPage = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
                         {/* Text Content */}
                         <div>
-                            <motion.h2
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
+                            <h2
                                 className="text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight"
                             >
                                 Still Manually Typing Out Document Lists?
-                            </motion.h2>
+                            </h2>
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.1 }}
+                            <div
                                 className="space-y-6 text-lg text-slate-300 leading-relaxed"
                             >
                                 <p>
@@ -122,27 +114,20 @@ const LandingPage = () => {
                                 <p>
                                     Our AI-powered <strong className="text-white font-semibold">document control software</strong> eliminates this bottleneck. By instantly extracting document numbers, revisions, and titles straight from your PDFs, Transmit.AI auto-generates flawless transmittals so your team can focus on actually delivering the project.
                                 </p>
-                            </motion.div>
+                            </div>
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.2 }}
+                            <div
                                 className="mt-8 flex items-center gap-4 border-l-4 border-blue-500 pl-5 py-2"
                             >
                                 <p className="text-xl lg:text-2xl font-bold text-white">
                                     There’s a better way.
                                 </p>
-                            </motion.div>
+                            </div>
                         </div>
 
                         {/* Visual Cards */}
                         <div className="flex flex-col gap-6 mt-8 lg:mt-0 items-end">
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
+                            <div
                                 className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-sm lg:max-w-md relative"
                             >
                                 <div className="flex items-start gap-4 mb-6">
@@ -192,13 +177,9 @@ const LandingPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
 
-                            <motion.div
-                                initial={{ opacity: 0, x: 20, y: 20 }}
-                                whileInView={{ opacity: 1, x: 0, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.2 }}
+                            <div
                                 className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-6 rounded-2xl shadow-2xl shadow-blue-900/50 w-full max-w-sm lg:max-w-md lg:-translate-x-12 relative overflow-hidden border border-blue-400/30"
                             >
                                 {/* Decorative background effects */}
@@ -248,7 +229,7 @@ const LandingPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
                         </div>
                     </div>
                 </div>
