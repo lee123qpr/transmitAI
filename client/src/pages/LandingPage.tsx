@@ -126,9 +126,9 @@ const LandingPage = () => {
                         </div>
 
                         {/* Visual Cards */}
-                        <div className="flex flex-col gap-6 mt-8 lg:mt-0 items-end">
+                        <div className="flex flex-col gap-6 mt-8 lg:mt-0 items-center lg:items-start justify-center">
                             <div
-                                className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-sm lg:max-w-md relative"
+                                className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-lg relative"
                             >
                                 <div className="flex items-start gap-4 mb-6">
                                     <div className="w-12 h-12 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center justify-center shrink-0">
@@ -180,7 +180,7 @@ const LandingPage = () => {
                             </div>
 
                             <div
-                                className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-6 rounded-2xl shadow-2xl shadow-blue-900/50 w-full max-w-sm lg:max-w-md lg:-translate-x-12 relative overflow-hidden border border-blue-400/30"
+                                className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-6 rounded-2xl shadow-2xl shadow-blue-900/50 w-full max-w-lg relative overflow-hidden border border-blue-400/30"
                             >
                                 {/* Decorative background effects */}
                                 <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 border-[40px] border-white/5 rounded-full blur-2xl pointer-events-none"></div>
