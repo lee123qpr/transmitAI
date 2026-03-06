@@ -107,6 +107,61 @@ const ProtectedLayout = () => {
   );
 };
 
+function AppContent() {
+  const { maintenanceMode } = useDocumentStore();
+  const { user } = useUser();
+
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL?.toLowerCase() || '';
+  const isActuallyAdmin = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === adminEmail && adminEmail !== '';
+
+  if (maintenanceMode && !isActuallyAdmin) {
+    return <MaintenanceOverlay />;
+  }
+
+  return (
+    <>
+      <SystemConfigSync />
+      <Router>
+        <ScrollToTop />
+        <CookieBanner />
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            {/* PUBLIC ROUTES */}
+            <Route element={
+              <div className="flex flex-col min-h-screen">
+                <AnnouncementBanner />
+                <PublicLayout />
+              </div>
+            }>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/legal/privacy" element={<PrivacyPolicy />} />
+              <Route path="/legal/terms" element={<TermsOfService />} />
+              <Route path="/legal/cookies" element={<CookiePolicy />} />
+              <Route path="/articles" element={<ArticlesPage />} />
+              <Route path="/articles/:slug" element={<ArticleDetail />} />
+            </Route>
+
+            {/* PROTECTED APP ROUTES */}
+            <Route path="/app" element={<ProtectedLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="upload" element={<UploadPage />} />
+              <Route path="admin" element={<AdminDashboard />} /> {/* Admin Route */}
+              <Route path="payment/success" element={<Success />} />
+              <Route path="payment/cancel" element={<Cancel />} />
+            </Route>
+
+            {/* CATCH ALL */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </>
+  );
+}
+
 function App() {
   if (!clerkPubKey) {
     return (
@@ -128,44 +183,7 @@ function App() {
     <ClerkProvider publishableKey={clerkPubKey}>
       <ErrorBoundary>
         <ToastProvider>
-          <SystemConfigSync />
-          <Router>
-            <ScrollToTop />
-            <CookieBanner />
-            <Suspense fallback={<Loading />}>
-              <Routes>
-                {/* PUBLIC ROUTES */}
-                <Route element={
-                  <div className="flex flex-col min-h-screen">
-                    <AnnouncementBanner />
-                    <PublicLayout />
-                  </div>
-                }>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/how-it-works" element={<HowItWorksPage />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/faq" element={<FAQPage />} />
-                  <Route path="/legal/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/legal/terms" element={<TermsOfService />} />
-                  <Route path="/legal/cookies" element={<CookiePolicy />} />
-                  <Route path="/articles" element={<ArticlesPage />} />
-                  <Route path="/articles/:slug" element={<ArticleDetail />} />
-                </Route>
-
-                {/* PROTECTED APP ROUTES */}
-                <Route path="/app" element={<ProtectedLayout />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="upload" element={<UploadPage />} />
-                  <Route path="admin" element={<AdminDashboard />} /> {/* Admin Route */}
-                  <Route path="payment/success" element={<Success />} />
-                  <Route path="payment/cancel" element={<Cancel />} />
-                </Route>
-
-                {/* CATCH ALL */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </Router>
+          <AppContent />
         </ToastProvider>
       </ErrorBoundary>
     </ClerkProvider>

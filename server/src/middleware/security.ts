@@ -50,8 +50,9 @@ export const securityMiddleware = async (req: Request, res: Response, next: Next
 
         const isAdminPath = req.path.startsWith('/api/admin');
         const isHealthPath = req.path === '/health';
+        const isUserPath = req.path === '/api/user';
 
-        if (!isAdminPath && !isHealthPath) {
+        if (!isAdminPath && !isHealthPath && !isUserPath) {
             return res.status(503).json({
                 error: 'Service Unavailable',
                 message: 'System is currently undergoing maintenance. Please try again later.'
