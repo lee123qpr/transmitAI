@@ -797,7 +797,7 @@ const AdminDashboard = () => {
                                                     <select
                                                         className="text-xs font-bold bg-slate-100 border-none rounded p-1 focus:ring-0"
                                                         value={u.subscription_tier}
-                                                        onChange={(e) => handleAction('PATCH', `${API_URL}/admin/users/${u.id}/tier`, { tier: e.target.value, limit: e.target.value === 'pro' ? 100 : e.target.value === 'business' ? 1000 : 10 })}
+                                                        onChange={(e) => handleAction('PATCH', `${API_URL}/admin/users/${u.id}/tier`, { tier: e.target.value, limit: e.target.value === 'pro' ? 500 : e.target.value === 'business' ? 2500 : 10 })}
                                                     >
                                                         <option value="free">FREE</option>
                                                         <option value="pro">PRO</option>
