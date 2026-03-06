@@ -398,7 +398,7 @@ const LandingPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {/* Testimonial 1 */}
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
                             <div className="flex gap-1 mb-4">
                                 {[...Array(5)].map((_, i) => (
                                     <CheckCircle key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -407,8 +407,8 @@ const LandingPage = () => {
                             <p className="text-slate-700 mb-6 leading-relaxed">
                                 "This tool has saved our team 10+ hours per week. We used to spend entire afternoons manually typing data from transmittals. Now it's done in minutes."
                             </p>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                            <div className="flex items-center gap-3 mt-auto">
+                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold shrink-0">
                                     JM
                                 </div>
                                 <div>
@@ -419,7 +419,7 @@ const LandingPage = () => {
                         </div>
 
                         {/* Testimonial 2 */}
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
                             <div className="flex gap-1 mb-4">
                                 {[...Array(5)].map((_, i) => (
                                     <CheckCircle key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -428,8 +428,8 @@ const LandingPage = () => {
                             <p className="text-slate-700 mb-6 leading-relaxed">
                                 "The AI accuracy is impressive. Even handles our old scanned drawings from the 90s. Game changer for document control."
                             </p>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">
+                            <div className="flex items-center gap-3 mt-auto">
+                                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold shrink-0">
                                     SC
                                 </div>
                                 <div>
@@ -440,7 +440,7 @@ const LandingPage = () => {
                         </div>
 
                         {/* Testimonial 3 */}
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
                             <div className="flex gap-1 mb-4">
                                 {[...Array(5)].map((_, i) => (
                                     <CheckCircle key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -449,8 +449,8 @@ const LandingPage = () => {
                             <p className="text-slate-700 mb-6 leading-relaxed">
                                 "Simple, fast, and reliable. We process 200+ drawings per week and this has become essential to our workflow. Highly recommend."
                             </p>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold">
+                            <div className="flex items-center gap-3 mt-auto">
+                                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold shrink-0">
                                     RP
                                 </div>
                                 <div>
