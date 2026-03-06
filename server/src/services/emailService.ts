@@ -31,7 +31,7 @@ export const sendWelcomeNewsletter = async (email: string): Promise<boolean> => 
         <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 24px;">
                 <!-- Try to load site logo from public folder, fallback to stylized text -->
-                <img src="https://www.transmittal.co.uk/favicon.ico" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
+                <img src="https://d36f9srxp2h1p4.cloudfront.net/logo.png" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
                 <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">Transmit<span style="color: #2563eb;">.AI</span></h1>
             </div>
             
@@ -107,7 +107,7 @@ export const sendWelcomeUser = async (email: string): Promise<boolean> => {
     const defaultHtml = `
         <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 24px;">
-                <img src="https://www.transmittal.co.uk/favicon.ico" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
+                <img src="https://d36f9srxp2h1p4.cloudfront.net/logo.png" alt="Transmit AI Logo" style="max-height: 50px; display: block; margin: 0 auto; margin-bottom: 12px;" onerror="this.onerror=null; this.style.display='none';" />
                 <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">Transmit<span style="color: #2563eb;">.AI</span></h1>
             </div>
             
