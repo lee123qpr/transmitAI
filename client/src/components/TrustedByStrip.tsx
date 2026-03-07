@@ -1,8 +1,14 @@
 import { motion } from 'framer-motion';
 
 const LogoImage = ({ src, alt }: { src: string; alt: string }) => (
-    <div className="flex items-center justify-center h-16 w-48 text-slate-400 grayscale hover:grayscale-0 hover:scale-105 transition-all duration-300 cursor-pointer mx-10">
-        <img src={src} alt={alt} className="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity" />
+    <div className="flex items-center justify-center h-16 w-36 sm:w-48 text-slate-400 grayscale hover:grayscale-0 hover:scale-105 transition-all duration-300 cursor-pointer mx-6 sm:mx-10 shrink-0">
+        <img
+            src={src}
+            alt={alt}
+            width={150}
+            height={64}
+            className="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
+        />
     </div>
 );
 
