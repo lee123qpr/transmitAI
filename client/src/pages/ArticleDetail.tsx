@@ -22,6 +22,7 @@ const ArticleDetail = () => {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const [article, setArticle] = useState<Article | null>(null);
+    const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { showToast } = useToast();
 
@@ -40,22 +41,35 @@ const ArticleDetail = () => {
     };
 
     useEffect(() => {
-        const fetchArticle = async () => {
+        const fetchArticleAndRelated = async () => {
             try {
+                setIsLoading(true);
+                // Fetch the current article
                 const res = await fetch(`${API_URL}/articles/${slug}`);
                 if (!res.ok) {
                     if (res.status === 404) navigate('/articles');
-                    throw new Error('Failed to fetch');
+                    throw new Error('Failed to fetch article');
                 }
                 const data = await res.json();
                 setArticle(data);
+
+                // Fetch other articles for the "Related" section
+                const relatedRes = await fetch(`${API_URL}/articles`);
+                if (relatedRes.ok) {
+                    const allArticles: Article[] = await relatedRes.json();
+                    // Filter out current article and take up to 3
+                    const filtered = allArticles
+                        .filter(a => a.slug !== slug)
+                        .slice(0, 3);
+                    setRelatedArticles(filtered);
+                }
             } catch (error) {
                 console.error('Fetch error:', error);
             } finally {
                 setIsLoading(false);
             }
         };
-        if (slug) fetchArticle();
+        if (slug) fetchArticleAndRelated();
     }, [slug, navigate]);
 
     if (isLoading) {
@@ -170,7 +184,48 @@ const ArticleDetail = () => {
                     </ReactMarkdown>
                 </div>
 
-                <footer className="mt-16 pt-8 border-t border-slate-100">
+                {/* Related Articles Section for Internal Linking */}
+                {relatedArticles.length > 0 && (
+                    <div className="mt-16 pt-12 border-t border-slate-100">
+                        <h3 className="text-2xl font-bold text-slate-900 mb-8">Related Reads</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {relatedArticles.map(related => (
+                                <Link
+                                    key={related.id}
+                                    to={`/articles/${related.slug}`}
+                                    className="group flex flex-col bg-slate-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all border border-slate-100"
+                                >
+                                    <div className="aspect-video bg-slate-200 overflow-hidden relative">
+                                        {related.header_image ? (
+                                            <img
+                                                src={related.header_image}
+                                                alt={related.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-100">
+                                                <Newspaper size={32} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-5 flex flex-col flex-grow">
+                                        <div className="text-xs font-bold text-blue-600 mb-2 uppercase tracking-wide">
+                                            {new Date(related.created_at).toLocaleDateString()}
+                                        </div>
+                                        <h4 className="font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                            {related.title}
+                                        </h4>
+                                        <div className="mt-auto text-sm font-bold text-slate-500 flex items-center gap-1 group-hover:text-blue-600 transition-colors">
+                                            Read Article <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <footer className="mt-16 pt-12 border-t border-slate-100">
                     <NewsletterSignup />
                 </footer>
             </article>
