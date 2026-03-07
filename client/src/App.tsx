@@ -16,6 +16,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AnnouncementBanner from './components/AnnouncementBanner';
 import MaintenanceOverlay from './components/MaintenanceOverlay';
 import CookieBanner from './components/CookieBanner';
+import NewsletterModal from './components/NewsletterModal';
 
 // Lazy Loaded Pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -131,6 +132,7 @@ function AppContent() {
               <div className="flex flex-col min-h-screen">
                 <AnnouncementBanner />
                 <PublicLayout />
+                <NewsletterModal />
               </div>
             }>
               <Route path="/" element={<LandingPage />} />
