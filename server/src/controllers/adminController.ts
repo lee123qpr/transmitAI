@@ -279,11 +279,38 @@ export const sendUserEmail = async (req: Request, res: Response) => {
             return res.status(404).json({ error: 'User email not found' });
         }
 
+        const formattedMessage = message.replace(/\n/g, '<br/>');
+
+        const htmlTemplate = `
+            <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">Transmit<span style="color: #2563eb;">.AI</span></h1>
+                    <p style="color: #64748b; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 8px;">Admin Team Communication</p>
+                </div>
+                
+                <div style="color: #475569; font-size: 16px; line-height: 1.6; padding: 20px; background-color: #f8fafc; border-left: 4px solid #2563eb; border-radius: 0 8px 8px 0; margin-bottom: 24px;">
+                    ${formattedMessage}
+                </div>
+                
+                <p style="color: #475569; font-size: 15px; margin-bottom: 20px;">
+                    Best regards,<br/>
+                    <strong>Transmit.AI Admin Team</strong>
+                </p>
+                
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0 20px;" />
+                
+                <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
+                    Please reply directly to this email if you have any questions.<br/>
+                    © ${new Date().getFullYear()} Transmit AI Ltd. All rights reserved.
+                </p>
+            </div>
+        `;
+
         await resend.emails.send({
-            from: 'Admin <support@transmittal.co.uk>',
+            from: 'Transmit.AI Admin Team <support@transmittal.co.uk>',
             to: userEmail,
             subject,
-            text: message
+            html: htmlTemplate
         });
 
         await logAdminAction((req as any).auth?.userId as string, 'send_email', userId, { subject });
