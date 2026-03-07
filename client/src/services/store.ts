@@ -26,6 +26,7 @@ interface UserState {
     subscriptionTier: string;
     createdAt: string | null;
     renewalDate: number | null;
+    cancelAtPeriodEnd: boolean;
     companyName: string | null;
     companyLogoUrl: string | null;
     isInitialized: boolean;
@@ -63,6 +64,7 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
     subscriptionTier: 'free',
     createdAt: null,
     renewalDate: null,
+    cancelAtPeriodEnd: false,
     companyName: null,
     companyLogoUrl: null,
     isInitialized: false,
@@ -88,6 +90,7 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
                 subscriptionTier: data.subscription_tier,
                 createdAt: data.createdAt,
                 renewalDate: data.renewalDate,
+                cancelAtPeriodEnd: data.cancel_at_period_end || false,
                 companyName: data.company_name,
                 companyLogoUrl: data.company_logo_url,
             });

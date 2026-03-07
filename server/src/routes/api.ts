@@ -152,6 +152,7 @@ router.get('/user', requireAuth, async (req: Request, res) => {
             ...user,
             documents_usage: user.documents_usage, // Return the actual incremented append-only count
             createdAt: user.created_at, // Map DB column to frontend format
+            cancel_at_period_end: user.cancel_at_period_end, // Expose cancellation flag
             renewalDate: renewalDate
         });
     } catch (error) {

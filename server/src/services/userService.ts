@@ -10,6 +10,7 @@ export interface User {
     company_logo_url?: string;
     status: 'active' | 'suspended';
     newsletter_subscribed: boolean;
+    cancel_at_period_end?: boolean;
     created_at?: string;
     last_seen_at?: string;
     last_ip?: string;

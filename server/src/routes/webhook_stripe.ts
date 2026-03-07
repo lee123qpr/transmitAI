@@ -160,8 +160,10 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
                         const userId = userRes.rows[0]?.id;
 
                         if (userId) {
-                            console.log(`[Webhook] Subscription updated. Syncing user ${userId} to ${planType}`);
+                            console.log(`[Webhook] Subscription updated. Syncing user ${userId} to ${planType}. Cancel at period end: ${subscription.cancel_at_period_end}`);
                             await processSubscription(userId, planType);
+                            // Also sync the cancel_at_period_end flag
+                            await query('UPDATE users SET cancel_at_period_end = $1 WHERE id = $2', [subscription.cancel_at_period_end, userId]);
                         }
                     }
                 } catch (err) {

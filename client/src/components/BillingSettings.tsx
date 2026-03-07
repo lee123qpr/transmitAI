@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const BillingSettings: React.FC = () => {
     const { user } = useUser();
-    const { subscriptionTier, usage, createdAt, renewalDate } = useDocumentStore();
+    const { subscriptionTier, usage, createdAt, renewalDate, cancelAtPeriodEnd } = useDocumentStore();
     const [isLoading, setIsLoading] = React.useState(false);
 
     const handleManageSubscription = async () => {
@@ -74,8 +74,17 @@ const BillingSettings: React.FC = () => {
                                 </div>
                                 {subscriptionTier !== 'free' && renewalDate && (
                                     <div>
-                                        <p className={`text-xs uppercase tracking-wider mb-1 ${subscriptionTier === 'business' ? 'text-slate-500' : 'text-slate-400'}`}>Renews On</p>
-                                        <p className={`text-sm font-medium ${subscriptionTier === 'business' ? 'text-slate-300' : 'text-slate-700'}`}>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <p className={`text-xs uppercase tracking-wider ${cancelAtPeriodEnd ? 'text-red-500' : (subscriptionTier === 'business' ? 'text-slate-500' : 'text-slate-400')}`}>
+                                                {cancelAtPeriodEnd ? 'Cancels On' : 'Renews On'}
+                                            </p>
+                                            {cancelAtPeriodEnd && (
+                                                <span className="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                                                    Pending Cancellation
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className={`text-sm font-medium ${cancelAtPeriodEnd ? 'text-red-600' : (subscriptionTier === 'business' ? 'text-slate-300' : 'text-slate-700')}`}>
                                             {new Date(renewalDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                                         </p>
                                     </div>
