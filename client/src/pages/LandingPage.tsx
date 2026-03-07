@@ -10,6 +10,7 @@ import TrustedByStrip from '../components/TrustedByStrip';
 
 const LandingPage = () => {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
     // Handle hash links when navigating from other pages or same page
     useEffect(() => {
@@ -60,9 +61,9 @@ const LandingPage = () => {
                                     Try Transmit.AI Free <ArrowRight size={20} />
                                 </button>
                             </SignUpButton>
-                            <a href="#how-it-works" className="px-8 py-4 text-lg font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all hover:scale-105 flex items-center justify-center">
+                            <button onClick={() => setIsVideoModalOpen(true)} className="px-8 py-4 text-lg font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all hover:scale-105 flex items-center justify-center">
                                 View Video
-                            </a>
+                            </button>
                         </div>
                         <p className="mt-6 text-sm text-slate-500">No credit card required · 10 free documents · Cancel anytime</p>
                     </div>
@@ -613,6 +614,35 @@ const LandingPage = () => {
                     </SignUpButton>
                 </div>
             </section>
+
+            {/* VIDEO MODAL */}
+            {isVideoModalOpen && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                    onClick={() => setIsVideoModalOpen(false)}
+                >
+                    <div
+                        className="relative w-full max-w-5xl aspect-video bg-black rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close button */}
+                        <button
+                            onClick={() => setIsVideoModalOpen(false)}
+                            className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/40 hover:bg-black/80 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-colors border border-white/20"
+                            aria-label="Close video"
+                        >
+                            ✕
+                        </button>
+                        <iframe
+                            src="https://www.youtube.com/embed/EYNanZpmmjU?autoplay=1&rel=0"
+                            title="Transmit.AI Product Demo"
+                            className="w-full h-full border-0 bg-black"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };
