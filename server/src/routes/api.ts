@@ -42,7 +42,8 @@ import { getAnnouncements } from '../services/cmsService';
 router.get('/config', async (req, res) => {
     try {
         const settings = await getSystemSettings();
-        const maintenance = settings.find(s => s.key === 'maintenance_mode')?.value === true;
+        const maintenanceSetting = settings.find(s => s.key === 'maintenance_mode')?.value;
+        const maintenance = maintenanceSetting === true || maintenanceSetting === 'true';
         res.json({ maintenanceMode: maintenance });
     } catch (err) {
         res.status(500).json({ error: 'Failed' });
