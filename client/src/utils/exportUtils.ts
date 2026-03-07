@@ -58,13 +58,35 @@ export const exportToExcel = async (
         const logoData = await fetchImageAsBase64(companyLogoUrl);
         if (logoData) {
             try {
+                // Determine aspect ratio dynamically
+                const img = new Image();
+                img.src = `data:image/${logoData.extension};base64,${logoData.base64}`;
+                await new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.onerror = resolve; // Continue on error with default size
+                });
+
+                let renderWidth = 120;
+                let renderHeight = 40;
+
+                if (img.width && img.height) {
+                    const ratio = img.width / img.height;
+                    renderHeight = 40; // Approx 2 header rows
+                    renderWidth = renderHeight * ratio;
+
+                    if (renderWidth > 200) {
+                        renderWidth = 200; // Cap width so it doesn't push data too far right
+                        renderHeight = renderWidth / ratio;
+                    }
+                }
+
                 const logoId = workbook.addImage({
                     base64: logoData.base64,
                     extension: logoData.extension as 'jpeg' | 'png',
                 });
                 worksheet.addImage(logoId, {
                     tl: { col: 7, row: 0 }, // Column H
-                    ext: { width: 120, height: 40 },
+                    ext: { width: Math.round(renderWidth), height: Math.round(renderHeight) },
                     editAs: 'absolute'
                 });
             } catch (e) {
@@ -95,8 +117,12 @@ export const exportToExcel = async (
         worksheet.getCell('A3').font = { size: 11, bold: true };
     }
 
-    // Set headers
-    const headerRow = worksheet.getRow(5);
+    // New element requested by user
+    worksheet.getCell('A4').value = `Total Documents: ${docsToExport.length}`;
+    worksheet.getCell('A4').font = { size: 10, italic: true };
+
+    // Set headers (moved to Row 6 to give spacing for the new row)
+    const headerRow = worksheet.getRow(6);
     headerRow.values = ['Doc Number', 'Revision', 'Type', 'Title', 'Status', 'Issue Date', 'Discipline', 'Consultant', 'Summary'];
     headerRow.font = { bold: true };
     headerRow.border = { bottom: { style: 'thin' } };
@@ -113,7 +139,8 @@ export const exportToExcel = async (
         });
     });
 
-    worksheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 5 }];
+    // Freeze panes updated for new header position
+    worksheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 6 }];
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -141,44 +168,67 @@ export const exportToPDF = async (
     // Create landscape PDF for better column space
     const doc = new jsPDF({ orientation: 'landscape' });
 
-    // Add Professional Header (landscape width = 297mm)
-    doc.setFillColor(31, 41, 55); // Slate-800
-    doc.rect(0, 0, 297, 35, 'F');
+    // Add Clean White Header (landscape width = 297mm)
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text(filename || 'Transmittal Register', 105, 15, { align: 'center' });
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Exported: ${new Date().toLocaleDateString('en-GB')}`, 105, 22, { align: 'center' });
-    doc.text(`Total Documents: ${docsToExport.length}`, 105, 28, { align: 'center' });
-
-    let hasLogo = false;
+    // Left Column: Logo
     if (companyLogoUrl) {
         const logoData = await fetchImageAsBase64(companyLogoUrl);
         if (logoData) {
             try {
                 const imgFormat = logoData.extension.toUpperCase();
-                // Pass the data URI format expected by jsPDF
                 const dataUri = `data:image/${logoData.extension};base64,${logoData.base64}`;
-                doc.addImage(dataUri, imgFormat, 14, 5, 25, 25, undefined, 'FAST');
-                hasLogo = true;
+
+                // Get native dimensions to draw proportionally in jsPDF
+                const img = new Image();
+                img.src = dataUri;
+                await new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+
+                let renderWidth = 35;
+                let renderHeight = 25;
+
+                if (img.width && img.height) {
+                    const ratio = img.width / img.height;
+                    renderHeight = 18; // Standard professional height limit
+                    renderWidth = renderHeight * ratio;
+                    if (renderWidth > 80) { // Limit width for wide logos
+                        renderWidth = 80;
+                        renderHeight = renderWidth / ratio;
+                    }
+                }
+
+                // Draw logo aligned to the exact left margin (14)
+                doc.addImage(dataUri, imgFormat, 14, 10, renderWidth, renderHeight, undefined, 'FAST');
             } catch (e) {
                 console.error('PDF logo add error', e);
             }
         }
     }
 
+    // Center Column: Company Name
+    doc.setTextColor(31, 41, 55); // Slate 800 (almost black)
+
     if (companyName) {
-        doc.setFontSize(14);
+        doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
-        doc.text(companyName, hasLogo ? 43 : 14, 20);
+        doc.text(companyName, 297 / 2, 18, { align: 'center' });
     }
 
-    doc.setTextColor(0, 0, 0); // Reset to black
-    let yPos = 42;
+    // Right Column: Metadata (Project Name, Date, Count)
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(filename || 'Transmittal Register', 283, 15, { align: 'right' }); // 283 is right margin
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100); // Lighter text for secondary data
+    doc.text(`Exported: ${new Date().toLocaleDateString('en-GB')}`, 283, 22, { align: 'right' });
+    doc.text(`Total Documents: ${docsToExport.length}`, 283, 28, { align: 'right' });
+
+    doc.setTextColor(0, 0, 0); // Reset to black body text
+    let yPos = 45; // Start table below the three-column header
 
     // Sort documents by discipline
     const disciplineOrder: Record<string, number> = {
