@@ -127,104 +127,125 @@ const LandingPage = () => {
 
                         {/* Visual Cards */}
                         <div className="flex flex-col gap-6 mt-8 lg:mt-0 items-center lg:items-start justify-center">
-                            <div
-                                className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-lg relative"
-                            >
-                                <div className="flex items-start gap-4 mb-6">
-                                    <div className="w-12 h-12 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center justify-center shrink-0">
-                                        <FileSpreadsheet className="text-rose-400" size={24} />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-slate-200 font-bold text-lg">The Old Way</h3>
-                                        <p className="text-slate-400 mt-1 text-sm font-medium">Manual data entry, scattered tracking sheets, prone to human error.</p>
-                                    </div>
-                                </div>
+                            {/* 1. "The Old Way" Card */}
+                            <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl shadow-rose-900/10 w-full max-w-lg relative overflow-hidden transition-all duration-500 hover:border-white/20 hover:shadow-rose-900/20 group">
 
-                                {/* Messy Spreadsheet UI */}
-                                <div className="mt-6 bg-slate-950/50 rounded-lg p-4 border border-slate-800 relative">
-                                    <div className="absolute -top-3 -right-3 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg border border-rose-400 animate-pulse">
-                                        3 Errors Detected
-                                    </div>
-                                    <div className="flex items-center gap-2 mb-3 border-b border-slate-800 pb-2">
-                                        <div className="w-1/3 h-3 bg-slate-800 rounded"></div>
-                                        <div className="w-1/4 h-3 bg-slate-800 rounded"></div>
-                                        <div className="w-1/4 h-3 bg-slate-800 rounded"></div>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div className="flex gap-2">
-                                            <div className="w-1/3 h-6 bg-slate-800 rounded border border-rose-500/50 relative overflow-hidden flex items-center px-2">
-                                                <span className="text-[10px] text-rose-400 font-mono">Typo: ARC-01</span>
-                                                <div className="absolute inset-0 bg-rose-500/10 animate-pulse"></div>
-                                            </div>
-                                            <div className="w-1/4 h-6 bg-slate-800 rounded"></div>
-                                            <div className="w-1/4 h-6 bg-slate-800 rounded"></div>
+                                {/* Background Red Glow */}
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-rose-500/15 transition-all duration-500 -translate-y-1/2 translate-x-1/3"></div>
+
+                                <div className="relative z-10">
+                                    <div className="flex items-start gap-4 mb-8">
+                                        <div className="w-14 h-14 bg-slate-800/80 backdrop-blur border border-white/10 rounded-2xl flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                            <FileSpreadsheet className="text-rose-400 drop-shadow-[0_0_8px_rgba(251,113,133,0.5)]" size={26} />
                                         </div>
-                                        <div className="flex gap-2">
-                                            <div className="w-1/3 h-6 bg-slate-800 rounded"></div>
-                                            <div className="w-1/4 h-6 bg-slate-800 rounded border border-rose-500/50 relative overflow-hidden flex items-center px-2">
-                                                <span className="text-[10px] text-rose-400 font-mono">Missing Rev</span>
-                                                <div className="absolute inset-0 bg-rose-500/10 animate-pulse"></div>
-                                            </div>
-                                            <div className="w-1/4 h-6 bg-slate-800 rounded"></div>
+                                        <div>
+                                            <h3 className="text-white font-bold text-xl drop-shadow-sm">The Old Way</h3>
+                                            <p className="text-slate-400 mt-1 text-sm font-medium leading-relaxed">Manual data entry, scattered tracking sheets, prone to human error.</p>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <div className="w-1/3 h-6 bg-slate-800 rounded"></div>
-                                            <div className="w-1/4 h-6 bg-slate-800 rounded"></div>
-                                            <div className="w-1/4 h-6 bg-slate-800 rounded border border-rose-500/50 relative overflow-hidden flex items-center px-2">
-                                                <span className="text-[10px] text-rose-400 font-mono">Wrong Date</span>
-                                                <div className="absolute inset-0 bg-rose-500/10 animate-pulse"></div>
+                                    </div>
+
+                                    {/* Simulated "Old Way" Messy UI */}
+                                    <div className="bg-slate-950/60 backdrop-blur-md rounded-xl p-5 border border-white/5 relative shadow-inner">
+
+                                        {/* Error Badge */}
+                                        <div className="absolute -top-3 -right-3 bg-gradient-to-r from-rose-500 to-red-600 text-white text-[10px] tracking-wider font-bold px-3 py-1.5 rounded-full shadow-lg shadow-rose-500/20 border border-rose-400/50 flex items-center gap-1.5">
+                                            <span className="relative flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                                            </span>
+                                            3 ERRORS DETECTED
+                                        </div>
+
+                                        {/* Mock Table Header */}
+                                        <div className="flex items-center gap-3 mb-4 border-b border-white/10 pb-3">
+                                            <div className="w-1/3 h-2 bg-slate-800/80 rounded-full"></div>
+                                            <div className="w-1/4 h-2 bg-slate-800/80 rounded-full"></div>
+                                            <div className="w-1/4 h-2 bg-slate-800/80 rounded-full"></div>
+                                        </div>
+
+                                        {/* Mock Table Rows */}
+                                        <div className="space-y-4">
+                                            <div className="flex gap-3 items-center">
+                                                <div className="w-1/3 bg-rose-500/10 border border-rose-500/30 rounded-lg p-2 flex items-center relative overflow-hidden">
+                                                    <span className="text-[10px] text-rose-400 font-mono font-bold tracking-tight">Typo: ARC-01</span>
+                                                    <div className="absolute inset-0 bg-rose-500/10 animate-[pulse_2s_ease-in-out_infinite]"></div>
+                                                </div>
+                                                <div className="w-1/4 h-7 bg-slate-800/50 rounded-lg"></div>
+                                                <div className="w-1/4 h-7 bg-slate-800/50 rounded-lg"></div>
+                                            </div>
+                                            <div className="flex gap-3 items-center">
+                                                <div className="w-1/3 h-7 bg-slate-800/50 rounded-lg"></div>
+                                                <div className="w-1/4 bg-rose-500/10 border border-rose-500/30 rounded-lg p-2 flex items-center relative overflow-hidden">
+                                                    <span className="text-[10px] text-rose-400 font-mono font-bold tracking-tight">Missing Rev</span>
+                                                    <div className="absolute inset-0 bg-rose-500/10 animate-[pulse_2.5s_ease-in-out_infinite]"></div>
+                                                </div>
+                                                <div className="w-1/4 h-7 bg-slate-800/50 rounded-lg"></div>
+                                            </div>
+                                            <div className="flex gap-3 items-center">
+                                                <div className="w-1/3 h-7 bg-slate-800/50 rounded-lg"></div>
+                                                <div className="w-1/4 h-7 bg-slate-800/50 rounded-lg"></div>
+                                                <div className="w-1/4 bg-rose-500/10 border border-rose-500/30 rounded-lg p-2 flex items-center relative overflow-hidden">
+                                                    <span className="text-[10px] text-rose-400 font-mono font-bold tracking-tight">Wrong Date</span>
+                                                    <div className="absolute inset-0 bg-rose-500/10 animate-[pulse_2s_ease-in-out_infinite_0.5s]"></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div
-                                className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-6 rounded-2xl shadow-2xl shadow-blue-900/50 w-full max-w-lg relative overflow-hidden border border-blue-400/30"
-                            >
-                                {/* Decorative background effects */}
-                                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 border-[40px] border-white/5 rounded-full blur-2xl pointer-events-none"></div>
-                                <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 border-[20px] border-white/5 rounded-full blur-xl pointer-events-none"></div>
+                            {/* 2. "The Transmit.AI Way" Card */}
+                            <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl shadow-blue-900/10 w-full max-w-lg relative overflow-hidden transition-all duration-500 hover:border-white/20 hover:shadow-blue-900/20 group">
+
+                                {/* Background Blue Glow */}
+                                <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none group-hover:bg-blue-600/20 transition-all duration-500 translate-y-1/3 -translate-x-1/4"></div>
 
                                 <div className="relative z-10">
-                                    <div className="flex items-start gap-4 mb-6">
-                                        <div className="w-14 h-14 bg-white rounded-xl shadow-lg flex items-center justify-center shrink-0 p-2 border border-white/20">
-                                            <img src="/favicon.svg" alt="Transmit.AI Logo" className="w-full h-full object-contain" />
+                                    <div className="flex items-start gap-4 mb-8">
+                                        <div className="w-14 h-14 bg-blue-600 border border-blue-400 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/30 group-hover:scale-110 transition-transform duration-500">
+                                            <img src="/favicon.svg" alt="Transmit.AI Logo" className="w-8 h-8 object-contain filter brightness-0 invert drop-shadow-md" />
                                         </div>
                                         <div>
-                                            <h3 className="text-white font-bold text-xl drop-shadow-md">The Transmit.AI Way</h3>
-                                            <p className="text-blue-100 mt-1 font-medium text-sm">Instant extraction, 100% accurate, export drop-in ready document lists.</p>
+                                            <h3 className="text-white font-bold text-xl drop-shadow-sm">The Transmit.AI Way</h3>
+                                            <p className="text-blue-100/70 mt-1 font-medium text-sm leading-relaxed">Instant extraction, 100% accurate, export drop-in ready document lists.</p>
                                         </div>
                                     </div>
 
-                                    {/* Clean Data UI */}
-                                    <div className="bg-slate-900/40 backdrop-blur-md rounded-xl p-4 mb-6 font-mono text-sm shadow-inner overflow-hidden relative">
-                                        <div className="absolute top-0 left-0 w-1 h-full bg-green-400"></div>
-                                        <div className="flex items-center gap-3 text-white/80 border-b border-white/10 pb-2 mb-2">
-                                            <span className="w-1/3 text-xs uppercase tracking-wider font-bold">Doc Number</span>
-                                            <span className="w-1/4 text-xs uppercase tracking-wider font-bold">Rev</span>
-                                            <span className="flex-1 text-xs uppercase tracking-wider font-bold">Status</span>
+                                    {/* Simulated "Transmit" Clean UI */}
+                                    <div className="bg-slate-950/60 backdrop-blur-md rounded-xl p-5 font-mono text-sm border border-white/5 shadow-inner relative overflow-hidden">
+
+                                        {/* Success Edge Bar */}
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-400 to-indigo-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+
+                                        {/* Mock Table Header */}
+                                        <div className="flex items-center gap-3 text-white/50 border-b border-white/10 pb-3 mb-4 pl-3">
+                                            <span className="w-1/3 text-[10px] uppercase font-bold tracking-widest">Doc Number</span>
+                                            <span className="w-1/4 text-[10px] uppercase font-bold tracking-widest">Rev</span>
+                                            <span className="flex-1 text-[10px] uppercase font-bold tracking-widest">Status</span>
                                         </div>
-                                        <div className="space-y-2">
+
+                                        {/* Mock Table Rows */}
+                                        <div className="space-y-3 pl-3">
                                             <div className="flex items-center gap-3 text-white">
-                                                <span className="w-1/3 bg-white/10 px-2 py-1.5 rounded text-xs font-bold shadow-sm">ARC-001</span>
-                                                <span className="w-1/4 bg-white/10 px-2 py-1.5 rounded text-xs font-bold text-center shadow-sm">P01</span>
-                                                <span className="flex-1 flex gap-1 items-center text-xs text-green-300 bg-green-500/10 px-2 py-1.5 rounded"><CheckCircle size={14} /> Valid</span>
+                                                <span className="w-1/3 bg-white/5 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-bold font-sans">ARC-001</span>
+                                                <span className="w-1/4 bg-white/5 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-bold font-sans text-center">P01</span>
+                                                <span className="flex-1 flex gap-1.5 items-center text-xs font-bold font-sans text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg"><CheckCircle size={14} /> Valid</span>
                                             </div>
                                             <div className="flex items-center gap-3 text-white">
-                                                <span className="w-1/3 bg-white/10 px-2 py-1.5 rounded text-xs font-bold shadow-sm">STR-104</span>
-                                                <span className="w-1/4 bg-white/10 px-2 py-1.5 rounded text-xs font-bold text-center shadow-sm">C02</span>
-                                                <span className="flex-1 flex gap-1 items-center text-xs text-green-300 bg-green-500/10 px-2 py-1.5 rounded"><CheckCircle size={14} /> Valid</span>
+                                                <span className="w-1/3 bg-white/5 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-bold font-sans">STR-104</span>
+                                                <span className="w-1/4 bg-white/5 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-bold font-sans text-center">C02</span>
+                                                <span className="flex-1 flex gap-1.5 items-center text-xs font-bold font-sans text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg"><CheckCircle size={14} /> Valid</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <div className="flex items-center gap-2 text-white font-bold text-sm bg-green-500/20 border border-green-400/30 px-4 py-2 rounded-full shadow-lg backdrop-blur-sm">
-                                            <CheckCircle size={16} className="text-green-300" />
+                                    {/* Feature Pills */}
+                                    <div className="flex flex-wrap items-center gap-3 mt-6">
+                                        <div className="flex items-center gap-2 text-white font-bold text-xs bg-gradient-to-r from-blue-600/30 to-indigo-600/30 border border-blue-400/30 px-4 py-2 rounded-full shadow-lg backdrop-blur-sm transition-all hover:bg-blue-600/50 cursor-default">
+                                            <CheckCircle size={14} className="text-blue-300 drop-shadow-sm" />
                                             Done in seconds
                                         </div>
-                                        <div className="flex items-center gap-2 text-white font-bold text-sm bg-white/10 border border-white/20 px-4 py-2 rounded-full shadow-lg backdrop-blur-sm">
+                                        <div className="flex items-center gap-2 text-white font-bold text-xs bg-white/5 border border-white/10 px-4 py-2 rounded-full shadow-inner backdrop-blur-sm cursor-default">
                                             Zero errors
                                         </div>
                                     </div>
