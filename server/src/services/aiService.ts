@@ -245,10 +245,9 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             
             QUALITY SCORE INSTRUCTIONS:
             - confidence_score: (number) Choose a value from 1 to 100 representing how confident you are in the extracted data. Deduct points if core fields (documentNumber, title, revision, status) are missing, if text is blurry/hard to read, or if standard naming conventions are not followed. High confidence (90+) means almost all fields found and standard formats used.
-            - reasoning_notes: (string) Provide a concise, helpful explanation for the user if the score is not 100. Specficially mention any missing fields, poor image quality, or deviations from ISO 19650/standard naming conventions, and suggest how to improve it. Keep this to one sentence if possible (e.g. "We couldn't locate a standard title block or document number, try standardizing your file format."). If the score is 100, return an empty string.
+            - reasoning_notes: (string) Provide a concise, helpful explanation for the user if the score is not 100. Specifically mention any missing fields, poor image quality, or deviations from ISO 19650 conventions. If the score is 100, return an empty string.
 
-            Return NULL if a field is not found.
-            Return ONLY raw JSON object. No markdown.
+            IMPORTANT: Return "" (empty string) or 0 if a field is not found. Do not return null.
         `;
 
         // For multi-page scanned PDFs, prepare multiple image inputs
@@ -275,31 +274,83 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
 
         console.log('[AI Service] Sending request to OpenAI...');
 
-        // 3. Call OpenAI
+        // 3. Call OpenAI using Structured Outputs
         const response = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userMessage }
             ],
-            max_tokens: 1000,
+            max_tokens: 1500,
             temperature: 0.1, // Low temperature for consistent extraction
-            response_format: { type: "json_object" }
+            response_format: {
+                type: "json_schema",
+                json_schema: {
+                    name: "transmittal_extraction",
+                    strict: true,
+                    schema: {
+                        type: "object",
+                        properties: {
+                            documentNumber: { type: "string", description: "The main drawing/document number. Prefer the ISO 19650 format if present." },
+                            revision: { type: "string", description: "The current revision code." },
+                            title: { type: "string", description: "The drawing/document title." },
+                            issueDate: { type: "string", description: "Date in YYYY-MM-DD format." },
+                            discipline: {
+                                type: "string",
+                                enum: ["Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General", "Unknown"],
+                                description: "The detected discipline code."
+                            },
+                            consultant: { type: "string", description: "Company name in the title block logo/header." },
+                            status: { type: "string", description: "The drawing/document status (e.g., 'For Construction', 'Preliminary', 'S2', etc)." },
+                            summary: { type: "string", description: "Brief description of the content." },
+                            documentType: { type: "string", description: "Document classification: one of 'Drawing', 'Specification', 'Report', 'Schedule', 'Transmittal', 'Letter', 'Form', or 'Other'." },
+                            transmittalTitle: { type: "string", description: "If this is a transmittal/cover sheet, the Transmittal Number." },
+                            confidence_score: { type: "number", description: "Confidence score from 1-100." },
+                            reasoning_notes: { type: "string", description: "Concise reasoning for the given confidence score." }
+                        },
+                        required: [
+                            "documentNumber",
+                            "revision",
+                            "title",
+                            "issueDate",
+                            "discipline",
+                            "consultant",
+                            "status",
+                            "summary",
+                            "documentType",
+                            "transmittalTitle",
+                            "confidence_score",
+                            "reasoning_notes"
+                        ],
+                        additionalProperties: false
+                    }
+                }
+            }
         }, {
-            timeout: 30000 // 30 second timeout to prevent hanging
+            timeout: 45000 // Increased timeout for strict schema generation
         });
 
-        console.log('[AI Service] OpenAI Response Received.');
+        console.log('[AI Service] OpenAI Response Received. Total tokens:', response.usage?.total_tokens);
 
         const content = response.choices[0].message.content;
         if (!content) throw new Error("OpenAI returned no content.");
 
         // 4. Parse JSON
+        // With Structured Outputs (strict: true), OpenAI guarantees the format,
+        // so we don't have to worry about missing brackets or markdown blocks.
         try {
-            const jsonString = content.replace(/```json/g, '').replace(/```/g, '').trim();
-            const data = JSON.parse(jsonString);
-            console.log('[AI Service] Data parsed successfully.');
-            return data as ExtractedData;
+            const data = JSON.parse(content);
+            console.log('[AI Service] Data parsed successfully from Structured Output.');
+
+            // Clean up: For any empty strings (""), set them to undefined to match DB logic expectations
+            const cleanData: ExtractedData = { ...data };
+            (Object.keys(cleanData) as (keyof ExtractedData)[]).forEach(key => {
+                if (cleanData[key] === "") {
+                    cleanData[key] = undefined as any;
+                }
+            });
+
+            return cleanData;
         } catch (parseError) {
             console.error("[AI Service] JSON Parse Failed. Raw content:", content);
             throw new Error("Failed to parse AI response. See server logs for raw output.");
