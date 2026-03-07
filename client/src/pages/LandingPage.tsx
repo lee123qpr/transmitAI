@@ -65,7 +65,7 @@ const LandingPage = () => {
                                 View Video
                             </button>
                         </div>
-                        <p className="mt-6 text-sm text-slate-500">No credit card required · 10 free documents · Cancel anytime</p>
+                        <p className="mt-6 text-sm text-slate-600 font-medium">No credit card required · 10 free documents · Cancel anytime</p>
                     </div>
 
                     {/* Right Column: Visual */}

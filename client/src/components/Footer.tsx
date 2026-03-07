@@ -22,7 +22,7 @@ const Footer = () => {
                     </div>
 
                     <div>
-                        <h4 className="font-semibold text-slate-900 mb-4">Resources</h4>
+                        <h3 className="font-semibold text-slate-900 mb-4">Resources</h3>
                         <ul className="space-y-2 text-sm text-slate-500">
                             <li><Link to="/how-it-works" className="hover:text-blue-600 transition-colors">How It Works</Link></li>
                             <li><Link to="/articles" className="hover:text-blue-600 transition-colors">Articles</Link></li>
@@ -33,7 +33,7 @@ const Footer = () => {
                     </div>
 
                     <div>
-                        <h4 className="font-semibold text-slate-900 mb-4">Company</h4>
+                        <h3 className="font-semibold text-slate-900 mb-4">Company</h3>
                         <ul className="space-y-2 text-sm text-slate-500">
                             <li><Link to="/contact" className="hover:text-blue-600 transition-colors">Contact Us</Link></li>
                             <li><Link to="/legal/privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
@@ -43,7 +43,7 @@ const Footer = () => {
                     </div>
 
                     <div className="lg:col-span-1">
-                        <h4 className="font-semibold text-slate-900 mb-4">Stay Updated</h4>
+                        <h3 className="font-semibold text-slate-900 mb-4">Stay Updated</h3>
                         <p className="text-sm text-slate-500 mb-4">
                             Subscribe to our newsletter for the latest AI updates and features.
                         </p>
@@ -51,15 +51,15 @@ const Footer = () => {
                     </div>
 
                     <div className="lg:col-span-1">
-                        <h4 className="font-semibold text-slate-900 mb-4">Follow Us</h4>
+                        <h3 className="font-semibold text-slate-900 mb-4">Follow Us</h3>
                         <div className="flex gap-4">
-                            <a href="https://www.instagram.com/transmit_ai/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-pink-50 hover:text-pink-600 transition-all">
+                            <a href="https://www.instagram.com/transmit_ai/" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-pink-50 hover:text-pink-600 transition-all">
                                 <Instagram size={18} />
                             </a>
-                            <a href="https://www.linkedin.com/company/transmit-ai" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                            <a href="https://www.linkedin.com/company/transmit-ai" target="_blank" rel="noopener noreferrer" aria-label="Follow us on LinkedIn" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all">
                                 <Linkedin size={18} />
                             </a>
-                            <a href="https://www.youtube.com/@Transmit_AI" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
+                            <a href="https://www.youtube.com/@Transmit_AI" target="_blank" rel="noopener noreferrer" aria-label="Subscribe to our YouTube channel" className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
                                 <Youtube size={18} />
                             </a>
                         </div>
@@ -67,8 +67,8 @@ const Footer = () => {
                 </div>
 
                 <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-xs text-slate-400">© 2026 Transmit.AI Ltd. All rights reserved.</p>
-                    <div className="flex gap-6 text-xs text-slate-400">
+                    <p className="text-xs text-slate-500">© 2026 Transmit.AI Ltd. All rights reserved.</p>
+                    <div className="flex gap-6 text-xs text-slate-500">
                         <span>Made with ❤️ in London</span>
                     </div>
                 </div>

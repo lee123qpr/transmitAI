@@ -38,7 +38,7 @@ const SEO: React.FC<SEOProps> = ({
             <meta name="twitter:description" content={metaDescription} />
 
             {/* Viewport for mobile optimization - ensuring it's present/correct */}
-            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Helmet>
     );
 };

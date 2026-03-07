@@ -38,6 +38,7 @@ export default defineConfig({
           utils: ['exceljs', 'jspdf', 'jspdf-autotable', 'jszip']
         }
       }
-    }
+    },
+    sourcemap: true
   }
 })

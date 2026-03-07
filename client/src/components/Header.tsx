@@ -149,6 +149,7 @@ const Header = () => {
                     <button
                         className="md:hidden p-2 text-slate-600"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        aria-label="Toggle mobile menu"
                     >
                         {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
