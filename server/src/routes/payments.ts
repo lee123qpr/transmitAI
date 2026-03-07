@@ -50,6 +50,7 @@ router.post('/create-checkout-session', async (req, res) => {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             customer_email: email,
+            allow_promotion_codes: true,
             line_items: [
                 {
                     price: priceId,
