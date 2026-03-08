@@ -20,6 +20,7 @@ interface Stats {
     totalDocuments: number;
     proUsers: number;
     revenue: number;
+    liveUsers?: number;
     recentUsers: UserData[];
     recentLogs: { id: string; user_id: string; action: string; details: string; created_at: string; ip_address: string }[];
     contentStats: {
@@ -1333,7 +1334,7 @@ const TabButton = ({ active, onClick, icon, label }: { active: boolean, onClick:
     </button>
 );
 
-const MetricCard = ({ label, value, icon, color }: { label: string; value: string | number; icon: React.ReactNode; color: 'blue' | 'green' | 'orange' }) => {
+const MetricCard = ({ label, value, icon, color, subText }: { label: string; value: string | number; icon: React.ReactNode; color: 'blue' | 'green' | 'orange'; subText?: string }) => {
     const colors = {
         blue: 'bg-blue-50 text-blue-600',
         green: 'bg-green-50 text-green-600',
@@ -1345,7 +1346,10 @@ const MetricCard = ({ label, value, icon, color }: { label: string; value: strin
                 <div className={`p-3 rounded-xl ${colors[color]}`}>{icon}</div>
                 <span className="text-3xl font-bold text-slate-900 tracking-tight">{value}</span>
             </div>
-            <h3 className="text-slate-500 font-bold uppercase tracking-widest text-xs">{label}</h3>
+            <h3 className="text-slate-500 font-bold uppercase tracking-widest text-xs flex items-center justify-between">
+                {label}
+                {subText && <span className="text-[10px] text-green-500 font-bold tracking-normal bg-green-50 px-2 py-0.5 rounded-full">{subText}</span>}
+            </h3>
         </div>
     );
 };
