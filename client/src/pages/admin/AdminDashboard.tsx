@@ -646,7 +646,13 @@ const AdminDashboard = () => {
 
                         {/* Stats Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <MetricCard label="Total Users" value={stats?.totalUsers || 0} icon={<Users size={24} />} color="blue" />
+                            <MetricCard
+                                label="Total Users"
+                                value={stats?.totalUsers || 0}
+                                icon={<Users size={24} />}
+                                color="blue"
+                                subText={stats?.liveUsers !== undefined ? `${stats.liveUsers} Online Now` : undefined}
+                            />
                             <MetricCard label="Paid Subs" value={stats?.proUsers || 0} icon={<CheckCircle size={24} />} color="green" />
                             <MetricCard label="Total Docs" value={stats?.totalDocuments || 0} icon={<FileText size={24} />} color="orange" />
                         </div>
@@ -665,18 +671,25 @@ const AdminDashboard = () => {
                                     ]
                                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                                         .slice(0, 10) // Display top 10 most recent overall
-                                        .map((item, idx) => (
-                                            <div key={`${item.type}-${item.id}-${idx}`} className="flex items-center justify-between text-sm border-b border-slate-50 pb-2 last:border-0 last:pb-0 leading-tight">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`p-1.5 rounded-full ${item.colorClass}`}>{item.icon}</div>
-                                                    <div>
-                                                        <p className="font-medium text-slate-700 capitalize mb-0.5">{item.title}</p>
-                                                        <p className="text-slate-500 text-xs">{item.sub}</p>
+                                        .map((item, idx) => {
+                                            const dateObj = new Date(item.date);
+                                            const formattedDate = dateObj.toLocaleDateString();
+                                            const formattedTime = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                            return (
+                                                <div key={`${item.type}-${item.id}-${idx}`} className="flex items-center justify-between text-sm border-b border-slate-50 pb-2 last:border-0 last:pb-0 leading-tight">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`p-1.5 rounded-full ${item.colorClass}`}>{item.icon}</div>
+                                                        <div>
+                                                            <p className="font-medium text-slate-700 capitalize mb-0.5">{item.title}</p>
+                                                            <p className="text-slate-500 text-xs">{item.sub}</p>
+                                                        </div>
                                                     </div>
+                                                    <span className="text-xs text-slate-400 text-right whitespace-nowrap">
+                                                        {formattedDate}<br />{formattedTime}
+                                                    </span>
                                                 </div>
-                                                <span className="text-xs text-slate-400">{new Date(item.date).toLocaleDateString()}</span>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     {!stats?.recentUsers?.length && !stats?.recentLogs?.length && (
                                         <p className="text-slate-400 text-center py-4">No recent activity found.</p>
                                     )}

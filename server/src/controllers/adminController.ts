@@ -32,8 +32,13 @@ import {
     toggleNewsletter
 } from '../services/userService';
 import { sendWelcomeUser, sendWelcomeNewsletter } from '../services/emailService';
+import Stripe from 'stripe';
+import { clerkClient } from '@clerk/clerk-sdk-node';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2024-12-18.acacia' as any,
+});
 
 // Health & Stats
 export const getHealth = async (req: Request, res: Response) => {
@@ -55,12 +60,43 @@ export const getStats = async (req: Request, res: Response) => {
         const contentStats = await getContentStats();
         const recentLogs = await getAuditLogs(5);
 
+        // Fetch live revenue from Stripe (last 30 days or current month)
+        let totalRevenue = 0;
+        try {
+            const charges = await stripe.charges.list({
+                limit: 100,
+                created: {
+                    gte: Math.floor(new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime() / 1000)
+                }
+            });
+
+            totalRevenue = charges.data
+                .filter(charge => charge.paid && !charge.refunded)
+                .reduce((sum, charge) => sum + charge.amount, 0) / 100; // Convert cents to dollars/pounds
+        } catch (stripeErr) {
+            console.error('[Admin] Failed to fetch Stripe revenue:', stripeErr);
+        }
+
+        // Fetch live active users from Clerk
+        let activeSessionsCount = 0;
+        try {
+            // Clerk SDK doesn't have a simple "count", but we can fetch recent active sessions
+            // For a small app, fetching the list is fine. For larger, we'd need better pagination or webhooks.
+            const sessions = await clerkClient.sessions.getSessionList({
+                status: 'active'
+            });
+            activeSessionsCount = sessions.length || 0;
+        } catch (clerkErr) {
+            console.error('[Admin] Failed to fetch live users from Clerk:', clerkErr);
+        }
+
         res.json({
             stats: {
                 totalUsers: parseInt(userCount.rows[0].count),
                 totalDocuments: parseInt(docCount.rows[0].count),
                 proUsers: parseInt(proCount.rows[0].count),
-                revenue: 0,
+                revenue: totalRevenue,
+                liveUsers: activeSessionsCount,
                 recentUsers,
                 contentStats,
                 recentLogs
