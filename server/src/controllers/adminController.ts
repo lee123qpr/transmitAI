@@ -15,7 +15,10 @@ import {
     getNewsletterSubscribers,
     getFullUserList,
     getPublicSubscribers,
-    getUnifiedNewsletterList
+    getUnifiedNewsletterList,
+    getDailyUploadStats,
+    getPageVisitStats,
+    getTopUsersByUploads
 } from '../services/adminService';
 import {
     getArticles,
@@ -104,6 +107,25 @@ export const getStats = async (req: Request, res: Response) => {
         });
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+};
+
+export const getAnalytics = async (req: Request, res: Response) => {
+    try {
+        const dailyUploads = await getDailyUploadStats(14); // Last 14 days
+        const popularPages = await getPageVisitStats(7, 10); // Last 7 days, top 10
+        const topUsers = await getTopUsersByUploads(5); // Top 5
+
+        res.json({
+            analytics: {
+                dailyUploads,
+                popularPages,
+                topUsers
+            }
+        });
+    } catch (error) {
+        console.error('[Admin] Failed to fetch analytics:', error);
+        res.status(500).json({ error: 'Failed to fetch analytics' });
     }
 };
 

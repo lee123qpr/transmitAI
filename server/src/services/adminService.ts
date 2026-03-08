@@ -150,3 +150,51 @@ export const getUnifiedNewsletterList = async () => {
     `);
     return res.rows;
 };
+
+// --- Analytics ---
+
+export const recordPageVisit = async (path: string, userId?: string, sessionId?: string) => {
+    try {
+        await query(
+            'INSERT INTO page_visits (path, user_id, session_id) VALUES ($1, $2, $3)',
+            [path, userId || null, sessionId || null]
+        );
+    } catch (err) {
+        console.error('[Analytics] Failed to record page visit:', err);
+    }
+};
+
+export const getDailyUploadStats = async (days = 7) => {
+    const res = await query(`
+        SELECT DATE(created_at) as date, COUNT(*) as count 
+        FROM documents 
+        WHERE created_at >= NOW() - INTERVAL '${days} days'
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at) ASC
+    `);
+    return res.rows;
+};
+
+export const getPageVisitStats = async (days = 7, limit = 10) => {
+    const res = await query(`
+        SELECT path, COUNT(*) as views 
+        FROM page_visits 
+        WHERE created_at >= NOW() - INTERVAL '${days} days'
+        GROUP BY path 
+        ORDER BY views DESC 
+        LIMIT $1
+    `, [limit]);
+    return res.rows;
+};
+
+export const getTopUsersByUploads = async (limit = 5) => {
+    const res = await query(`
+        SELECT u.email, u.company_name, COUNT(d.id) as total_uploads 
+        FROM users u
+        LEFT JOIN documents d ON u.id = d.user_id
+        GROUP BY u.id, u.email, u.company_name
+        ORDER BY total_uploads DESC
+        LIMIT $1
+    `, [limit]);
+    return res.rows;
+};

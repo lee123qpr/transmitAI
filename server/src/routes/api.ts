@@ -36,7 +36,7 @@ router.get('/test', (req, res) => {
 });
 
 // System Config & Announcements
-import { getSystemSettings } from '../services/adminService';
+import { getSystemSettings, recordPageVisit } from '../services/adminService';
 import { getAnnouncements } from '../services/cmsService';
 
 router.get('/config', async (req, res) => {
@@ -47,6 +47,21 @@ router.get('/config', async (req, res) => {
         res.json({ maintenanceMode: maintenance });
     } catch (err) {
         res.status(500).json({ error: 'Failed' });
+    }
+});
+
+// Analytics tracking endpoint
+router.post('/track-visit', async (req, res) => {
+    try {
+        const { path, userId, sessionId } = req.body;
+        if (path) {
+            await recordPageVisit(path, userId, sessionId);
+        }
+        res.status(200).json({ success: true });
+    } catch (err) {
+        // Fail silently for analytics so we don't block the UI
+        console.error('Visit tracking failed:', err);
+        res.status(200).json({ success: false });
     }
 });
 

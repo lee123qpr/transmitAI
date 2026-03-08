@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, useUser, useAuth } from '@clerk/clerk-react';
 import React, { Suspense, lazy } from 'react';
 import { useDocumentStore } from './services/store';
@@ -58,6 +58,28 @@ const GlobalUserSync = () => {
     sync();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, fetchUserStatus, getToken]);
+
+  return null;
+};
+
+// Analytics Route Tracker
+const RouteTracker = () => {
+  const location = useLocation();
+  const { user } = useUser();
+
+  React.useEffect(() => {
+    // Fire and forget page visit
+    const API_URL = import.meta.env.VITE_API_URL || '/api';
+    fetch(`${API_URL}/track-visit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: location.pathname,
+        userId: user?.id,
+        sessionId: undefined // Could fetch from clerk if needed
+      })
+    }).catch(console.error);
+  }, [location.pathname, user?.id]);
 
   return null;
 };
@@ -123,6 +145,7 @@ function AppContent() {
     <>
       <SystemConfigSync />
       <Router>
+        <RouteTracker />
         <ScrollToTop />
         <CookieBanner />
         <Suspense fallback={<Loading />}>

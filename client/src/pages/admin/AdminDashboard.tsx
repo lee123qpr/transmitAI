@@ -6,7 +6,7 @@ import {
     RefreshCcw, CircleCheck as CheckCircle, CircleX as XCircle, LogOut,
     Check, X, PlusCircle, ExternalLink, Globe, Laptop, Info, Copy,
     Bold, Italic, List, Image as ImageIcon, Quote, Code, Heading,
-    ChevronUp, ChevronDown, ArrowUpDown, Download
+    ChevronUp, ChevronDown, ArrowUpDown, Download, BarChart2
 } from 'lucide-react';
 import { useToast } from '../../components/Toast';
 import SEO from '../../components/SEO';
@@ -239,13 +239,18 @@ const AdminDashboard = () => {
     const { getToken } = useAuth();
     const { showToast } = useToast();
     const { isInitialized } = useDocumentStore();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'content' | 'newsletter' | 'emails' | 'security' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'users' | 'content' | 'newsletter' | 'emails' | 'security' | 'settings'>('overview');
 
     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL?.toLowerCase() || '';
     const isActuallyAdmin = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === adminEmail && adminEmail !== '';
 
     // Data States
     const [stats, setStats] = useState<Stats | null>(null);
+    const [analytics, setAnalytics] = useState<{
+        dailyUploads: { date: string, count: string }[],
+        popularPages: { path: string, views: string }[],
+        topUsers: { email: string, company_name: string | null, total_uploads: string }[]
+    } | null>(null);
     const [users, setUsers] = useState<UserData[]>([]);
     const [articles, setArticles] = useState<Article[]>([]);
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -339,6 +344,11 @@ const AdminDashboard = () => {
                 const sData = await sRes.json();
                 setStats(sData.stats);
                 setHealth(await hRes.json());
+            } else if (activeTab === 'analytics') {
+                const res = await fetch(`${API_URL}/admin/analytics`, { headers });
+                if (!res.ok) throw new Error(`Analytics: ${res.status}`);
+                const data = await res.json();
+                setAnalytics(data.analytics);
             } else if (activeTab === 'users') {
                 const res = await fetch(`${API_URL}/admin/users`, { headers });
                 if (!res.ok) throw new Error(`Users: ${res.status}`);
@@ -601,6 +611,7 @@ const AdminDashboard = () => {
             {/* Navigation Tabs */}
             <div className="flex overflow-x-auto gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-sm scrollbar-hide">
                 <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<Activity size={18} />} label="System Health" />
+                <TabButton active={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')} icon={<BarChart2 size={18} />} label="Analytics & Usage" />
                 <TabButton active={activeTab === 'users'} onClick={() => setActiveTab('users')} icon={<Users size={18} />} label="User Management" />
                 <TabButton active={activeTab === 'content'} onClick={() => setActiveTab('content')} icon={<Newspaper size={18} />} label="Content (CMS)" />
                 <TabButton active={activeTab === 'newsletter'} onClick={() => setActiveTab('newsletter')} icon={<Mail size={18} />} label="Newsletter" />
@@ -718,6 +729,124 @@ const AdminDashboard = () => {
                                         </div>
                                         <p className="text-3xl font-bold text-blue-700">{stats?.contentStats?.newsletterSubscribers || 0}</p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'analytics' && (
+                    <div className="space-y-6 animate-in fade-in duration-300">
+                        <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-800">Advanced Analytics & Usage Tracking</h2>
+                                <p className="text-slate-500 text-sm mt-1">Live data showing how users interact with Transmit.AI</p>
+                            </div>
+                            <button onClick={fetchData} className="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-full hover:bg-slate-200 transition-colors flex items-center gap-2">
+                                <RefreshCcw size={16} className={isLoading ? 'animate-spin' : ''} />
+                                Refresh Data
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Daily Uploads Trend (Simple visual bar layout) */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-full">
+                                <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <BarChart2 size={20} className="text-blue-500" /> Upload Activity (Last 14 Days)
+                                </h3>
+                                <div className="flex-1 flex flex-col justify-end">
+                                    {!analytics?.dailyUploads?.length ? (
+                                        <div className="flex items-center justify-center h-48 text-slate-400">No upload data recorded yet</div>
+                                    ) : (
+                                        <div className="flex items-end justify-between h-48 gap-1 lg:gap-2">
+                                            {analytics.dailyUploads.map((d, i) => {
+                                                const maxCount = Math.max(...analytics.dailyUploads.map(x => parseInt(x.count)));
+                                                const heightPct = maxCount === 0 ? 0 : (parseInt(d.count) / maxCount) * 100;
+                                                const displayDate = new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' });
+                                                return (
+                                                    <div key={i} className="flex flex-col items-center flex-1 group">
+                                                        <span className="text-xs font-bold text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity mb-2">
+                                                            {d.count}
+                                                        </span>
+                                                        <div
+                                                            className="w-full bg-blue-100 shrink-0 group-hover:bg-blue-500 transition-colors rounded-t-md relative"
+                                                            style={{ height: `${Math.max(heightPct, 4)}%` }} // minimum 4% so we can see 0s
+                                                        />
+                                                        <span className="text-[10px] text-slate-400 mt-2 rotate-45 md:rotate-0 truncate w-full text-center">
+                                                            {displayDate}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Popular Pages Traffic */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-full">
+                                <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <Globe size={20} className="text-indigo-500" /> Most Visited Pages (Last 7 Days)
+                                </h3>
+                                <div className="space-y-4 flex-1">
+                                    {analytics?.popularPages?.map((page, idx) => {
+                                        const maxViews = Math.max(...analytics.popularPages.map(x => parseInt(x.views)));
+                                        const widthPct = maxViews === 0 ? 0 : (parseInt(page.views) / maxViews) * 100;
+                                        return (
+                                            <div key={idx} className="relative">
+                                                <div className="flex justify-between text-sm mb-1">
+                                                    <span className="text-slate-700 font-medium truncate max-w-[70%]">{page.path}</span>
+                                                    <span className="text-slate-900 font-bold">{page.views} <span className="text-slate-400 font-normal">views</span></span>
+                                                </div>
+                                                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${widthPct}%` }} />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    {!analytics?.popularPages?.length && (
+                                        <p className="text-center text-slate-400 py-10">No traffic data recorded yet.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Power Users Leaderboard */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-2">
+                                <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <Activity size={20} className="text-orange-500" /> Power Users (Top Extractors)
+                                </h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b border-slate-200">
+                                                <th className="text-left text-xs font-bold text-slate-500 uppercase pb-3">Rank</th>
+                                                <th className="text-left text-xs font-bold text-slate-500 uppercase pb-3">User</th>
+                                                <th className="text-left text-xs font-bold text-slate-500 uppercase pb-3">Company</th>
+                                                <th className="text-right text-xs font-bold text-slate-500 uppercase pb-3">Total Documents</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {analytics?.topUsers?.map((u, idx) => (
+                                                <tr key={idx} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
+                                                    <td className="py-3 items-center">
+                                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${idx === 0 ? 'bg-yellow-100 text-yellow-700' : idx === 1 ? 'bg-slate-200 text-slate-700' : idx === 2 ? 'bg-orange-100 text-orange-700' : 'bg-slate-50 text-slate-400'}`}>
+                                                            {idx + 1}
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3 text-sm font-medium text-slate-800">{u.email}</td>
+                                                    <td className="py-3 text-sm text-slate-500">{u.company_name || '-'}</td>
+                                                    <td className="py-3 text-right">
+                                                        <span className="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-full">{u.total_uploads}</span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {!analytics?.topUsers?.length && (
+                                                <tr>
+                                                    <td colSpan={4} className="text-center py-6 text-slate-400">No uploads recorded yet.</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
