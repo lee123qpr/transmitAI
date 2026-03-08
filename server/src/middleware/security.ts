@@ -11,7 +11,7 @@ async function refreshCache() {
     try {
         const settings = await getSystemSettings();
         const maintenanceSetting = settings.find(s => s.key === 'maintenance_mode');
-        maintenanceMode = maintenanceSetting?.value === true;
+        maintenanceMode = maintenanceSetting?.value === true || maintenanceSetting?.value === 'true';
 
         // Note: For IPs, we might want to still check DB if not in cache, 
         // or just rely on a periodic full sync if the list is small.
@@ -51,8 +51,10 @@ export const securityMiddleware = async (req: Request, res: Response, next: Next
         const isAdminPath = req.path.startsWith('/api/admin');
         const isHealthPath = req.path === '/health';
         const isUserPath = req.path === '/api/user';
+        const isConfigPath = req.path === '/api/config';
+        const isAnnouncementsPath = req.path === '/api/announcements';
 
-        if (!isAdminPath && !isHealthPath && !isUserPath) {
+        if (!isAdminPath && !isHealthPath && !isUserPath && !isConfigPath && !isAnnouncementsPath) {
             return res.status(503).json({
                 error: 'Service Unavailable',
                 message: 'System is currently undergoing maintenance. Please try again later.'
