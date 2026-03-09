@@ -6,7 +6,7 @@ import {
     RefreshCcw, CircleCheck as CheckCircle, CircleX as XCircle, LogOut,
     Check, X, PlusCircle, ExternalLink, Globe, Laptop, Info, Copy,
     Bold, Italic, List, Image as ImageIcon, Quote, Code, Heading,
-    ChevronUp, ChevronDown, ArrowUpDown, Download, BarChart2
+    ChevronUp, ChevronDown, ArrowUpDown, Download, BarChart2, Bug
 } from 'lucide-react';
 import { useToast } from '../../components/Toast';
 import SEO from '../../components/SEO';
@@ -101,6 +101,25 @@ interface Subscriber {
     email: string;
     created_at: string;
     status: string;
+}
+
+interface SystemError {
+    id: string;
+    level: string;
+    source: string;
+    message: string;
+    stack_trace: string;
+    url?: string;
+    user_id?: string;
+    status: string;
+    created_at: string;
+    resolved_at?: string;
+}
+
+interface ErrorStats {
+    openCount: number;
+    criticalCount: number;
+    resolved24h: number;
 }
 
 const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Setting[], onSave: (key: string, value: { subject: string; html: string }) => void, isSaving: boolean, onTest: (type: 'newsletter' | 'user_welcome', subject?: string, html?: string) => void }) => {
@@ -239,7 +258,7 @@ const AdminDashboard = () => {
     const { getToken } = useAuth();
     const { showToast } = useToast();
     const { isInitialized } = useDocumentStore();
-    const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'users' | 'content' | 'newsletter' | 'emails' | 'security' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'users' | 'content' | 'newsletter' | 'emails' | 'security' | 'settings' | 'errors'>('overview');
 
     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL?.toLowerCase() || '';
     const isActuallyAdmin = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === adminEmail && adminEmail !== '';
@@ -259,6 +278,12 @@ const AdminDashboard = () => {
     const [blockedIPs, setBlockedIPs] = useState<BlockedIP[]>([]);
     const [settings, setSettings] = useState<Setting[]>([]);
     const [newsletterSubscribers, setNewsletterSubscribers] = useState<Subscriber[]>([]);
+
+    // Error Tracking States
+    const [systemErrors, setSystemErrors] = useState<SystemError[]>([]);
+    const [errorStats, setErrorStats] = useState<ErrorStats | null>(null);
+    const [selectedError, setSelectedError] = useState<SystemError | null>(null);
+    const [errorModalOpen, setErrorModalOpen] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -385,6 +410,18 @@ const AdminDashboard = () => {
                 const res = await fetch(`${API_URL}/admin/settings`, { headers });
                 if (!res.ok) throw new Error(`Settings: ${res.status}`);
                 setSettings(await res.json());
+            } else if (activeTab === 'errors') {
+                const [errRes, statsRes] = await Promise.all([
+                    fetch(`${API_URL}/admin/errors?status=open`, { headers }),
+                    fetch(`${API_URL}/admin/errors/stats`, { headers })
+                ]);
+                if (!errRes.ok || !statsRes.ok) throw new Error(`Errors: ${errRes.status}`);
+
+                const errData = await errRes.json();
+                const statsData = await statsRes.json();
+
+                setSystemErrors(errData.errors || []);
+                setErrorStats(statsData.stats);
             }
         } catch {
             showToast('Failed to fetch data', 'error');
@@ -617,6 +654,7 @@ const AdminDashboard = () => {
                 <TabButton active={activeTab === 'newsletter'} onClick={() => setActiveTab('newsletter')} icon={<Mail size={18} />} label="Newsletter" />
                 <TabButton active={activeTab === 'emails'} onClick={() => setActiveTab('emails')} icon={<Mail size={18} className="text-orange-500" />} label="Emails" />
                 <TabButton active={activeTab === 'security'} onClick={() => setActiveTab('security')} icon={<Lock size={18} />} label="Security & Auditing" />
+                <TabButton active={activeTab === 'errors'} onClick={() => setActiveTab('errors')} icon={<Bug size={18} className="text-red-500" />} label="Errors" />
                 <TabButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} icon={<Settings size={18} />} label="Settings" />
             </div>
 
@@ -1191,6 +1229,88 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
+                {activeTab === 'errors' && (
+                    <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
+                        {/* Error Stats Overview */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <MetricCard
+                                label="Open Issues"
+                                value={errorStats?.openCount || 0}
+                                icon={<Bug size={24} />}
+                                color="orange"
+                            />
+                            <MetricCard
+                                label="Critical/Fatal Alerts"
+                                value={errorStats?.criticalCount || 0}
+                                icon={<AlertTriangle size={24} />}
+                                color="red"
+                            />
+                            <MetricCard
+                                label="Resolved (24h)"
+                                value={errorStats?.resolved24h || 0}
+                                icon={<CheckCircle size={24} />}
+                                color="green"
+                            />
+                        </div>
+
+                        {/* Error Feed */}
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                    <Activity size={20} className="text-red-500" /> System Crash Logs
+                                </h3>
+                                <div className="flex bg-slate-100 p-1 rounded-lg">
+                                    <button onClick={() => fetchData()} className="text-xs px-3 py-1.5 font-bold uppercase tracking-widest text-slate-600 hover:text-slate-900 transition-colors">
+                                        Active
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto text-slate-900">
+                                <table className="w-full text-left">
+                                    <thead className="bg-slate-50 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                                        <tr>
+                                            <th className="px-6 py-4">Status & Level</th>
+                                            <th className="px-6 py-4">Source</th>
+                                            <th className="px-6 py-4">Message</th>
+                                            <th className="px-6 py-4">Time</th>
+                                            <th className="px-6 py-4">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {systemErrors.length === 0 ? (
+                                            <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-medium">No open system errors right now. Great job!</td></tr>
+                                        ) : systemErrors.map(err => (
+                                            <tr key={err.id} className="hover:bg-slate-50/50">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col items-start gap-1">
+                                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${err.level === 'critical' || err.level === 'fatal' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>{err.level}</span>
+                                                        <span className="text-[10px] text-slate-400 uppercase tracking-widest">{err.status}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="font-mono text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded">{err.source}</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="font-semibold text-sm line-clamp-2 max-w-sm" title={err.message}>{err.message}</div>
+                                                    {err.url && <div className="text-[10px] text-blue-500 truncate max-w-sm mt-1">{err.url}</div>}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-sm font-medium">{new Date(err.created_at).toLocaleDateString()}</div>
+                                                    <div className="text-[10px] text-slate-500">{new Date(err.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                </td>
+                                                <td className="px-6 py-4 flex gap-2">
+                                                    <button onClick={() => { setSelectedError(err); setErrorModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-blue-600 border border-slate-200 rounded-lg" title="View Stack Trace"><Eye size={16} /></button>
+                                                    <button onClick={() => handleAction('PATCH', `/api/admin/errors/${err.id}/status`, { status: 'resolved' })} className="p-1.5 text-slate-400 hover:text-green-600 border border-slate-200 rounded-lg" title="Mark Resolved"><CheckCircle size={16} /></button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {
                     activeTab === 'settings' && (
                         <div className="max-w-2xl mx-auto space-y-6 animate-in zoom-in-95 duration-300">
@@ -1447,6 +1567,62 @@ const AdminDashboard = () => {
                     </div>
                 </div>
             </Modal >
+
+            {/* Error Detail Modal */}
+            <Modal
+                isOpen={errorModalOpen}
+                onClose={() => setErrorModalOpen(false)}
+                title="System Crash Details"
+                type="warning"
+                onConfirm={async () => {
+                    if (selectedError) {
+                        await handleAction('PATCH', `/api/admin/errors/${selectedError.id}/status`, { status: 'resolved' });
+                        setErrorModalOpen(false);
+                    }
+                }}
+                confirmText={isActionLoading ? "Resolving..." : "Mark as Resolved"}
+                isLoading={isActionLoading}
+                className="max-w-4xl"
+            >
+                {selectedError && (
+                    <div className="pt-4 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <span className={`px-3 py-1 rounded-full text-xs font-black uppercase ${selectedError.level === 'critical' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>{selectedError.level}</span>
+                            <span className="font-mono text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{selectedError.source}</span>
+                            <span className="text-xs text-slate-500 font-medium">Logged on {new Date(selectedError.created_at).toLocaleString()}</span>
+                        </div>
+
+                        <div>
+                            <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Error Message</h4>
+                            <p className="text-lg font-bold text-slate-900 border-l-4 border-red-500 pl-4 py-1">{selectedError.message}</p>
+                        </div>
+
+                        {selectedError.url && (
+                            <div>
+                                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Trigger URL</h4>
+                                <p className="text-sm font-mono text-blue-600 truncate bg-blue-50 p-2 rounded-lg border border-blue-100">{selectedError.url}</p>
+                            </div>
+                        )}
+
+                        {selectedError.user_id && (
+                            <div>
+                                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Affected User ID</h4>
+                                <p className="text-sm font-mono text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-200">{selectedError.user_id}</p>
+                            </div>
+                        )}
+
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Stack Trace</h4>
+                                <button className="text-[10px] text-blue-500 font-bold hover:underline" onClick={() => navigator.clipboard.writeText(selectedError.stack_trace)}>Copy Trace</button>
+                            </div>
+                            <div className="bg-slate-900 text-slate-300 font-mono text-xs p-4 rounded-xl overflow-x-auto overflow-y-auto max-h-[300px] border border-slate-800 shadow-inner">
+                                <pre>{selectedError.stack_trace || "No stack trace provided."}</pre>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </div >
     );
 };
@@ -1463,11 +1639,12 @@ const TabButton = ({ active, onClick, icon, label }: { active: boolean, onClick:
     </button>
 );
 
-const MetricCard = ({ label, value, icon, color, subText }: { label: string; value: string | number; icon: React.ReactNode; color: 'blue' | 'green' | 'orange'; subText?: string }) => {
+const MetricCard = ({ label, value, icon, color, subText }: { label: string; value: string | number; icon: React.ReactNode; color: 'blue' | 'green' | 'orange' | 'red'; subText?: string }) => {
     const colors = {
         blue: 'bg-blue-50 text-blue-600',
         green: 'bg-green-50 text-green-600',
-        orange: 'bg-orange-50 text-orange-600'
+        orange: 'bg-orange-50 text-orange-600',
+        red: 'bg-red-50 text-red-600'
     };
     return (
         <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">

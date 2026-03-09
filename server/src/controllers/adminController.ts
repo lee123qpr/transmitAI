@@ -128,6 +128,45 @@ export const getAnalytics = async (req: Request, res: Response) => {
     }
 };
 
+// Error Management
+import { getSystemErrors, getErrorStats, updateErrorStatus } from '../services/adminService';
+
+export const getErrors = async (req: Request, res: Response) => {
+    try {
+        const { status = 'open', limit = 50, offset = 0 } = req.query;
+        const statusStr = Array.isArray(status) ? status[0] as string : status as string;
+        const errors = await getSystemErrors(statusStr, Number(limit), Number(offset));
+        res.json({ errors });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch errors' });
+    }
+};
+
+export const getErrorStatistics = async (req: Request, res: Response) => {
+    try {
+        const stats = await getErrorStats();
+        res.json({ stats });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch error stats' });
+    }
+};
+
+export const patchErrorStatus = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!['open', 'investigating', 'resolved', 'ignored'].includes(status)) {
+            return res.status(400).json({ error: 'Invalid status' });
+        }
+
+        await updateErrorStatus(id as string, status as any);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update error status' });
+    }
+};
+
 // User Management
 export const getUsers = async (req: Request, res: Response) => {
     try {

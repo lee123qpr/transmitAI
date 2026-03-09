@@ -207,3 +207,52 @@ export const sendContactFormMessage = async (name: string, fromEmail: string, su
         return false;
     }
 };
+
+export const sendCriticalErrorAlert = async (errorDetails: {
+    message: string;
+    source: string;
+    url?: string;
+    userId?: string;
+    stack?: string;
+}): Promise<boolean> => {
+    if (!process.env.RESEND_API_KEY) return false;
+
+    // Fallback to the developer's email if ADMIN_EMAIL is not explicitly set
+    const adminEmail = process.env.ADMIN_EMAIL || 'leekilcoyne1@gmail.com';
+
+    let html = `
+        <div style="font-family: sans-serif; color: #1e293b; padding: 20px; border: 2px solid #ef4444; border-radius: 8px;">
+            <h2 style="color: #ef4444; margin-top: 0;">⚠️ CRITICAL ALERT: Transmit.AI Error</h2>
+            <p><strong>Source:</strong> ${errorDetails.source}</p>
+            <p><strong>Message:</strong> ${errorDetails.message}</p>
+    `;
+
+    if (errorDetails.url) html += `<p><strong>URL:</strong> ${errorDetails.url}</p>`;
+    if (errorDetails.userId) html += `<p><strong>User ID:</strong> ${errorDetails.userId}</p>`;
+    if (errorDetails.stack) {
+        html += `
+            <h3 style="margin-top: 20px;">Stack Trace:</h3>
+            <pre style="background: #f8fafc; padding: 15px; overflow-x: auto; font-size: 13px; border-radius: 6px; border: 1px solid #e2e8f0;">
+${errorDetails.stack}
+            </pre>
+        `;
+    }
+    html += `</div>`;
+
+    try {
+        const { error } = await resend.emails.send({
+            from: 'Transmit AI <no-reply@transmitai.co.uk>',
+            to: [adminEmail],
+            subject: `CRITICAL BUG: ${errorDetails.message.substring(0, 50)}...`,
+            html: html
+        });
+        if (error) {
+            console.error('[Resend Error]', error);
+            return false;
+        }
+        return true;
+    } catch (err) {
+        console.error('[EmailService] Failed to send critical error alert:', err);
+        return false;
+    }
+};

@@ -198,3 +198,64 @@ export const getTopUsersByUploads = async (limit = 5) => {
     `, [limit]);
     return res.rows;
 };
+
+// --- Error Tracking & Alerts ---
+
+export const logSystemError = async ({
+    level, source, message, stackTrace = null, url = null, userId = null, metadata = null
+}: {
+    level: 'warning' | 'error' | 'critical' | 'fatal',
+    source: 'frontend' | 'backend' | 'worker',
+    message: string,
+    stackTrace?: string | null,
+    url?: string | null,
+    userId?: string | null,
+    metadata?: any
+}) => {
+    try {
+        await query(
+            `INSERT INTO system_errors 
+            (level, source, message, stack_trace, url, user_id, metadata) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [level, source, message, stackTrace, url, userId, metadata ? JSON.stringify(metadata) : null]
+        );
+    } catch (dbErr) {
+        console.error('[ErrorTracker] Failed to persist system error:', dbErr);
+    }
+};
+
+export const getSystemErrors = async (status = 'open', limit = 50, offset = 0) => {
+    const res = await query(`
+        SELECT id, level, source, message, stack_trace, url, user_id, metadata, status, created_at, resolved_at
+        FROM system_errors
+        WHERE status = $1
+        ORDER BY created_at DESC
+        LIMIT $2 OFFSET $3
+    `, [status, limit, offset]);
+    return res.rows;
+};
+
+export const updateErrorStatus = async (id: string, status: 'open' | 'investigating' | 'resolved' | 'ignored') => {
+    const resolvedAt = status === 'resolved' ? new Date().toISOString() : null;
+    await query(`
+        UPDATE system_errors 
+        SET status = $1, resolved_at = COALESCE($2, resolved_at) 
+        WHERE id = $3
+    `, [status, resolvedAt, id]);
+};
+
+export const getErrorStats = async () => {
+    const res = await query(`
+        SELECT 
+            COUNT(*) FILTER (WHERE status = 'open') as open_count,
+            COUNT(*) FILTER (WHERE level IN ('critical', 'fatal') AND status = 'open') as critical_count,
+            COUNT(*) FILTER (WHERE status = 'resolved' AND resolved_at >= NOW() - INTERVAL '24 hours') as resolved_24h
+        FROM system_errors
+    `);
+
+    return {
+        openCount: parseInt(res.rows[0].open_count || '0'),
+        criticalCount: parseInt(res.rows[0].critical_count || '0'),
+        resolved24h: parseInt(res.rows[0].resolved_24h || '0')
+    };
+};

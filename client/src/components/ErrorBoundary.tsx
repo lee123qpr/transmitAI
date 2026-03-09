@@ -21,7 +21,25 @@ class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        console.error('Uncaught error:', error, errorInfo);
+        console.error('Uncaught error caught by boundary:', error, errorInfo);
+
+        // Report error to backend analytics/monitoring
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        fetch(`${apiUrl}/api/track-error`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: error.message || 'React ErrorBoundary Crash',
+                stack: errorInfo.componentStack || error.stack,
+                url: window.location.href,
+                // userId could be pulled from local storage if needed, but keeping it simple
+            })
+        }).catch(err => {
+            // Silently fail if the error logger itself fails
+            console.error('Failed to transmit error log:', err);
+        });
     }
 
     public render() {

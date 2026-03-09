@@ -65,6 +65,32 @@ router.post('/track-visit', async (req, res) => {
     }
 });
 
+import { logSystemError } from '../services/adminService';
+
+// Frontend error tracking endpoint
+router.post('/track-error', async (req, res) => {
+    try {
+        const { message, stack, url, userId } = req.body;
+
+        await logSystemError({
+            level: 'error',
+            source: 'frontend',
+            message: message || 'Unknown Frontend Error',
+            stackTrace: stack,
+            url: url,
+            userId: userId,
+            metadata: {
+                userAgent: req.headers['user-agent']
+            }
+        });
+
+        res.status(200).json({ success: true });
+    } catch (err) {
+        console.error('Frontend error tracking failed:', err);
+        res.status(200).json({ success: false }); // Always return 200 so UI doesn't crash on crash logger
+    }
+});
+
 router.get('/announcements', async (req, res) => {
     try {
         const list = await getAnnouncements();

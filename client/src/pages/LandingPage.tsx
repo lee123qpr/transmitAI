@@ -208,7 +208,7 @@ const LandingPage = () => {
                                         </div>
                                         <div>
                                             <h3 className="text-white font-bold text-xl drop-shadow-sm">The Transmit.AI Way</h3>
-                                            <p className="text-blue-100/70 mt-1 font-medium text-sm leading-relaxed">Instant extraction, 100% accurate, export drop-in ready document lists.</p>
+                                            <p className="text-blue-100/70 mt-1 font-medium text-sm leading-relaxed">Instant extraction, highly accurate, export drop-in ready document lists.</p>
                                         </div>
                                     </div>
 

@@ -6,7 +6,7 @@ import {
     listArticles, saveArticle, removeArticle, listAnnouncements, saveAnnouncement, removeAnnouncement,
     listSettings, saveSetting, listBlockedIPs, blockNewIP, unblockExistingIP, fetchLogs, listNewsletterSubscribers,
     exportUsers, exportNewsletter, sendTestWelcomeEmail, sendTestNewsletterEmail,
-    getAnalytics
+    getAnalytics, getErrors, getErrorStatistics, patchErrorStatus
 } from '../controllers/adminController';
 
 const router = Router();
@@ -18,6 +18,12 @@ router.use(requireAdmin);
 router.get('/health', getHealth);
 router.get('/stats', getStats);
 router.get('/analytics', getAnalytics);
+
+// Errors
+router.get('/errors', getErrors);
+router.get('/errors/stats', getErrorStatistics);
+router.patch('/errors/:id/status', patchErrorStatus);
+
 router.get('/users', getUsers);
 router.get('/users/export', exportUsers);
 router.patch('/users/:userId/tier', updateTier);

@@ -11,6 +11,8 @@ import documentRoutes from './routes/documentRoutes';
 import path from 'path';
 import adminRoutes from './routes/adminRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import { requireAuth } from './middleware/auth';
+import { errorHandler } from './middleware/errorHandler';
 import stripeWebhook from './routes/webhook_stripe';
 // Rename Transmittal (Emergency Route - Moved from api.ts due to 404)
 import { query } from './db';
@@ -92,6 +94,9 @@ app.use('/api', (req, res) => {
   console.warn(`[Server] Unhandled API Route: ${req.method} ${req.path}`);
   res.status(404).json({ error: 'API Route Not Found', method: req.method, path: req.path });
 });
+
+// Global Error Handler Middleware (MUST be the last middleware)
+app.use(errorHandler);
 
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
