@@ -97,6 +97,7 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
                     await processSubscription(userId, planType);
                 } catch (dbError) {
                     console.error(`[Webhook] Failed to update user tier in DB:`, dbError);
+                    return res.status(500).json({ error: 'Database update failed' });
                 }
             } else {
                 console.warn('[Webhook] checkout.session.completed missing userId in metadata');
@@ -125,6 +126,7 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
                 }
             } catch (err) {
                 console.error(`[Webhook] Failed to handle subscription deletion:`, err);
+                return res.status(500).json({ error: 'Database update failed' });
             }
             break;
         }
@@ -168,6 +170,7 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
                     }
                 } catch (err) {
                     console.error(`[Webhook] Failed to handle subscription update:`, err);
+                    return res.status(500).json({ error: 'Database update failed' });
                 }
             } else if (status === 'unpaid') {
                 try {
@@ -183,6 +186,7 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
                     }
                 } catch (err) {
                     console.error(`[Webhook] Failed to handle unpaid downgrade:`, err);
+                    return res.status(500).json({ error: 'Database update failed' });
                 }
             }
             break;

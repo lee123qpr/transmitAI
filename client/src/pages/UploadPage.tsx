@@ -296,13 +296,21 @@ const UploadPage = () => {
 
             try {
                 const token = await getToken();
+
+                // Add AbortController for 45-second timeout (Vercel max is often 60s, but we want to fail gracefully before the platform hard-kills it)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 45000);
+
                 const response = await fetch(`${API_URL}/documents/upload`, {
                     method: 'POST',
                     headers: {
                         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                     },
                     body: formData,
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 if (!response.ok) {
                     let errorData: Record<string, unknown> = {};
@@ -364,8 +372,13 @@ const UploadPage = () => {
             } catch (err: unknown) {
                 console.error('Upload failed:', err);
 
-                // If we reach here, it's an unhandled exception or network error
-                const message = err instanceof Error ? err.message : 'Connection lost or server timeout.';
+                // If we reach here, it's an unhandled exception or network error or timeout
+                let message = err instanceof Error ? err.message : 'Connection lost or server timeout.';
+
+                if (err instanceof DOMException && err.name === 'AbortError') {
+                    message = 'Extraction timed out. This document is too large or complex for immediate processing. Please try a smaller file or splitting it.';
+                }
+
                 setUploadErrors(prev => [...prev, {
                     filename: file.name,
                     reason: message

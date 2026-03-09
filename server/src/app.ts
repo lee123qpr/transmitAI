@@ -14,6 +14,7 @@ import uploadRoutes from './routes/uploadRoutes';
 import { requireAuth } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
 import stripeWebhook from './routes/webhook_stripe';
+import clerkWebhook from './routes/webhook_clerk';
 // Rename Transmittal (Emergency Route - Moved from api.ts due to 404)
 import { query } from './db';
 
@@ -50,6 +51,9 @@ app.use('/api/', globalLimiter);
 
 // Stripe Webhook (MUST be before express.json() but middleware is now inside the router)
 app.use('/api/webhooks/stripe', stripeWebhook);
+
+// Clerk Webhook (MUST be before express.json() for raw body / svix signature verification)
+app.use('/api/webhooks/clerk', clerkWebhook);
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));

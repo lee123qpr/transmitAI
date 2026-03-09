@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
-import { Building2, Save, X, Loader2 } from 'lucide-react';
+import { Building2, Save, X, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from './Toast';
+import Modal from './Modal';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -10,6 +11,11 @@ const CompanySettings: React.FC = () => {
     const { getToken } = useAuth();
     const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+
+    // Delete Account State
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState('');
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
     // Form State
     const [companyName, setCompanyName] = useState('');
@@ -98,6 +104,27 @@ const CompanySettings: React.FC = () => {
             showToast('Failed to update name', 'error');
         } finally {
             setIsSavingName(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (deleteConfirmation !== 'DELETE') {
+            showToast('Please type DELETE exactly to confirm.', 'error');
+            return;
+        }
+        if (!user) return;
+
+        setIsDeletingAccount(true);
+        try {
+            await user.delete();
+            // Clerk auto-redirects/logs out upon successful deletion
+            showToast('Account properly deleted.', 'success');
+        } catch (error) {
+            console.error('Failed to delete account:', error);
+            showToast('Failed to delete account. Please contact support.', 'error');
+        } finally {
+            setIsDeletingAccount(false);
+            setIsDeleteDialogOpen(false);
         }
     };
 
@@ -309,6 +336,63 @@ const CompanySettings: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Danger Zone */}
+            <div className="mt-12 pt-6 border-t border-red-200">
+                <h2 className="text-xl font-bold text-red-600 mb-1 flex items-center gap-2">
+                    <AlertTriangle size={20} /> Danger Zone
+                </h2>
+                <p className="text-sm text-slate-500 mb-6">Actions here are permanent and cannot be undone.</p>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-6 border border-red-100 bg-red-50/50 px-5 rounded-xl">
+                    <div className="sm:w-2/3">
+                        <label className="text-sm font-semibold text-slate-900 block mb-1">Delete Account</label>
+                        <p className="text-sm text-slate-600">
+                            Permanently delete your account, your data, and instantly cancel any active subscriptions.
+                        </p>
+                    </div>
+                    <div className="mt-4 sm:mt-0 sm:w-auto shrink-0 flex items-center justify-end w-full sm:w-auto">
+                        <button
+                            onClick={() => {
+                                setDeleteConfirmation('');
+                                setIsDeleteDialogOpen(true);
+                            }}
+                            className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-colors active:scale-95 whitespace-nowrap"
+                        >
+                            Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <Modal
+                isOpen={isDeleteDialogOpen}
+                onClose={() => !isDeletingAccount && setIsDeleteDialogOpen(false)}
+                title="Delete Account"
+                type="danger"
+                cancelText="Cancel"
+                confirmText={isDeletingAccount ? "Deleting..." : "Permanently Delete Account"}
+                onConfirm={handleDeleteAccount}
+                isLoading={isDeletingAccount}
+            >
+                <div>
+                    <p className="text-slate-600 mb-4 leading-relaxed">
+                        This action is <strong className="text-red-600">irreversible</strong>. Your account, documents, export templates, and active subscriptions will be entirely destroyed.
+                    </p>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Type <strong className="text-slate-900 select-all">DELETE</strong> below to confirm:
+                    </label>
+                    <input
+                        type="text"
+                        value={deleteConfirmation}
+                        onChange={(e) => setDeleteConfirmation(e.target.value)}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none font-mono tracking-widest text-lg transition-all shadow-sm"
+                        placeholder="DELETE"
+                        autoCapitalize="characters"
+                        disabled={isDeletingAccount}
+                    />
+                </div>
+            </Modal>
         </div>
     );
 };

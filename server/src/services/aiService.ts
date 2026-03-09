@@ -66,10 +66,18 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
 
                     // Workaround for TypeScript converting dynamic import to require() in CommonJS
                     const { pdf: pdfImg } = await Function('return import("pdf-to-img")')();
-                    const document = await pdfImg(pdfDataUrl, { scale: 2.0 });
+
+                    let document;
+                    try {
+                        document = await pdfImg(pdfDataUrl, { scale: 1.5 });
+                    } catch (memoryError) {
+                        console.error("[AI Service] Visual parsing failed (Memory/Complexity limit):", memoryError);
+                        throw new Error("This scanned document is too complex or large to visually analyze. Please try a smaller PDF.");
+                    }
+
                     const pageImages: string[] = [];
 
-                    // Try to get up to 3 pages (will fail gracefully if document has fewer)
+                    // Try to get up to 3 pages (will fail gracefully if document has fewer or memory fills up)
                     console.log(`[AI Service] Processing first 3 pages of scanned PDF...`);
 
                     for (let i = 1; i <= 3; i++) {
@@ -77,10 +85,14 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                             const imageBuffer = await document.getPage(i);
                             pageImages.push(`data:image/png;base64,${imageBuffer.toString('base64')}`);
                         } catch (pageError) {
-                            // Page doesn't exist, stop processing
-                            console.log(`[AI Service] Page ${i} not available, stopping at ${pageImages.length} page(s)`);
+                            // Page doesn't exist or memory failed on render, stop processing
+                            console.log(`[AI Service] Page ${i} limit reached or unavailable, stopping at ${pageImages.length} page(s)`);
                             break;
                         }
+                    }
+
+                    if (pageImages.length === 0) {
+                        throw new Error("Could not extract any readable images from this scanned PDF. Please try a different file.");
                     }
 
                     // Combine multiple pages into the content
