@@ -14,11 +14,11 @@ const staticRoutes = [
     { url: '/how-it-works', changefreq: 'monthly', priority: 0.8 },
     { url: '/articles', changefreq: 'daily', priority: 0.9 }, // High priority as articles are added
     { url: '/contact', changefreq: 'monthly', priority: 0.5 },
+    { url: '/faq', changefreq: 'monthly', priority: 0.6 },
     // Legal
-    { url: '/agreements/cookie', changefreq: 'yearly', priority: 0.1 },
-    { url: '/agreements/privacy', changefreq: 'yearly', priority: 0.1 },
-    { url: '/agreements/terms-of-service', changefreq: 'yearly', priority: 0.1 },
-    { url: '/agreements/acceptable-use', changefreq: 'yearly', priority: 0.1 }
+    { url: '/legal/cookies', changefreq: 'yearly', priority: 0.1 },
+    { url: '/legal/privacy', changefreq: 'yearly', priority: 0.1 },
+    { url: '/legal/terms', changefreq: 'yearly', priority: 0.1 }
 ];
 
 async function generateSitemap() {
