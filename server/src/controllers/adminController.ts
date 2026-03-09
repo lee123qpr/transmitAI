@@ -80,19 +80,18 @@ export const getStats = async (req: Request, res: Response) => {
             console.error('[Admin] Failed to fetch Stripe revenue:', stripeErr);
         }
 
-        // Fetch live active users from Clerk
+        // Fetch live active users from Postgres (seen in last 15 minutes)
         let activeSessionsCount = 0;
         try {
-            // Clerk SDK doesn't have a simple "count", but we can fetch recent active sessions
-            // For a small app, fetching the list is fine. For larger, we'd need better pagination or webhooks.
-            const sessions = await clerkClient.sessions.getSessionList({
-                status: 'active'
-            });
-            activeSessionsCount = sessions.length || 0;
-        } catch (clerkErr) {
-            console.error('[Admin] Failed to fetch live users from Clerk:', clerkErr);
+            const liveUsersRes = await query(`
+                SELECT COUNT(*) as count 
+                FROM users 
+                WHERE last_seen_at >= NOW() - INTERVAL '15 minutes'
+            `);
+            activeSessionsCount = parseInt(liveUsersRes.rows[0].count) || 0;
+        } catch (dbErr) {
+            console.error('[Admin] Failed to fetch live users from DB:', dbErr);
         }
-
         res.json({
             stats: {
                 totalUsers: parseInt(userCount.rows[0].count),
