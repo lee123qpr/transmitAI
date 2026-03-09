@@ -89,6 +89,9 @@ dist/
 dist-ssr/
 *.local
 
+# Lock files (Windows lock files break Vercel's Linux build environment)
+package-lock.json
+
 # System files
 .DS_Store
 Thumbs.db
