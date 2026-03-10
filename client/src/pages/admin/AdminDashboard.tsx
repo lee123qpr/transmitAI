@@ -5,7 +5,7 @@ import {
     Activity, Newspaper, Bell, Settings, Lock, Eye, Trash2,
     RefreshCcw, CircleCheck as CheckCircle, CircleX as XCircle, LogOut,
     Check, X, PlusCircle, ExternalLink, Globe, Laptop, Info, Copy,
-    Bold, Italic, List, Image as ImageIcon, Quote, Code, Heading,
+    Bold, Italic, List, Image as ImageIcon, Quote, Code, Heading, Link,
     ChevronUp, ChevronDown, ArrowUpDown, Download, BarChart2, Bug
 } from 'lucide-react';
 import { useToast } from '../../components/Toast';
@@ -323,6 +323,32 @@ const AdminDashboard = () => {
         setTimeout(() => {
             textarea.focus();
             textarea.setSelectionRange(start + prefix.length, end + prefix.length);
+        }, 0);
+    };
+
+    const insertLink = () => {
+        const textarea = editorRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const currentContent = selectedArticle.content || '';
+        const selectedText = currentContent.substring(start, end);
+
+        const url = window.prompt('Enter the URL:', 'https://');
+        if (!url) return; // User cancelled
+
+        const linkText = selectedText || 'link text';
+        const markdownLink = `[${linkText}](${url})`;
+        const newText = currentContent.substring(0, start) + markdownLink + currentContent.substring(end);
+
+        setSelectedArticle(prev => ({ ...prev, content: newText }));
+
+        // Restore focus after insert
+        setTimeout(() => {
+            textarea.focus();
+            const newCursorPos = start + markdownLink.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
         }, 0);
     };
 
@@ -1482,6 +1508,7 @@ const AdminDashboard = () => {
                                 <div className="w-px h-4 bg-slate-300 mx-1"></div>
                                 <button title="List" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('\n- ', '')}><List size={16} /></button>
                                 <button title="Image" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={() => insertMarkdown('\n![AltText](', ')')}><ImageIcon size={16} /></button>
+                                <button title="Hyperlink" className="p-1.5 hover:bg-slate-200 rounded text-slate-600" onClick={insertLink}><Link size={16} /></button>
                             </div>
                             <textarea
                                 ref={editorRef}
