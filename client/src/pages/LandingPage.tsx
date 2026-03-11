@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FileSpreadsheet, Brain, Layers, CheckCircle, ArrowRight, FileText } from 'lucide-react';
+import { FileSpreadsheet, Brain, Layers, CheckCircle, ArrowRight, FileText, Newspaper, Calendar } from 'lucide-react';
 import { SignUpButton } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
 
 import SEO from '../components/SEO';
 
@@ -8,9 +9,29 @@ import HeroAnimation from '../components/HeroAnimation';
 
 import TrustedByStrip from '../components/TrustedByStrip';
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface Article {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt?: string;
+    header_image?: string;
+    created_at: string;
+    keywords?: string;
+}
+
 const LandingPage = () => {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+    const [latestArticles, setLatestArticles] = useState<Article[]>([]);
+
+    useEffect(() => {
+        fetch(`${API_URL}/articles`)
+            .then(res => res.ok ? res.json() : [])
+            .then((data: Article[]) => setLatestArticles(data.slice(0, 3)))
+            .catch(() => setLatestArticles([]));
+    }, []);
 
     // Handle hash links when navigating from other pages or same page
     useEffect(() => {
@@ -484,6 +505,75 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section >
+
+            {/* ARTICLES SECTION */}
+            {latestArticles.length > 0 && (
+                <section className="py-24 bg-white border-t border-slate-100">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                        <div className="text-center mb-12">
+                            <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] text-blue-600 bg-blue-50 px-4 py-2 rounded-full mb-4">From the Blog</span>
+                            <h2 className="text-3xl font-bold text-slate-900 mb-4">Insights & Guides</h2>
+                            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                                Stay up to date with the latest in AI document control, construction technology, and industry best practice.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                            {latestArticles.map((article) => (
+                                <Link
+                                    key={article.id}
+                                    to={`/articles/${article.slug}`}
+                                    className="group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:shadow-slate-200/60 transition-all flex flex-col h-full"
+                                >
+                                    {/* Image */}
+                                    <div className="relative h-48 overflow-hidden bg-slate-100 flex items-center justify-center text-slate-300">
+                                        <Newspaper size={36} className="absolute z-0" />
+                                        {article.header_image && (
+                                            <img
+                                                src={article.header_image}
+                                                alt={article.title}
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 relative z-10"
+                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                            />
+                                        )}
+                                        {article.keywords && (
+                                            <span className="absolute top-3 left-3 z-20 bg-white/90 backdrop-blur-sm text-blue-600 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+                                                {article.keywords.split(',')[0].trim()}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="p-6 flex-grow flex flex-col">
+                                        <div className="flex items-center gap-2 text-xs text-slate-400 mb-3">
+                                            <Calendar size={12} />
+                                            {new Date(article.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                        </div>
+                                        <h3 className="text-lg font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors leading-snug">
+                                            {article.title}
+                                        </h3>
+                                        <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed mb-4">
+                                            {article.excerpt || 'Read the full article to learn more.'}
+                                        </p>
+                                        <div className="mt-auto flex items-center gap-1 text-blue-600 font-bold text-sm">
+                                            Read More <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+
+                        <div className="text-center">
+                            <Link
+                                to="/articles"
+                                className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all hover:scale-105 shadow-lg"
+                            >
+                                See All Articles <ArrowRight size={18} />
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* PRICING SECTION */}
             < section id="pricing" className="py-24 bg-slate-50" >
