@@ -618,7 +618,7 @@ const UploadPage = () => {
 
             {/* Batch Upload Errors - Persistent List */}
             {uploadErrors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-xl overflow-hidden shadow-sm animate-in fade-in slide-in-from-top-4">
+                <div className="w-full bg-red-50 border border-red-200 rounded-xl overflow-hidden shadow-sm animate-in fade-in slide-in-from-top-4">
                     <div className="px-5 py-4 bg-red-100/50 border-b border-red-200 flex justify-between items-center">
                         <div className="flex items-center gap-3 text-red-800">
                             <div className="bg-red-200/50 p-1.5 rounded-full">
@@ -780,9 +780,9 @@ const UploadPage = () => {
                 <div className="space-y-6">
 
 
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-wrap justify-between items-start gap-2">
                         <h2 className="text-2xl font-bold text-slate-900">Extraction Results ({results.length})</h2>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <button type="button" onClick={handleStartOver} className="flex items-center gap-2 px-3 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors text-sm font-medium">
                                 <RotateCcw size={16} /> Start Over
                             </button>
