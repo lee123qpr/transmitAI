@@ -82,8 +82,18 @@ const LandingPage = () => {
                                     Try Transmit.AI Free <ArrowRight size={20} />
                                 </button>
                             </SignUpButton>
-                            <button onClick={() => setIsVideoModalOpen(true)} className="px-8 py-4 text-lg font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all hover:scale-105 flex items-center justify-center">
-                                View Video
+                            <button
+                                onClick={() => setIsVideoModalOpen(true)}
+                                className="relative px-8 py-4 text-lg font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all hover:scale-105 flex items-center justify-center gap-3 group"
+                            >
+                                {/* Pulsing play ring */}
+                                <span className="relative flex h-6 w-6 shrink-0">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-40"></span>
+                                    <span className="relative inline-flex items-center justify-center rounded-full h-6 w-6 bg-blue-600">
+                                        <svg className="w-3 h-3 text-white fill-white ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </span>
+                                </span>
+                                Watch 2-min Demo
                             </button>
                         </div>
                         <p className="mt-6 text-sm text-slate-600 font-medium">No credit card required · 10 free documents · Cancel anytime</p>
@@ -98,6 +108,58 @@ const LandingPage = () => {
 
             {/* TRUSTED BY STRIP */}
             <TrustedByStrip />
+
+            {/* VIDEO SHOWCASE SECTION */}
+            <section className="py-20 bg-slate-900 relative overflow-hidden">
+                {/* Background glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-slate-900 to-indigo-900/20 pointer-events-none" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
+
+                <div className="max-w-5xl mx-auto px-6 lg:px-8 relative z-10">
+                    <div className="text-center mb-10">
+                        <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] text-blue-400 bg-blue-900/50 border border-blue-700/50 px-4 py-2 rounded-full mb-4">Product Demo</span>
+                        <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                            See Transmit.AI in Action
+                        </h2>
+                        <p className="text-slate-400 text-lg max-w-xl mx-auto">
+                            Watch how we turn a folder of PDFs into a complete transmittal register in under 2 minutes.
+                        </p>
+                    </div>
+
+                    {/* Video Thumbnail with Play Button */}
+                    <button
+                        onClick={() => setIsVideoModalOpen(true)}
+                        className="relative w-full aspect-video rounded-2xl overflow-hidden group cursor-pointer shadow-2xl shadow-black/50 border border-white/10 block"
+                        aria-label="Play product demo video"
+                    >
+                        {/* YouTube thumbnail */}
+                        <img
+                            src="https://img.youtube.com/vi/VkZKc-fvwSk/maxresdefault.jpg"
+                            alt="Transmit.AI Product Demo"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        {/* Dark overlay */}
+                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
+                        {/* Play button */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="relative">
+                                <div className="absolute inset-0 rounded-full bg-blue-500/30 animate-ping scale-150" />
+                                <div className="relative w-20 h-20 bg-white/95 group-hover:bg-white rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/30 transition-all duration-300 group-hover:scale-110">
+                                    <svg className="w-8 h-8 text-blue-600 fill-blue-600 ml-1.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Duration badge */}
+                        <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-white/10">
+                            2:00
+                        </div>
+                    </button>
+
+                    <p className="text-center text-slate-500 text-sm mt-6">
+                        No sign-up required to watch · Hosted on YouTube
+                    </p>
+                </div>
+            </section>
 
             {/* PROBLEM SECTION */}
             <section className="py-32 bg-slate-900 relative overflow-hidden">
