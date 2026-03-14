@@ -24,6 +24,7 @@ const SEO: React.FC<SEOProps> = ({
             {/* Standard metadata tags */}
             <title>{siteTitle}</title>
             <meta name='description' content={metaDescription} />
+            <link rel="canonical" href={window.location.href} />
 
             {/* Open Graph tags */}
             <meta property="og:type" content={type} />

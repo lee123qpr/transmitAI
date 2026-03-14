@@ -21,6 +21,28 @@
             "destination": "/index.html"
         }
     ],
+    "redirects": [
+        {
+            "source": "/agreements/privacy",
+            "destination": "/legal/privacy",
+            "permanent": true
+        },
+        {
+            "source": "/agreements/acceptable-use",
+            "destination": "/legal/terms",
+            "permanent": true
+        },
+        {
+            "source": "/agreements/terms-of-service",
+            "destination": "/legal/terms",
+            "permanent": true
+        },
+        {
+            "source": "/agreements/cookie",
+            "destination": "/legal/cookies",
+            "permanent": true
+        }
+    ],
     "headers": [
         {
             "source": "/(.*)",

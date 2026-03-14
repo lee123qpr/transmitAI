@@ -8,6 +8,8 @@ const LogoImage = ({ src, alt }: { src: string; alt: string }) => (
             width={150}
             height={64}
             className="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
+            loading="lazy"
+            decoding="async"
         />
     </div>
 );

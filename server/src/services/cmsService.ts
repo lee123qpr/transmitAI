@@ -26,9 +26,10 @@ export interface Announcement {
 
 // Articles
 export const getArticles = async (onlyPublished = false): Promise<Article[]> => {
+    // Exclude 'content' to drastically reduce the payload size for the main listing page
     const sql = onlyPublished
-        ? 'SELECT * FROM articles WHERE published = true ORDER BY created_at DESC'
-        : 'SELECT * FROM articles ORDER BY created_at DESC';
+        ? 'SELECT id, title, slug, excerpt, published, author_id, created_at, updated_at, header_image, keywords FROM articles WHERE published = true ORDER BY created_at DESC'
+        : 'SELECT id, title, slug, excerpt, published, author_id, created_at, updated_at, header_image, keywords FROM articles ORDER BY created_at DESC';
     const res = await query(sql);
     return res.rows;
 };

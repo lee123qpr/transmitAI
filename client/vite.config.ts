@@ -34,8 +34,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom', 'zustand', 'framer-motion'],
-          clerk: ['@clerk/clerk-react'],
-          utils: ['exceljs', 'jspdf', 'jspdf-autotable', 'jszip']
+          clerk: ['@clerk/clerk-react']
         }
       }
     },
