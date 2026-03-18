@@ -16,6 +16,7 @@ export interface DocumentData {
     documentType?: string;
     confidence_score?: number;
     reasoning_notes?: string;
+    errorReason?: string;
 }
 
 interface UserState {

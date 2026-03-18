@@ -92,10 +92,12 @@ const Dashboard = () => {
             return;
         }
 
-        const successfulDocs = docsToExport.filter(d => d.status !== 'Error');
-        const failedDocs = docsToExport.filter(d => d.status === 'Error').map(d => ({
+        const isFailedDoc = (d: DocumentData) => d.status === 'Error' || (!d.documentNumber?.trim() && !d.title?.trim());
+
+        const successfulDocs = docsToExport.filter(d => !isFailedDoc(d));
+        const failedDocs = docsToExport.filter(d => isFailedDoc(d)).map(d => ({
             filename: d.filename,
-            reason: d.errorReason || 'Could not be processed automatically.'
+            reason: d.errorReason || 'Automated extraction could not identify a document number or title.'
         }));
 
         setIsExporting(true);
@@ -596,8 +598,9 @@ const Dashboard = () => {
                 <div className="space-y-6">
                     {(() => {
                         const currentDocs = transmittals[selectedTransmittal] || [];
-                        const failedDocs = currentDocs.filter(d => d.status === 'Error');
-                        const successfulDocs = currentDocs.filter(d => d.status !== 'Error');
+                        const isFailedDoc = (d: DocumentData) => d.status === 'Error' || (!d.documentNumber?.trim() && !d.title?.trim());
+                        const failedDocs = currentDocs.filter(d => isFailedDoc(d));
+                        const successfulDocs = currentDocs.filter(d => !isFailedDoc(d));
                         
                         return (
                             <>
@@ -623,7 +626,7 @@ const Dashboard = () => {
                                                     <li key={idx} className="bg-white p-3 rounded-lg border border-red-100 flex items-start sm:items-center justify-between gap-4 shadow-sm group">
                                                         <div className="flex flex-col flex-1 min-w-0 gap-1">
                                                             <span className="font-semibold text-slate-800 text-sm truncate" title={doc.filename}>{doc.filename}</span>
-                                                            <span className="text-sm text-red-600 font-medium text-balance">{doc.errorReason || 'Could not be processed automatically.'}</span>
+                                                            <span className="text-sm text-red-600 font-medium text-balance">{doc.errorReason || 'Automated extraction could not identify a document number or title.'}</span>
                                                             <span className="text-xs text-slate-500 font-medium">
                                                                 Based on filename, this appears to be a <span className="font-bold text-slate-700">{suggestedType}</span>. You can manually enter this document's details from your Excel export.
                                                             </span>
