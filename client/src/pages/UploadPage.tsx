@@ -405,7 +405,23 @@ const UploadPage = () => {
     };
 
     const handlePreview = (file: File) => {
-        const url = URL.createObjectURL(file);
+        let previewFile = file;
+        
+        // If the file is missing a specific MIME type (common when extracted from ZIPs)
+        if (!file.type || file.type === 'application/octet-stream' || file.type === '') {
+            const ext = file.name.split('.').pop()?.toLowerCase();
+            let mimeType = 'application/octet-stream';
+            
+            if (ext === 'pdf') mimeType = 'application/pdf';
+            else if (['jpg', 'jpeg'].includes(ext || '')) mimeType = 'image/jpeg';
+            else if (ext === 'png') mimeType = 'image/png';
+            
+            if (mimeType !== 'application/octet-stream') {
+                previewFile = new window.File([file], file.name, { type: mimeType });
+            }
+        }
+        
+        const url = URL.createObjectURL(previewFile);
         window.open(url, '_blank');
     };
 
