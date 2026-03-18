@@ -78,8 +78,8 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                             // Reset pageImages for this new scale attempt
                             pageImages.length = 0; 
                             
-                            // Try to get up to 3 pages
-                            for (let i = 1; i <= 3; i++) {
+                            // Try to get up to 5 pages for long specifications/reports
+                            for (let i = 1; i <= 5; i++) {
                                 try {
                                     const imageBuffer = await document.getPage(i);
                                     pageImages.push(`data:image/png;base64,${imageBuffer.toString('base64')}`);
@@ -286,13 +286,13 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             const pages = contentToAnalyze.split('|||PAGE_BREAK|||');
             userMessage = [
                 { type: "text" as const, text: `Extract data from these ${pages.length} pages of a scanned document. The first pages usually contain the title block and metadata.` },
-                ...pages.map(pageUrl => ({ type: "image_url" as const, image_url: { "url": pageUrl } }))
+                ...pages.map(pageUrl => ({ type: "image_url" as const, image_url: { "url": pageUrl, "detail": "high" } }))
             ];
         } else if (isImage) {
             // Single image
             userMessage = [
                 { type: "text" as const, text: "Extract data from this image." },
-                { type: "image_url" as const, image_url: { "url": contentToAnalyze } }
+                { type: "image_url" as const, image_url: { "url": contentToAnalyze, "detail": "high" } }
             ];
         } else {
             // Text content
