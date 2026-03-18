@@ -599,12 +599,29 @@ const Dashboard = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {transmittals[selectedTransmittal]?.map((doc) => (
-                                    <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors group text-sm">
-                                        <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
-                                                {doc.documentNumber}
-                                                {doc.confidence_score !== undefined && doc.confidence_score !== null && !isNaN(Number(doc.confidence_score)) && (
+                                {transmittals[selectedTransmittal]?.map((doc) => {
+                                    // Check for duplicates within this specific transmittal based on number and revision
+                                    const isDuplicate = doc.documentNumber 
+                                        ? transmittals[selectedTransmittal].filter(d => 
+                                            d.documentNumber === doc.documentNumber && 
+                                            (d.revision || '') === (doc.revision || '')
+                                          ).length > 1
+                                        : false;
+
+                                    return (
+                                        <tr key={doc.id} className={`hover:bg-slate-50/50 transition-colors group text-sm ${isDuplicate ? 'bg-amber-50/30' : ''}`}>
+                                            <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    {doc.documentNumber}
+                                                    {isDuplicate && (
+                                                        <span 
+                                                            className="bg-amber-100 text-amber-800 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border border-amber-200 cursor-help"
+                                                            title="Another document with this exact Number and Revision exists in this transmittal folder."
+                                                        >
+                                                            Duplicate
+                                                        </span>
+                                                    )}
+                                                    {doc.confidence_score !== undefined && doc.confidence_score !== null && !isNaN(Number(doc.confidence_score)) && (
                                                     <div className="flex items-center z-10 hidden sm:flex">
                                                         <span
                                                             title={`Data Quality: ${Number(doc.confidence_score)}%\n\n${doc.reasoning_notes || 'All key data points successfully captured with high confidence.'}`}
@@ -648,7 +665,7 @@ const Dashboard = () => {
                                             </button>
                                         </td>
                                     </tr>
-                                ))}
+                                )})}
                             </tbody>
                         </table>
                     </div>

@@ -796,6 +796,25 @@ const UploadPage = () => {
                 </div>
             )}
 
+            {/* Failed Uploads Summary */}
+            {uploadErrors.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+                    <h3 className="text-lg font-bold text-red-800 flex items-center gap-2 mb-4">
+                        <AlertCircle size={20} />
+                        Failed to Process ({uploadErrors.length})
+                    </h3>
+                    <ul className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                        {uploadErrors.map((err, idx) => (
+                            <li key={idx} className="bg-white p-3 rounded-lg border border-red-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
+                                <span className="font-semibold text-slate-800 text-sm">{err.filename}</span>
+                                <span className="text-sm text-red-600 font-medium">{err.reason}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <p className="text-xs text-red-600 mt-4 opacity-80 font-medium">These files are included in the "Failed Uploads" tab of your Excel export.</p>
+                </div>
+            )}
+
             {/* Results */}
             {results.length > 0 && (
                 <div className="space-y-6">
