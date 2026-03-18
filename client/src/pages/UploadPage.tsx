@@ -662,8 +662,21 @@ const UploadPage = () => {
                             const isUpgradeError = err.reason.includes('Please upgrade to Pro');
                             const baseMessage = isUpgradeError ? err.reason.split('Please upgrade')[0] : err.reason;
 
+                            const guessDocumentType = (filename: string): string => {
+                                const lower = filename.toLowerCase();
+                                if (lower.includes('spec') || lower.includes('specification')) return 'Specification';
+                                if (lower.includes('report') || lower.includes('survey')) return 'Report / Survey';
+                                if (lower.includes('schedule') || lower.includes('sow')) return 'Schedule / Scope of Work';
+                                if (lower.match(/(ga|plan|section|elevation|detail|layout|drg|drawing)/)) return 'Drawing';
+                                if (lower.includes('price') || lower.includes('quote') || lower.includes('cost')) return 'Pricing Document';
+                                if (lower.includes('prelim') || lower.includes('header')) return 'Preliminaries / Cover';
+                                return 'Unknown Document Type';
+                            };
+
                             // Transform technical errors to user-friendly messages
                             let friendlyMessage = baseMessage;
+                            let suggestedType = '';
+
                             if (friendlyMessage.includes('Cannot find package') || friendlyMessage.includes('Cannot find module') || friendlyMessage.includes('internal/modules') || friendlyMessage.includes('DOMMatrix')) {
                                 friendlyMessage = 'System dependencies missing for scanned documents. Please provide a standard digital PDF.';
                             } else if (friendlyMessage.includes('corrupt') || friendlyMessage.includes('unreadable')) {
@@ -672,6 +685,9 @@ const UploadPage = () => {
                                 friendlyMessage = 'Failed to read PDF format. The file might be corrupted or locked.';
                             } else if (friendlyMessage.includes('empty')) {
                                 friendlyMessage = 'The document appears to be empty and contains no readable text.';
+                            } else if (friendlyMessage.includes('complexity') || friendlyMessage.includes('large visual complexity') || friendlyMessage.includes('too complex') || friendlyMessage.includes('exceedingly complex')) {
+                                friendlyMessage = 'This document could not be automatically analyzed due to its exceedingly large visual complexity.';
+                                suggestedType = guessDocumentType(err.filename);
                             } else if (friendlyMessage.includes('500') || friendlyMessage.includes('Server error')) {
                                 friendlyMessage = 'Internal system error occurred during extraction. Our engineers have been alerted.';
                             }
@@ -679,17 +695,24 @@ const UploadPage = () => {
                             return (
                                 <li key={idx} className="flex gap-4 p-4 items-start">
                                     <span className="font-semibold text-slate-800 break-all w-1/3 truncate" title={err.filename}>{err.filename}</span>
-                                    <span className="flex-1 text-red-700 text-sm">
-                                        {friendlyMessage}
-                                        {isUpgradeError && (
-                                            <button
-                                                onClick={() => setIsUpgradeModalOpen(true)}
-                                                className="font-bold underline hover:text-red-900 transition-colors ml-1"
-                                            >
-                                                Please upgrade to Pro.
-                                            </button>
+                                    <div className="flex-1 flex flex-col gap-1">
+                                        <span className="text-red-700 text-sm text-balance">
+                                            {friendlyMessage}
+                                            {isUpgradeError && (
+                                                <button
+                                                    onClick={() => setIsUpgradeModalOpen(true)}
+                                                    className="font-bold underline hover:text-red-900 transition-colors ml-1"
+                                                >
+                                                    Please upgrade to Pro.
+                                                </button>
+                                            )}
+                                        </span>
+                                        {suggestedType && (
+                                            <span className="text-xs text-slate-500 font-medium">
+                                                Based on filename, this appears to be a <span className="font-bold text-slate-700">{suggestedType}</span>. You can manually enter this document's details from your Excel export.
+                                            </span>
                                         )}
-                                    </span>
+                                    </div>
                                 </li>
                             );
                         })}
@@ -793,25 +816,6 @@ const UploadPage = () => {
                             </button>
                         </div>
                     )}
-                </div>
-            )}
-
-            {/* Failed Uploads Summary */}
-            {uploadErrors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
-                    <h3 className="text-lg font-bold text-red-800 flex items-center gap-2 mb-4">
-                        <AlertCircle size={20} />
-                        Failed to Process ({uploadErrors.length})
-                    </h3>
-                    <ul className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                        {uploadErrors.map((err, idx) => (
-                            <li key={idx} className="bg-white p-3 rounded-lg border border-red-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
-                                <span className="font-semibold text-slate-800 text-sm">{err.filename}</span>
-                                <span className="text-sm text-red-600 font-medium">{err.reason}</span>
-                            </li>
-                        ))}
-                    </ul>
-                    <p className="text-xs text-red-600 mt-4 opacity-80 font-medium">These files are included in the "Failed Uploads" tab of your Excel export.</p>
                 </div>
             )}
 

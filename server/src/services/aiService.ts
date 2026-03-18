@@ -103,7 +103,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                             console.warn(`[AI Service] Visual parsing failed at scale ${scale}`, memoryError);
                             if (scale === scalesToTry[scalesToTry.length - 1]) {
                                 console.error("[AI Service] Visual parsing failed completely (all scales exhausted):", memoryError);
-                                throw new Error("This scanned document is exceedingly complex or large. Try zooming in and taking a screenshot, or splitting it.");
+                                throw new Error("This document could not be automatically analyzed due to its exceedingly large visual complexity.");
                             }
                         }
                     }
