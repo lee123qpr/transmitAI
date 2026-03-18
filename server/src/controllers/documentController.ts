@@ -35,7 +35,8 @@ export const getDocuments = async (req: Request, res: Response) => {
                 summary: excerpt?.summary || excerpt?.description || '',
                 documentType: excerpt?.documentType || excerpt?.document_type || excerpt?.type || 'N/A',
                 confidence_score: excerpt?.confidence_score,
-                reasoning_notes: excerpt?.reasoning_notes
+                reasoning_notes: excerpt?.reasoning_notes,
+                errorReason: excerpt?.errorReason || null
             };
         });
 
@@ -77,6 +78,31 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
             // Provide more specific feedback if possible
             const reason = extractionError.message || 'The AI service timed out or could not process this file.';
+
+            // Attempt to save the failed document explicitly so it appears on the dashboard
+            try {
+                await query(
+                    `INSERT INTO documents (
+                        user_id, filename, file_size, file_type, 
+                        status, excerpt_data
+                    ) VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [
+                        userId,
+                        req.file.originalname,
+                        req.file.size,
+                        req.file.mimetype,
+                        'Error',
+                        JSON.stringify({
+                            transmittalTitle: req.body.transmittalTitle || null,
+                            errorReason: reason
+                        })
+                    ]
+                );
+                console.log(`[DocumentController] Logged failed AI extraction to DB for ${req.file.originalname} (No credits deducted)`);
+            } catch (dbErr) {
+                console.error('[DocumentController] Critical failure when logging extracted error to DB:', dbErr);
+            }
+
             return res.status(400).json({
                 error: 'File Processing Failed',
                 message: reason

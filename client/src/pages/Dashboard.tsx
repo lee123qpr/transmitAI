@@ -92,11 +92,23 @@ const Dashboard = () => {
             return;
         }
 
+        const successfulDocs = docsToExport.filter(d => d.status !== 'Error');
+        const failedDocs = docsToExport.filter(d => d.status === 'Error').map(d => ({
+            filename: d.filename,
+            reason: d.errorReason || 'Could not be processed automatically.'
+        }));
+
         setIsExporting(true);
         try {
-            const finalFilename = await exportToExcel(docsToExport, filename, companyLogoUrl, companyName);
+            const finalFilename = await exportToExcel(
+                successfulDocs, 
+                filename, 
+                companyLogoUrl, 
+                companyName,
+                failedDocs.length > 0 ? failedDocs : undefined
+            );
             showToast(
-                `✅ Exported ${docsToExport.length} documents to ${finalFilename}`,
+                `✅ Exported ${successfulDocs.length} documents to ${finalFilename}`,
                 'success',
                 5000
             );
@@ -581,25 +593,75 @@ const Dashboard = () => {
 
             {/* Detailed Document View */}
             {selectedTransmittal && (
-                <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
-                                    <th className="px-4 py-3 font-semibold min-w-[220px]">Number</th>
-                                    <th className="px-4 py-3 font-semibold">Rev</th>
-                                    <th className="px-4 py-3 font-semibold hidden xl:table-cell">Type</th>
-                                    <th className="px-4 py-3 font-semibold">Title</th>
-                                    <th className="px-4 py-3 font-semibold hidden md:table-cell">Discipline</th>
-                                    <th className="px-4 py-3 font-semibold hidden lg:table-cell">Consultant</th>
-                                    <th className="px-4 py-3 font-semibold">Date</th>
-                                    <th className="px-4 py-3 font-semibold">Status</th>
-                                    <th className="px-4 py-3 font-semibold hidden 2xl:table-cell">Summary</th>
-                                    <th className="px-4 py-3 font-semibold text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {transmittals[selectedTransmittal]?.map((doc) => {
+                <div className="space-y-6">
+                    {(() => {
+                        const currentDocs = transmittals[selectedTransmittal] || [];
+                        const failedDocs = currentDocs.filter(d => d.status === 'Error');
+                        const successfulDocs = currentDocs.filter(d => d.status !== 'Error');
+                        
+                        return (
+                            <>
+                                {failedDocs.length > 0 && (
+                                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 shadow-sm animate-in fade-in slide-in-from-top-4">
+                                        <h3 className="text-lg font-bold text-red-800 flex items-center gap-2 mb-4">
+                                            <AlertCircle size={20} />
+                                            {failedDocs.length} File{failedDocs.length > 1 ? 's' : ''} Encountered Issues
+                                        </h3>
+                                        <ul className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                                            {failedDocs.map((doc, idx) => {
+                                                const lower = doc.filename.toLowerCase();
+                                                let suggestedType = '';
+                                                if (lower.includes('spec') || lower.includes('specification')) suggestedType = 'Specification';
+                                                else if (lower.includes('report') || lower.includes('survey')) suggestedType = 'Report / Survey';
+                                                else if (lower.includes('schedule') || lower.includes('sow')) suggestedType = 'Schedule / Scope of Work';
+                                                else if (lower.match(/(ga|plan|section|elevation|detail|layout|drg|drawing)/)) suggestedType = 'Drawing';
+                                                else if (lower.includes('price') || lower.includes('quote') || lower.includes('cost')) suggestedType = 'Pricing Document';
+                                                else if (lower.includes('prelim') || lower.includes('header')) suggestedType = 'Preliminaries / Cover';
+                                                else suggestedType = 'Unknown Document Type';
+
+                                                return (
+                                                    <li key={idx} className="bg-white p-3 rounded-lg border border-red-100 flex items-start sm:items-center justify-between gap-4 shadow-sm group">
+                                                        <div className="flex flex-col flex-1 min-w-0 gap-1">
+                                                            <span className="font-semibold text-slate-800 text-sm truncate" title={doc.filename}>{doc.filename}</span>
+                                                            <span className="text-sm text-red-600 font-medium text-balance">{doc.errorReason || 'Could not be processed automatically.'}</span>
+                                                            <span className="text-xs text-slate-500 font-medium">
+                                                                Based on filename, this appears to be a <span className="font-bold text-slate-700">{suggestedType}</span>. You can manually enter this document's details from your Excel export.
+                                                            </span>
+                                                        </div>
+                                                        <button
+                                                            onClick={(e) => handleDeleteDocument(e, doc.id, doc.filename)}
+                                                            className="text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-2 shrink-0"
+                                                            title="Delete Failed Upload"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                        <p className="text-xs text-red-600 mt-4 opacity-80 font-medium">These files have been added to the "Failed Uploads" tab of your Excel export.</p>
+                                    </div>
+                                )}
+
+                                <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
+                                                    <th className="px-4 py-3 font-semibold min-w-[220px]">Number</th>
+                                                    <th className="px-4 py-3 font-semibold">Rev</th>
+                                                    <th className="px-4 py-3 font-semibold hidden xl:table-cell">Type</th>
+                                                    <th className="px-4 py-3 font-semibold">Title</th>
+                                                    <th className="px-4 py-3 font-semibold hidden md:table-cell">Discipline</th>
+                                                    <th className="px-4 py-3 font-semibold hidden lg:table-cell">Consultant</th>
+                                                    <th className="px-4 py-3 font-semibold">Date</th>
+                                                    <th className="px-4 py-3 font-semibold">Status</th>
+                                                    <th className="px-4 py-3 font-semibold hidden 2xl:table-cell">Summary</th>
+                                                    <th className="px-4 py-3 font-semibold text-right">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                                {successfulDocs.map((doc) => {
                                     // Check for duplicates within this specific transmittal based on number and revision
                                     const isDuplicate = doc.documentNumber 
                                         ? transmittals[selectedTransmittal].filter(d => 
@@ -669,9 +731,12 @@ const Dashboard = () => {
                             </tbody>
                         </table>
                     </div>
+                                </div>
+                            </>
+                        );
+                    })()}
                 </div>
-            )
-            }
+            )}
         </div >
     );
 };
