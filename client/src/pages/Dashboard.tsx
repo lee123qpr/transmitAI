@@ -61,36 +61,21 @@ const Dashboard = () => {
     const transmittals = useMemo(() => {
         const groups: Record<string, DocumentData[]> = {};
 
-        // Define discipline order for consistent sorting
-        const disciplineOrder: Record<string, number> = {
-            'Architectural': 1,
-            'Structural': 2,
-            'Civil': 3,
-            'Mechanical': 4,
-            'Electrical': 5,
-            'Plumbing': 6,
-            'MEP': 7,
-            'Landscape': 8,
-            'General': 9
-        };
-
         documents.forEach(doc => {
             const title = doc.transmittalTitle || 'Unsorted Uploads';
             if (!groups[title]) groups[title] = [];
             groups[title].push(doc);
         });
 
-        // Sort documents within each transmittal by discipline, then by document number
+        // Sort documents within each transmittal by Consultant, then by document number
         Object.keys(groups).forEach(key => {
             groups[key].sort((a, b) => {
-                const disciplineA = a.discipline || 'General';
-                const disciplineB = b.discipline || 'General';
-                const orderA = disciplineOrder[disciplineA] || 999;
-                const orderB = disciplineOrder[disciplineB] || 999;
+                const consultantA = (a.consultant || '').toLowerCase();
+                const consultantB = (b.consultant || '').toLowerCase();
 
-                // First sort by discipline
-                if (orderA !== orderB) {
-                    return orderA - orderB;
+                // First sort by Consultant
+                if (consultantA !== consultantB) {
+                    return consultantA.localeCompare(consultantB);
                 }
 
                 // Then sort by document number

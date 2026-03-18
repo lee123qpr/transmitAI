@@ -209,7 +209,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
         systemPrompt += `
             NAMING CONVENTIONS (UK/ISO 19650 contexts):
             - **Document Number**: Often follows [Project]-[Originator]-[Volume]-[Level]-[Type]-[Role]-[Number] (e.g., "PRJ-ARC-ZZ-00-DR-A-0010") or simple formats like "A-100".
-            - **Revision**: Look for "Rev", "Revision", or single/double letters/numbers in the revision box (e.g., "P01", "C1", "A", "0").
+            - **Revision**: Look for "Rev", "Revision", or single/double letters/numbers in the revision box (e.g., "P01", "C1", "A", "0"). Pay VERY close attention to the title block for this, as it is critical.
             - **Status**: Look for status codes (e.g., "S3", "S4", "A1", "B1") or descriptions like "For Construction", "Preliminary", "Approved".
             
             DISCIPLINE DETECTION (CRITICAL):
@@ -250,7 +250,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             - title: (string) The drawing/document title.
             - issueDate: (string) Date in YYYY-MM-DD format.
             - discipline: (string) ONE of: "Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General"
-            - consultant: (string) Company name in the title block logo/header.
+            - consultant: (string) Company name in the title block logo/header. IMPORTANT: Normalize the company name by removing legal entity suffixes (e.g., remove "Ltd", "LLP", "Inc", "Consulting", "Group"). For example, "Arup Consulting Ltd" should just be "Arup".
             - status: (string) The drawing/document status (e.g., "For Construction", "Preliminary", "S2", etc).
             - summary: (string) Brief description of the content.
             - documentType: (string) Document classification: one of "Drawing", "Specification", "Report", "Schedule", "Transmittal", "Letter", "Form", or "Other".
@@ -287,64 +287,83 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
         console.log('[AI Service] Sending request to OpenAI...');
 
         // 3. Call OpenAI using Structured Outputs
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: userMessage }
-            ],
-            max_tokens: 1500,
-            temperature: 0.1, // Low temperature for consistent extraction
-            response_format: {
-                type: "json_schema",
-                json_schema: {
-                    name: "transmittal_extraction",
-                    strict: true,
-                    schema: {
-                        type: "object",
-                        properties: {
-                            documentNumber: { type: "string", description: "The main drawing/document number. Prefer the ISO 19650 format if present." },
-                            revision: { type: "string", description: "The current revision code." },
-                            title: { type: "string", description: "The drawing/document title." },
-                            issueDate: { type: "string", description: "Date in YYYY-MM-DD format." },
-                            discipline: {
-                                type: "string",
-                                enum: ["Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General", "Unknown"],
-                                description: "The detected discipline code."
-                            },
-                            consultant: { type: "string", description: "Company name in the title block logo/header." },
-                            status: { type: "string", description: "The drawing/document status (e.g., 'For Construction', 'Preliminary', 'S2', etc)." },
-                            summary: { type: "string", description: "Brief description of the content." },
-                            documentType: { type: "string", description: "Document classification: one of 'Drawing', 'Specification', 'Report', 'Schedule', 'Transmittal', 'Letter', 'Form', or 'Other'." },
-                            transmittalTitle: { type: "string", description: "If this is a transmittal/cover sheet, the Transmittal Number." },
-                            confidence_score: { type: "number", description: "Confidence score from 1-100." },
-                            reasoning_notes: { type: "string", description: "Concise reasoning for the given confidence score." }
-                        },
-                        required: [
-                            "documentNumber",
-                            "revision",
-                            "title",
-                            "issueDate",
-                            "discipline",
-                            "consultant",
-                            "status",
-                            "summary",
-                            "documentType",
-                            "transmittalTitle",
-                            "confidence_score",
-                            "reasoning_notes"
-                        ],
-                        additionalProperties: false
+        let response;
+        let attempt = 0;
+        const maxRetries = 4;
+
+        while (attempt < maxRetries) {
+            try {
+                response = await openai.chat.completions.create({
+                    model: "gpt-4o",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: userMessage }
+                    ],
+                    max_tokens: 1500,
+                    temperature: 0.1, // Low temperature for consistent extraction
+                    response_format: {
+                        type: "json_schema",
+                        json_schema: {
+                            name: "transmittal_extraction",
+                            strict: true,
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    documentNumber: { type: "string", description: "The main drawing/document number. Prefer the ISO 19650 format if present." },
+                                    revision: { type: "string", description: "The current revision code." },
+                                    title: { type: "string", description: "The drawing/document title." },
+                                    issueDate: { type: "string", description: "Date in YYYY-MM-DD format." },
+                                    discipline: {
+                                        type: "string",
+                                        enum: ["Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General", "Unknown"],
+                                        description: "The detected discipline code."
+                                    },
+                                    consultant: { type: "string", description: "Company name in the title block logo/header. Normalized to remove Ltd/LLP/etc." },
+                                    status: { type: "string", description: "The drawing/document status (e.g., 'For Construction', 'Preliminary', 'S2', etc)." },
+                                    summary: { type: "string", description: "Brief description of the content." },
+                                    documentType: { type: "string", description: "Document classification: one of 'Drawing', 'Specification', 'Report', 'Schedule', 'Transmittal', 'Letter', 'Form', or 'Other'." },
+                                    transmittalTitle: { type: "string", description: "If this is a transmittal/cover sheet, the Transmittal Number." },
+                                    confidence_score: { type: "number", description: "Confidence score from 1-100." },
+                                    reasoning_notes: { type: "string", description: "Concise reasoning for the given confidence score." }
+                                },
+                                required: [
+                                    "documentNumber",
+                                    "revision",
+                                    "title",
+                                    "issueDate",
+                                    "discipline",
+                                    "consultant",
+                                    "status",
+                                    "summary",
+                                    "documentType",
+                                    "transmittalTitle",
+                                    "confidence_score",
+                                    "reasoning_notes"
+                                ],
+                                additionalProperties: false
+                            }
+                        }
                     }
+                }, {
+                    timeout: 45000 // Increased timeout for strict schema generation
+                });
+                
+                break; // Success, exit retry loop
+            } catch (apiError: any) {
+                if (apiError?.status === 429 && attempt < maxRetries - 1) {
+                    attempt++;
+                    const waitTime = Math.pow(2, attempt) * 1500 + Math.random() * 1000;
+                    console.warn(`[AI Service] 429 Rate Limit hit. Retrying in ${Math.round(waitTime/1000)}s... (Attempt ${attempt} of ${maxRetries - 1})`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                } else {
+                    throw apiError;
                 }
             }
-        }, {
-            timeout: 45000 // Increased timeout for strict schema generation
-        });
+        }
 
-        console.log('[AI Service] OpenAI Response Received. Total tokens:', response.usage?.total_tokens);
+        console.log('[AI Service] OpenAI Response Received. Total tokens:', response?.usage?.total_tokens);
 
-        const content = response.choices[0].message.content;
+        const content = response?.choices?.[0]?.message?.content;
         if (!content) throw new Error("OpenAI returned no content.");
 
         // 4. Parse JSON

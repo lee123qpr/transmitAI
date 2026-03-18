@@ -1049,7 +1049,23 @@ const AdminDashboard = () => {
                                         </div>
                                         <div className="flex gap-2">
                                             <button
-                                                onClick={() => { setSelectedArticle(a); setArticleModalOpen(true); }}
+                                                onClick={async () => { 
+                                                    setIsActionLoading(true);
+                                                    try {
+                                                        const res = await fetch(`${API_URL}/articles/${a.slug}`);
+                                                        if(res.ok) {
+                                                            const fullArticle = await res.json();
+                                                            setSelectedArticle(fullArticle);
+                                                        } else {
+                                                            setSelectedArticle(a);
+                                                        }
+                                                    } catch (err) {
+                                                        setSelectedArticle(a);
+                                                    } finally {
+                                                        setIsActionLoading(false);
+                                                        setArticleModalOpen(true);
+                                                    }
+                                                }}
                                                 className="p-1.5 text-slate-400 hover:text-blue-600"
                                             >
                                                 <Eye size={16} />

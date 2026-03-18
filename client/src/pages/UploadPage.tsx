@@ -53,6 +53,7 @@ const UploadPage = () => {
     const [isProcessingUploads, setIsProcessingUploads] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
+    const [processedCount, setProcessedCount] = useState(0);
     const [results, setResults] = useState<ResultItem[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [uploadErrors, setUploadErrors] = useState<{ filename: string; reason: string }[]>([]); // New consolidated error state
@@ -277,6 +278,7 @@ const UploadPage = () => {
         setIsUploading(true);
         setError(null);
         setUploadErrors([]); // Clear previous batch errors
+        setProcessedCount(0);
         const newResults: ResultItem[] = [];
 
         // Generate Batch Title ONCE for all files
@@ -384,6 +386,8 @@ const UploadPage = () => {
                     reason: message
                 }]);
             }
+            // Increment progress counter
+            setProcessedCount(prev => prev + 1);
         }
 
         setResults(prev => [...prev, ...newResults]);
@@ -437,7 +441,8 @@ const UploadPage = () => {
                 mappedDocs,
                 transmittalTitle || generateDefaultTitle(),
                 companySettings.logo,
-                companySettings.name
+                companySettings.name,
+                uploadErrors
             );
 
             showToast(
@@ -740,13 +745,13 @@ const UploadPage = () => {
                                     <Layers size={36} className="text-white animate-pulse" />
                                 </div>
                             </div>
-                            <h3 className="text-2xl font-bold text-white mb-2">Analyzing {files.length} Document{files.length !== 1 ? 's' : ''}...</h3>
+                            <h3 className="text-2xl font-bold text-white mb-2">Analyzing {processedCount} of {files.length} Document{files.length !== 1 ? 's' : ''}...</h3>
                             <p className="text-blue-400 font-medium tracking-widest uppercase text-sm animate-pulse">
                                 Extracting metadata via AI
                             </p>
                             <div className="w-full max-w-sm mt-6">
                                 <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-blue-500 w-1/2 rounded-full animate-[progress_2s_ease-in-out_infinite]"></div>
+                                    <div className="h-full bg-blue-500 rounded-full transition-all duration-300 ease-out" style={{ width: `${Math.max(5, (processedCount / files.length) * 100)}%` }}></div>
                                 </div>
                             </div>
                             <p className="text-sm text-slate-400 mt-6 max-w-md text-center">

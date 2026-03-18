@@ -46,7 +46,8 @@ export const exportToExcel = async (
     docsToExport: DocumentExportData[],
     filename: string,
     companyLogoUrl?: string | null,
-    companyName?: string | null
+    companyName?: string | null,
+    failedDocs?: { filename: string; reason: string }[]
 ) => {
     const ExcelJS = (await import('exceljs')).default;
     const workbook = new ExcelJS.Workbook();
@@ -127,8 +128,15 @@ export const exportToExcel = async (
     headerRow.font = { bold: true };
     headerRow.border = { bottom: { style: 'thin' } };
 
-    // Sort documents simply by Doc Number
+    // Sort documents by Consultant, then by Doc Number
     const sortedDocs = [...docsToExport].sort((a, b) => {
+        const consultantA = (a.consultant || '').toLowerCase();
+        const consultantB = (b.consultant || '').toLowerCase();
+        
+        if (consultantA !== consultantB) {
+            return consultantA.localeCompare(consultantB);
+        }
+        
         return (a.documentNumber || '').localeCompare(b.documentNumber || '');
     });
 
@@ -141,6 +149,30 @@ export const exportToExcel = async (
 
     // Freeze panes updated for new header position
     worksheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 6 }];
+
+    // --- ADD FAILED UPLOADS SHEET ---
+    if (failedDocs && failedDocs.length > 0) {
+        const failedSheet = workbook.addWorksheet('Failed Uploads');
+        
+        failedSheet.columns = [
+            { key: 'filename', width: 45 },
+            { key: 'reason', width: 90 }
+        ];
+
+        failedSheet.getCell('A1').value = 'Failed Uploads Log';
+        failedSheet.getCell('A1').font = { size: 14, bold: true, color: { argb: 'FFFF0000' } };
+        
+        const failedHeader = failedSheet.getRow(3);
+        failedHeader.values = ['Filename', 'Failure Reason'];
+        failedHeader.font = { bold: true };
+        failedHeader.border = { bottom: { style: 'thin' } };
+
+        failedDocs.forEach(row => {
+            failedSheet.addRow(row);
+        });
+
+        failedSheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 3 }];
+    }
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
