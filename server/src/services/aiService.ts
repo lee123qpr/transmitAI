@@ -67,27 +67,44 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                     // Workaround for TypeScript converting dynamic import to require() in CommonJS
                     const { pdf: pdfImg } = await Function('return import("pdf-to-img")')();
 
-                    let document;
-                    try {
-                        document = await pdfImg(pdfDataUrl, { scale: 1.5 });
-                    } catch (memoryError) {
-                        console.error("[AI Service] Visual parsing failed (Memory/Complexity limit):", memoryError);
-                        throw new Error("This scanned document is too complex or large to visually analyze. Please try a smaller PDF.");
-                    }
-
+                    const scalesToTry = [1.5, 1.0, 0.75, 0.5];
                     const pageImages: string[] = [];
-
-                    // Try to get up to 3 pages (will fail gracefully if document has fewer or memory fills up)
-                    console.log(`[AI Service] Processing first 3 pages of scanned PDF...`);
-
-                    for (let i = 1; i <= 3; i++) {
+                    
+                    for (const scale of scalesToTry) {
                         try {
-                            const imageBuffer = await document.getPage(i);
-                            pageImages.push(`data:image/png;base64,${imageBuffer.toString('base64')}`);
-                        } catch (pageError) {
-                            // Page doesn't exist or memory failed on render, stop processing
-                            console.log(`[AI Service] Page ${i} limit reached or unavailable, stopping at ${pageImages.length} page(s)`);
-                            break;
+                            console.log(`[AI Service] Attempting to parse and render PDF with scale: ${scale}`);
+                            const document = await pdfImg(pdfDataUrl, { scale });
+                            
+                            // Reset pageImages for this new scale attempt
+                            pageImages.length = 0; 
+                            
+                            // Try to get up to 3 pages
+                            for (let i = 1; i <= 3; i++) {
+                                try {
+                                    const imageBuffer = await document.getPage(i);
+                                    pageImages.push(`data:image/png;base64,${imageBuffer.toString('base64')}`);
+                                } catch (pageError: any) {
+                                    // If it's just 'page missing' or generic error, that's fine, break inner loop.
+                                    // But if it's explicitly a memory/canvas limit error, we want it to bubble up to the scale fallback!
+                                    if (pageError.message?.toLowerCase().includes('canvas') || 
+                                        pageError.message?.toLowerCase().includes('memory') || 
+                                        pageError.message?.toLowerCase().includes('size')) {
+                                        throw pageError; // Bubble up
+                                    }
+                                    console.log(`[AI Service] Page ${i} limit reached or unavailable, stopping at ${pageImages.length} page(s)`);
+                                    break;
+                                }
+                            }
+                            
+                            if (pageImages.length > 0) {
+                                break; // Successfully loaded at least 1 page at this scale
+                            }
+                        } catch (memoryError) {
+                            console.warn(`[AI Service] Visual parsing failed at scale ${scale}`, memoryError);
+                            if (scale === scalesToTry[scalesToTry.length - 1]) {
+                                console.error("[AI Service] Visual parsing failed completely (all scales exhausted):", memoryError);
+                                throw new Error("This scanned document is exceedingly complex or large. Try zooming in and taking a screenshot, or splitting it.");
+                            }
                         }
                     }
 
