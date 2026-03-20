@@ -55,7 +55,9 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                 const textPerKb = contentToAnalyze.length / (fileBuffer.length / 1024);
                 if (textPerKb < 5 && contentToAnalyze.length < 1000) {
                     console.warn(`[AI Service] CAD vector-export PDF detected (${contentToAnalyze.length} chars text, ${(fileBuffer.length/1024).toFixed(0)}KB file = ${textPerKb.toFixed(1)} chars/KB). Forcing Vision/Edge-Slicing mode.`);
-                    throw new Error("SCANNED_PDF_DETECTED");
+                    // Save the garbled text as backup BEFORE entering Vision mode
+                    const cadGarbledTextFallback = contentToAnalyze;
+                    throw Object.assign(new Error("SCANNED_PDF_DETECTED"), { cadFallbackText: cadGarbledTextFallback });
                 }
 
                 if (contentToAnalyze.length > 50000) {
@@ -78,8 +80,11 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                     // Workaround for TypeScript converting dynamic import to require() in CommonJS
                     const { pdf: pdfImg } = await Function('return import("pdf-to-img")')();
 
-                    const scalesToTry = [1.5, 1.0, 0.75, 0.5];
+                    // Start at lower scale (1.0 not 1.5) for CAD drawings to reduce Vercel memory pressure
+                    const scalesToTry = [1.0, 0.75, 0.5];
                     const pageImages: string[] = [];
+                    // Grab any fallback garbled text saved before entering Vision mode
+                    const cadFallbackText: string | undefined = (pdfError as any).cadFallbackText;
                     
                     for (const scale of scalesToTry) {
                         try {
@@ -159,8 +164,16 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                         } catch (memoryError) {
                             console.warn(`[AI Service] Visual parsing failed at scale ${scale}`, memoryError);
                             if (scale === scalesToTry[scalesToTry.length - 1]) {
-                                console.error("[AI Service] Visual parsing failed completely (all scales exhausted):", memoryError);
-                                throw new Error("This document could not be automatically analysed due to its exceedingly large visual complexity.");
+                                // All rendering scales exhausted. 
+                                // If we have fallback garbled text from a CAD drawing, use that instead of failing hard.
+                                if (cadFallbackText && cadFallbackText.trim().length > 0) {
+                                    console.warn('[AI Service] All Vision scales failed. Falling back to garbled text extraction with context prompt.');
+                                    contentToAnalyze = `[NOTE: This is a CAD-exported drawing. The following text was extracted from vector paths and may be garbled or character-by-character. Do your best to reconstruct the document title, number and other fields from this data:]\n\n${cadFallbackText}`;
+                                    isImage = false;
+                                } else {
+                                    console.error("[AI Service] Visual parsing failed completely (all scales exhausted):", memoryError);
+                                    throw new Error("This document could not be automatically analysed due to its exceedingly large visual complexity.");
+                                }
                             }
                         }
                     }
