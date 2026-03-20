@@ -784,7 +784,7 @@ const UploadPage = () => {
                                     <Layers size={36} className="text-white animate-pulse" />
                                 </div>
                             </div>
-                            <h3 className="text-2xl font-bold text-white mb-2">Analyzing {processedCount} of {files.length} Document{files.length !== 1 ? 's' : ''}...</h3>
+                            <h3 className="text-2xl font-bold text-white mb-2">Analysing {processedCount} of {files.length} Document{files.length !== 1 ? 's' : ''}...</h3>
                             <p className="text-blue-400 font-medium tracking-widest uppercase text-sm animate-pulse">
                                 Extracting metadata via AI
                             </p>

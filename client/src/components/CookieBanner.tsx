@@ -47,7 +47,7 @@ const CookieBanner = () => {
                             We value your privacy
                         </h3>
                         <p className="text-slate-600 text-sm leading-relaxed max-w-3xl">
-                            We use essential cookies to make our site work. With your consent, we may also use non-essential cookies to improve user experience and analyze website traffic. By clicking "Accept All", you agree to our website's cookie use as described in our <Link to="/legal/cookies" className="text-blue-600 hover:text-blue-800 underline underline-offset-2 font-medium">Cookie Policy</Link>.
+                            We use essential cookies to make our site work. With your consent, we may also use non-essential cookies to improve user experience and analyse website traffic. By clicking "Accept All", you agree to our website's cookie use as described in our <Link to="/legal/cookies" className="text-blue-600 hover:text-blue-800 underline underline-offset-2 font-medium">Cookie Policy</Link>.
                         </p>
                     </div>
                 </div>
