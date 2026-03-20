@@ -4,6 +4,8 @@ import pdfParse from 'pdf-parse';
 // import { pdf } from 'pdf-to-img';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
+import sharp from 'sharp';
+import { normalizeConsultantName, validateExtraction } from '../utils/aiValidation';
 
 // Initialize OpenAI
 const openai = new OpenAI({
@@ -81,8 +83,39 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                             // Try to get up to 5 pages for long specifications/reports
                             for (let i = 1; i <= 5; i++) {
                                 try {
-                                    const imageBuffer = await document.getPage(i);
-                                    pageImages.push(`data:image/png;base64,${imageBuffer.toString('base64')}`);
+                                    const rawImageBuffer = await document.getPage(i);
+                                    
+                                    if (i === 1) {
+                                        const metadata = await sharp(rawImageBuffer).metadata();
+                                        const isLargeDrawing = metadata.width && metadata.height && 
+                                            metadata.width > 1500 && (metadata.width / metadata.height) > 1.1;
+
+                                        if (isLargeDrawing) {
+                                            console.log(`[AI Service] Massive PDF Drawing detected (${metadata.width}x${metadata.height}). Applying Edge-Slicing to extract Title Block.`);
+                                            
+                                            // 1. Bottom-Right Corner (25% wide, 25% high)
+                                            const cropWidthBR = Math.floor(metadata.width * 0.25);
+                                            const cropHeightBR = Math.floor(metadata.height * 0.25);
+                                            const leftBR = metadata.width - cropWidthBR;
+                                            const topBR = metadata.height - cropHeightBR;
+                                            const brCorner = await sharp(rawImageBuffer).extract({ left: leftBR, top: topBR, width: cropWidthBR, height: cropHeightBR }).toBuffer();
+                                            pageImages.push(`data:image/png;base64,${brCorner.toString('base64')}`);
+                                            
+                                            // 2. Right Edge Strip (15% width, full height) - handles vertical title blocks
+                                            const cropWidthR = Math.floor(metadata.width * 0.15);
+                                            const leftR = metadata.width - cropWidthR;
+                                            const rightEdge = await sharp(rawImageBuffer).extract({ left: leftR, top: 0, width: cropWidthR, height: metadata.height }).toBuffer();
+                                            pageImages.push(`data:image/png;base64,${rightEdge.toString('base64')}`);
+                                            
+                                            break; // Stop parsing pages for drawings! Title block is all we need.
+                                        } else {
+                                            // Standard A4 portrait report/spec - push full page
+                                            pageImages.push(`data:image/png;base64,${rawImageBuffer.toString('base64')}`);
+                                        }
+                                    } else {
+                                        // Pages 2-5 for Standard A4
+                                        pageImages.push(`data:image/png;base64,${rawImageBuffer.toString('base64')}`);
+                                    }
                                 } catch (pageError: any) {
                                     // If it's just 'page missing' or generic error, that's fine, break inner loop.
                                     // But if it's explicitly a memory/canvas limit error, we want it to bubble up to the scale fallback!
@@ -383,20 +416,77 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
         const content = response?.choices?.[0]?.message?.content;
         if (!content) throw new Error("OpenAI returned no content.");
 
-        // 4. Parse JSON
-        // With Structured Outputs (strict: true), OpenAI guarantees the format,
-        // so we don't have to worry about missing brackets or markdown blocks.
+        // 4. Parse JSON & Run Phase 2 + Phase 3 Validation
         try {
             const data = JSON.parse(content);
             console.log('[AI Service] Data parsed successfully from Structured Output.');
 
-            // Clean up: For any empty strings (""), set them to undefined to match DB logic expectations
+            // Clean up: For any empty strings (""), set them to undefined
             const cleanData: ExtractedData = { ...data };
             (Object.keys(cleanData) as (keyof ExtractedData)[]).forEach(key => {
                 if (cleanData[key] === "") {
                     cleanData[key] = undefined as any;
                 }
             });
+
+            // Phase 2: Normalise Consultant Name
+            cleanData.consultant = normalizeConsultantName(cleanData.consultant);
+
+            // Phase 2: Validate the extraction
+            const isDrawingDoc = isImage; // Scanned PDF drawing = image mode
+            const failingFields = validateExtraction(cleanData, isDrawingDoc);
+
+            if (failingFields.length > 0) {
+                console.warn(`[AI Service] Phase 2 Validation FAILED. Missing/invalid fields: [${failingFields.join(', ')}]. Triggering Phase 3 correction pass...`);
+
+                // Phase 3: Second targeted AI pass to fix specific failing fields
+                const correctionPrompt = `You are reviewing your own previous extraction of a construction document.
+
+The previous extraction returned:
+${JSON.stringify(cleanData, null, 2)}
+
+The following fields are MISSING or INVALID and MUST be corrected: [${failingFields.join(', ')}]
+
+Search the document image(s) again very carefully. For each failing field:
+- documentNumber: Look for any alphanumeric code that could be a drawing/document reference. Check corners, headers, footers, and the title block. It may be formatted as "1132-01", "A-100", or similar.
+- revision: Look for a small box labelled "Rev", "Revision", or "Issue" in the title block. It is usually a single letter or number like "P1", "C2", "A", "0".
+- title: The title should be the main text describing the drawing or document content.
+
+Return ONLY a corrected JSON with the SAME schema as before. Do not invent data — if truly not visible, return an empty string for that field.`;
+
+                try {
+                    const correctionResponse = await openai.chat.completions.create({
+                        model: "gpt-4o",
+                        messages: [
+                            { role: "system", content: correctionPrompt },
+                            { role: "user", content: userMessage }
+                        ],
+                        max_tokens: 1000,
+                        temperature: 0,  // Zero temp for maximum determinism
+                        response_format: { type: "json_object" },
+                    }, { timeout: 30000 });
+
+                    const correctionContent = correctionResponse?.choices?.[0]?.message?.content;
+                    if (correctionContent) {
+                        const correctedData = JSON.parse(correctionContent);
+                        // Merge: only use corrected values for the specific failing fields
+                        for (const field of failingFields) {
+                            const correctedVal = correctedData[field];
+                            if (correctedVal && correctedVal.toString().trim() !== '') {
+                                (cleanData as any)[field] = correctedVal;
+                                console.log(`[AI Service] Phase 3 Correction: Fixed [${field}] => "${correctedVal}"`);
+                            }
+                        }
+                        // Re-normalise consultant if it was one of the fixed fields
+                        cleanData.consultant = normalizeConsultantName(cleanData.consultant);
+                    }
+                } catch (correctionError) {
+                    // Phase 3 failing is non-fatal - we still return the best data we have
+                    console.warn('[AI Service] Phase 3 correction pass failed (non-fatal):', correctionError);
+                }
+            } else {
+                console.log('[AI Service] Phase 2 Validation PASSED. All core fields present.');
+            }
 
             return cleanData;
         } catch (parseError) {
