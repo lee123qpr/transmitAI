@@ -104,9 +104,8 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                                         const metadata = await sharp(rawImageBuffer).metadata();
                                         const pixelArea = (metadata.width || 0) * (metadata.height || 0);
                                         // Detect large drawings by pixel area (catches portrait-saved landscape drawings too)
-                                        // ~1,500,000 pixels covers anything A2+ at default rendering scale
-                                        // An A4 PDF at 1.5x scale is roughly 892x1263 = ~1.1M px, so we go slightly higher
-                                        const isLargeDrawing = pixelArea > 1_400_000;
+                                        // ~2,500,000 pixels ensures A4/A3 stay single-page, while A2+ trigger slicing
+                                        const isLargeDrawing = pixelArea > 2_500_000;
                                         const orientationLabel = (metadata.width || 0) > (metadata.height || 0) ? 'landscape' : 'portrait';
 
                                         if (isLargeDrawing) {
@@ -277,17 +276,43 @@ ${cadFallbackText}`;
 
         // 2. Prepare Dynamic Prompt based on file type
         let systemPrompt = `
-            You are an expert Construction Document Controller familiar with UK industry standards (BS 1192 / ISO 19650).
-            Extract metadata from this construction document into strict JSON.
+            You are an expert Construction Document Controller familiar with UK industry standards (ISO 19650 / BS 1192).
+            Your goal is to extract metadata from this construction document into strict JSON.
+
+            PROFESSIONAL KNOWLEDGE BASE:
+            - **ISO 19650 NAMING CONVENTION**: Most professional UK drawings follow the format: 
+              [Project]-[Originator]-[Volume/System]-[Level/Location]-[Type]-[Role]-[Number]
+              (e.g., "PRJ-ARC-ZZ-00-DR-A-0001", "1234-XYZ-V1-GF-M-5001").
+            - **ORIGINATOR (CONSULTANT)**: The 3-6 character code (e.g., "ARC", "XYZ") identifies the firm that produced the drawing.
+            - **SUITABILITY / STATUS CODES**: Common UK status codes include:
+              - S0: Work in Progress
+              - S1: Suitable for Coordination
+              - S2: Suitable for Information / S2
+              - S3: Suitable for Internal Review & Comment
+              - S4: Suitable for Stage Approval
+              - S5: Suitable for Manufacture
+              - A, B, C: For construction/tender
+            - **REVISIONS**: UK BIM projects often use P01, P02 (Preliminary) or C01, C02 (Contractual) instead of simple letters.
+
+            VISUAL ANALYSIS INSTRUCTIONS:
+            - **TITLE BLOCK LOCATION**: The title block is typically a rectangular panel in the LOWER RIGHT CORNER of the sheet. It can also be a vertical strip on the RIGHT EDGE or BOTTOM EDGE. START YOUR SEARCH IN THE LOWER RIGHT.
+            - **FIELDS TO LOCATE**: Find specific boxes labelled "TITLE", "CLIENT", "DRAWING NO", "REV", "SCALE", "DATE".
+            - **TITLE FIELD RULE**: The "title" output field MUST be the text found inside the "TITLE" labelled cell of the title block panel (e.g. "SURVEY DRAWINGS", "GROUND FLOOR PLAN"). 
+            - **CRITICAL WARNING**: Do NOT use any text from within the main drawing content as the title. Labels like "SITE PLAN 1:1250", "UPPER GROUND FLOOR PLAN", "FIRST FLOOR PLAN" printed inside the plan view area are VIEW LABELS or SCALE NOTES — NOT the document title.
+            - **CONSULTANT vs CLIENT**: 
+              - CONSULTANT = the architecture/engineering FIRM that PRODUCED/DREW the document. (e.g. "Urban Regal London Ltd").
+              - CLIENT = the person or company who COMMISSIONED the work. (e.g. "Mr. C. Norman"). 
+            - **PHOTOS**: If this is a site photo, set title to "Site Photo".
+            - **ISSUE DATE RULE**: The "issueDate" output field MUST be the document date found INSIDE the "DATE" labelled box of the title block (e.g. "14.09.18").
+            - **CRITICAL WARNING (DATES)**: Do NOT use any "Plot timestamps", "Printing dates", or vertical time/date stamps printed ALONG THE EDGE of the drawing (e.g. "24/10/2018 16:02:18"). These are metadata about the *file creation*, NOT the official document issue date.
+            - **BORDER RULE**: Strictly prioritize text contained within formal borders and labelled cells.
+            - Ignore stamps like "RECEIVED" unless they contain the status/suitability.
         `;
 
         if (fileExt === 'xlsx' || fileExt === 'xls') {
             systemPrompt += `
-            CONTEXT: This is an Excel spreadsheet. It likely contains a Document Register, Transmittal Sheet, or Schedule.
-            INSTRUCTIONS:
-            - Look for a header row identifying 'Document Number', 'Rev', 'Title', etc.
-            - Extract metadata for the **first significant document entry** listed.
-            - If it's a cover sheet/transmittal, extract the metadata of the transmittal itself (e.g. Transmittal Number as Document Number).
+            CONTEXT: This is an Excel spreadsheet (Document Register or Transmittal).
+            INSTRUCTIONS: Look for a header row identifying 'Document Number', 'Rev', 'Title'. Extract for the first significant document entry.
             `;
         } else if (fileExt === 'docx' || fileExt === 'doc') {
             systemPrompt += `
@@ -298,75 +323,32 @@ ${cadFallbackText}`;
             - If it represents a list of drawings, extract the first item or the collective title.
             - Ignore stamps like "RECEIVED" or "CHECKED" unless they contain the status.
             `;
-        } else {
-            // Default (PDFs, Images)
-            systemPrompt += `
-            VISUAL ANALYSIS INSTRUCTIONS:
-            - **TITLE BLOCK**: The title block is a formal bordered panel (usually a table or grid) containing clearly labelled rows/columns such as "TITLE:", "CLIENT:", "DRAWING NO:", "SCALE:", "DATE:", "REV:". It is typically at the LEFT EDGE, BOTTOM EDGE, or RIGHT EDGE of a drawing. FIND THIS PANEL.
-            - **TITLE FIELD RULE**: The "title" output field MUST be the text found inside the "TITLE" labelled cell/row of the title block panel (e.g. "SURVEY DRAWINGS", "GROUND FLOOR PLAN", "ROOF PLAN"). 
-            - **CRITICAL WARNING**: Do NOT use any text from within the main drawing content as the title. Labels like "SITE PLAN 1:1250", "UPPER GROUND FLOOR PLAN", "FIRST FLOOR PLAN" printed inside the plan view area are VIEW LABELS or SCALE NOTES — NOT the document title. They describe individual views on the sheet.
-            - **CONSULTANT vs CLIENT**: These are two different roles in the title block:
-              - CONSULTANT = the architecture/engineering FIRM that PRODUCED/DREW this document. Identified by a company logo, firm name, phone/email contact details in the title block header or footer strip. (e.g. "Urban Regal London Ltd")
-              - CLIENT = the person or company who COMMISSIONED the work. Labelled as "CLIENT:" in the title block. (e.g. "Mr. C. Norman"). DO NOT return the client name as the consultant.
-            - **PHOTOS**: If this is a photo of a physical drawing, extract data from the visible title block panel. If it is a site photo, set title to "Site Photo".
-            - Handwritten text may be present; do your best to transcribe it accurately.
-            - Ignore stamps like "RECEIVED" or "CHECKED" unless they contain the status.
-            `;
         }
-
-        // Common instructions
+        // Common instructions for field mapping
         systemPrompt += `
-            NAMING CONVENTIONS (UK/ISO 19650 contexts):
-            - **Document Number**: Often follows [Project]-[Originator]-[Volume]-[Level]-[Type]-[Role]-[Number] (e.g., "PRJ-ARC-ZZ-00-DR-A-0010") or simple formats like "A-100".
-            - **Revision**: Look for "Rev", "Revision", or single/double letters/numbers in the revision box (e.g., "P01", "C1", "A", "0"). Pay VERY close attention to the title block for this, as it is critical.
-            - **Status**: Look for status codes (e.g., "S3", "S4", "A1", "B1") or descriptions like "For Construction", "Preliminary", "Approved".
+            DISCIPLINE DETECTION:
+            Determine discipline from the Role/Discipline code in the document number:
+            - A/AR: Architectural
+            - S/ST: Structural
+            - M/ME: Mechanical
+            - E/EL: Electrical
+            - P/PL: Plumbing
+            - C/CV: Civil
+            - L/LA: Landscape
             
-            DISCIPLINE DETECTION (CRITICAL):
-            Determine discipline from document number codes, title, or content:
-            
-            **BS 1192/ISO 19650 Type Codes:**
-            - A = Architectural
-            - S = Structural
-            - M = Mechanical / HVAC
-            - E = Electrical
-            - P = Plumbing / Public Health
-            - C = Civil Engineering
-            - L = Landscape
-            - Q = Quantity Surveying
-            - Z = General / Multi-discipline
-            
-            **Document Number Patterns:**
-            - Format: [Project]-[Originator]-[Volume]-[Level]-DR-**[Type]**-[Number]
-            - Example: "PRJ-STR-ZZ-00-DR-S-2001" → Type code "S" = Structural
-            - Example: "PRJ-MEP-ZZ-00-DR-M-3050" → Type code "M" = Mechanical
-            
-            **Alternative Codes & Keywords:**
-            - Architectural: "ARCH", "ARC", "A-", contains "Floor Plan", "Elevation"
-            - Structural: "STRUCT", "STR", "S-", contains "Foundation", "Frame", "Beam"
-            - Mechanical: "MECH", "HVAC", "M-", contains "Ventilation", "Ductwork"
-            - Electrical: "ELEC", "E-", contains "Lighting", "Power"
-            - Plumbing: "PLUMB", "P-", "PHE", contains "Drainage", "Water"
-            - MEP: "MEP", "MEPH" (Mechanical, Electrical, Plumbing combined)
-            - Civil: "CIVIL", "C-", contains "Site", "Road"
-            - Landscape: "LAND", "L-", contains "Garden"
-            
-            **Return ONE of these standardised values:**
-            "Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General"
-            
-            FIELDS TO EXTRACT:
-            - documentNumber: (string) The main drawing/document number. Prefer the ISO 19650 format if present.
-            - revision: (string) The current revision code.
+            EXTRACT THESE FIELDS INTO JSON:
+            - documentNumber: (string) Full reference number. Prefer the ISO 19650 format if present.
+            - revision: (string) The current revision code (e.g., "P01", "A").
             - title: (string) The drawing/document title.
             - issueDate: (string) Date in YYYY-MM-DD format.
             - discipline: (string) ONE of: "Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General"
-            - consultant: (string) Company name in the title block logo/header. IMPORTANT: Normalise the company name by removing legal entity suffixes (e.g., remove "Ltd", "LLP", "Inc", "Consulting", "Group"). For example, "Arup Consulting Ltd" should just be "Arup".
-            - status: (string) The drawing/document status (e.g., "For Construction", "Preliminary", "S2", etc).
-            - summary: (string) Brief description of the content.
-            - documentType: (string) Document classification: one of "Drawing", "Specification", "Report", "Schedule", "Transmittal", "Letter", "Form", or "Other".
-            
-            QUALITY SCORE INSTRUCTIONS:
-            - confidence_score: (number) Choose a value from 1 to 100 representing how confident you are in the extracted data. Deduct points if core fields (documentNumber, title, revision, status) are missing, if text is blurry/hard to read, or if standard naming conventions are not followed. High confidence (90+) means almost all fields found and standard formats used.
-            - reasoning_notes: (string) Provide a concise, helpful explanation for the user if the score is not 100. Specifically mention any missing fields, poor image quality, or deviations from ISO 19650 conventions. If the score is 100, return an empty string.
+            - consultant: (string) The Originator firm name. Normalise to remove Ltd/LLP/Group.
+            - status: (string) The Suitability/Status code (e.g., "S2", "For Construction").
+            - summary: (string) Brief description.
+            - documentType: (string) One of "Drawing", "Specification", "Report", "Schedule", "Transmittal", "Letter", "Form", or "Other".
+            - transmittalTitle: (string) If this is a transmittal/cover sheet, the Transmittal Number.
+            - confidence_score: (number) 1-100.
+            - reasoning_notes: (string) Concise explanation for your score.
 
             IMPORTANT: Return "" (empty string) or 0 if a field is not found. Do not return null.
         `;
