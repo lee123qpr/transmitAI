@@ -32,7 +32,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
     console.log(`[AI Service] Starting extraction for: ${fileName}`);
 
     try {
-        let contentToAnalyze: string;
+        let contentToAnalyze: string = '';
         let isImage = false;
         const fileExt = (fileName.toLowerCase().split('.').pop() || '') as string;
 
@@ -83,6 +83,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                     // Start at lower scale (1.0 not 1.5) for CAD drawings to reduce Vercel memory pressure
                     const scalesToTry = [1.0, 0.75, 0.5];
                     const pageImages: string[] = [];
+                    let usedTextFallback = false;
                     // Grab any fallback garbled text saved before entering Vision mode
                     const cadFallbackText: string | undefined = (pdfError as any).cadFallbackText;
                     
@@ -170,6 +171,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                                     console.warn('[AI Service] All Vision scales failed. Falling back to garbled text extraction with context prompt.');
                                     contentToAnalyze = `[NOTE: This is a CAD-exported drawing. The following text was extracted from vector paths and may be garbled or character-by-character. Do your best to reconstruct the document title, number and other fields from this data:]\n\n${cadFallbackText}`;
                                     isImage = false;
+                                    usedTextFallback = true; // Flag so we skip the pageImages checks below
                                 } else {
                                     console.error("[AI Service] Visual parsing failed completely (all scales exhausted):", memoryError);
                                     throw new Error("This document could not be automatically analysed due to its exceedingly large visual complexity.");
@@ -178,14 +180,16 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                         }
                     }
 
-                    if (pageImages.length === 0) {
-                        throw new Error("Could not extract any readable images from this scanned PDF. Please try a different file.");
+                    // Only check/process images if we didn't already fall back to text
+                    if (!usedTextFallback) {
+                        if (pageImages.length === 0) {
+                            throw new Error("Could not extract any readable images from this scanned PDF. Please try a different file.");
+                        }
+                        // Combine multiple pages into the content
+                        contentToAnalyze = pageImages.join('|||PAGE_BREAK|||');
+                        isImage = true;
+                        console.log(`[AI Service] Converted ${pageImages.length} PDF page(s) to images.`);
                     }
-
-                    // Combine multiple pages into the content
-                    contentToAnalyze = pageImages.join('|||PAGE_BREAK|||');
-                    isImage = true;
-                    console.log(`[AI Service] Converted ${pageImages.length} PDF page(s) to images.`);
                 } else {
                     console.error("[AI Service] PDF Parsing Failed:", pdfError);
                     throw new Error("Failed to read PDF text. File might be corrupted or password protected.");
