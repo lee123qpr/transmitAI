@@ -686,7 +686,7 @@ const UploadPage = () => {
                             } else if (friendlyMessage.includes('empty')) {
                                 friendlyMessage = 'The document appears to be empty and contains no readable text.';
                             } else if (friendlyMessage.includes('complexity') || friendlyMessage.includes('large visual complexity') || friendlyMessage.includes('too complex') || friendlyMessage.includes('exceedingly complex')) {
-                                friendlyMessage = 'This document could not be automatically analyzed due to its exceedingly large visual complexity.';
+                                friendlyMessage = 'This document could not be automatically analysed due to its exceedingly large visual complexity.';
                                 suggestedType = guessDocumentType(err.filename);
                             } else if (friendlyMessage.includes('500') || friendlyMessage.includes('Server error')) {
                                 friendlyMessage = 'Internal system error occurred during extraction. Our engineers have been alerted.';

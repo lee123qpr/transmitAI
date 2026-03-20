@@ -169,7 +169,19 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                                 // If we have fallback garbled text from a CAD drawing, use that instead of failing hard.
                                 if (cadFallbackText && cadFallbackText.trim().length > 0) {
                                     console.warn('[AI Service] All Vision scales failed. Falling back to garbled text extraction with context prompt.');
-                                    contentToAnalyze = `[NOTE: This is a CAD-exported drawing. The following text was extracted from vector paths and may be garbled or character-by-character. Do your best to reconstruct the document title, number and other fields from this data:]\n\n${cadFallbackText}`;
+                                    contentToAnalyze = `[CAD DRAWING - GARBLED TEXT FALLBACK]
+The following text was extracted from a CAD-exported PDF where glyphs are stored as vector paths. Individual characters may appear on separate lines.
+
+If you can reconstruct field data from the text below, apply these STRICT MAPPING RULES for UK construction title blocks:
+- TITLE field: The text next to the "TITLE" label in the title block. This is typically a description like "SURVEY DRAWINGS", "GROUND FLOOR PLAN", "ROOF PLAN". NOT a view label like "UPPER GROUND FLOOR PLAN" or "FIRST FLOOR PLAN" printed inside the drawing area.
+- CLIENT field: The person/company who commissioned the work (e.g. "Mr. C. Norman"). This is NOT the consultant.
+- CONSULTANT field: The architecture/engineering FIRM that PRODUCED the drawing. Look for a company name, logo header, or email/telephone header at the top or bottom of the title block strip. It is NOT the client name.
+- DRAWING NO: The drawing reference number (e.g. "190328/02").
+- DATE: Issue date (e.g. "MARCH 2019").
+- REVISION: The revision code (e.g. "-", "A", "P1").
+
+Extracted text (may be garbled):
+${cadFallbackText}`;
                                     isImage = false;
                                     usedTextFallback = true; // Flag so we skip the pageImages checks below
                                 } else {
@@ -284,15 +296,19 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             - Look for a cover page or header containing document details.
             - Extract the metadata for **this specific document**.
             - If it represents a list of drawings, extract the first item or the collective title.
+            - Ignore stamps like "RECEIVED" or "CHECKED" unless they contain the status.
             `;
         } else {
             // Default (PDFs, Images)
             systemPrompt += `
             VISUAL ANALYSIS INSTRUCTIONS:
             - **TITLE BLOCK**: The title block is a formal bordered panel (usually a table or grid) containing clearly labelled rows/columns such as "TITLE:", "CLIENT:", "DRAWING NO:", "SCALE:", "DATE:", "REV:". It is typically at the LEFT EDGE, BOTTOM EDGE, or RIGHT EDGE of a drawing. FIND THIS PANEL.
-            - **TITLE FIELD RULE**: The "title" field MUST be the text found inside the "TITLE" labelled cell/row of the title block panel (e.g. "SURVEY DRAWINGS", "GROUND FLOOR PLAN", "ROOF PLAN"). 
-            - **CRITICAL WARNING**: Do NOT use any text from within the main drawing content as the title. Specifically, labels like "SITE PLAN 1:1250", "BLOCK PLAN", "NORTH ELEVATION" printed next to or within the plan view are SCALE NOTES or VIEW LABELS — they are NOT the document title.
-            - **PHOTOS**: If this is a photo of a physical drawing, extract data from the visible title block panel. If it is a site photo, extract a summary description and set title to "Site Photo".
+            - **TITLE FIELD RULE**: The "title" output field MUST be the text found inside the "TITLE" labelled cell/row of the title block panel (e.g. "SURVEY DRAWINGS", "GROUND FLOOR PLAN", "ROOF PLAN"). 
+            - **CRITICAL WARNING**: Do NOT use any text from within the main drawing content as the title. Labels like "SITE PLAN 1:1250", "UPPER GROUND FLOOR PLAN", "FIRST FLOOR PLAN" printed inside the plan view area are VIEW LABELS or SCALE NOTES — NOT the document title. They describe individual views on the sheet.
+            - **CONSULTANT vs CLIENT**: These are two different roles in the title block:
+              - CONSULTANT = the architecture/engineering FIRM that PRODUCED/DREW this document. Identified by a company logo, firm name, phone/email contact details in the title block header or footer strip. (e.g. "Urban Regal London Ltd")
+              - CLIENT = the person or company who COMMISSIONED the work. Labelled as "CLIENT:" in the title block. (e.g. "Mr. C. Norman"). DO NOT return the client name as the consultant.
+            - **PHOTOS**: If this is a photo of a physical drawing, extract data from the visible title block panel. If it is a site photo, set title to "Site Photo".
             - Handwritten text may be present; do your best to transcribe it accurately.
             - Ignore stamps like "RECEIVED" or "CHECKED" unless they contain the status.
             `;
@@ -334,7 +350,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             - Civil: "CIVIL", "C-", contains "Site", "Road"
             - Landscape: "LAND", "L-", contains "Garden"
             
-            **Return ONE of these standardized values:**
+            **Return ONE of these standardised values:**
             "Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General"
             
             FIELDS TO EXTRACT:
@@ -343,7 +359,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             - title: (string) The drawing/document title.
             - issueDate: (string) Date in YYYY-MM-DD format.
             - discipline: (string) ONE of: "Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General"
-            - consultant: (string) Company name in the title block logo/header. IMPORTANT: Normalize the company name by removing legal entity suffixes (e.g., remove "Ltd", "LLP", "Inc", "Consulting", "Group"). For example, "Arup Consulting Ltd" should just be "Arup".
+            - consultant: (string) Company name in the title block logo/header. IMPORTANT: Normalise the company name by removing legal entity suffixes (e.g., remove "Ltd", "LLP", "Inc", "Consulting", "Group"). For example, "Arup Consulting Ltd" should just be "Arup".
             - status: (string) The drawing/document status (e.g., "For Construction", "Preliminary", "S2", etc).
             - summary: (string) Brief description of the content.
             - documentType: (string) Document classification: one of "Drawing", "Specification", "Report", "Schedule", "Transmittal", "Letter", "Form", or "Other".
@@ -411,7 +427,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                                         enum: ["Architectural", "Structural", "Mechanical", "Electrical", "Plumbing", "MEP", "Civil", "Landscape", "General", "Unknown"],
                                         description: "The detected discipline code."
                                     },
-                                    consultant: { type: "string", description: "Company name in the title block logo/header. Normalized to remove Ltd/LLP/etc." },
+                                    consultant: { type: "string", description: "The name of the ARCHITECTURE or ENGINEERING FIRM (originator) that produced the drawing — typically shown as a company logo, header, or contact details at the top/bottom of the title block strip. DO NOT use the CLIENT field for this. Normalised to remove Ltd/LLP/Group etc." },
                                     status: { type: "string", description: "The drawing/document status (e.g., 'For Construction', 'Preliminary', 'S2', etc)." },
                                     summary: { type: "string", description: "Brief description of the content." },
                                     documentType: { type: "string", description: "Document classification: one of 'Drawing', 'Specification', 'Report', 'Schedule', 'Transmittal', 'Letter', 'Form', or 'Other'." },
