@@ -49,6 +49,15 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                     throw new Error("SCANNED_PDF_DETECTED");
                 }
 
+                // Detect CAD vector-glyph exports: these PDFs contain mostly vector paths (high file size)
+                // but very little extractable text. A normal text document has >5 chars of text per KB of file size.
+                // CAD drawings stored as outlines/paths can be 100KB+ but yield under 500 chars of useful text.
+                const textPerKb = contentToAnalyze.length / (fileBuffer.length / 1024);
+                if (textPerKb < 5 && contentToAnalyze.length < 1000) {
+                    console.warn(`[AI Service] CAD vector-export PDF detected (${contentToAnalyze.length} chars text, ${(fileBuffer.length/1024).toFixed(0)}KB file = ${textPerKb.toFixed(1)} chars/KB). Forcing Vision/Edge-Slicing mode.`);
+                    throw new Error("SCANNED_PDF_DETECTED");
+                }
+
                 if (contentToAnalyze.length > 50000) {
                     console.log('[AI Service] Text too long, truncating to 50k chars');
                     contentToAnalyze = contentToAnalyze.substring(0, 50000);
@@ -85,29 +94,44 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                                 try {
                                     const rawImageBuffer = await document.getPage(i);
                                     
-                                    if (i === 1) {
+                                        if (i === 1) {
                                         const metadata = await sharp(rawImageBuffer).metadata();
-                                        const isLargeDrawing = metadata.width && metadata.height && 
-                                            metadata.width > 1500 && (metadata.width / metadata.height) > 1.1;
+                                        const pixelArea = (metadata.width || 0) * (metadata.height || 0);
+                                        // Detect large drawings by pixel area (catches portrait-saved landscape drawings too)
+                                        // ~1,500,000 pixels covers anything A2+ at default rendering scale
+                                        // An A4 PDF at 1.5x scale is roughly 892x1263 = ~1.1M px, so we go slightly higher
+                                        const isLargeDrawing = pixelArea > 1_400_000;
+                                        const orientationLabel = (metadata.width || 0) > (metadata.height || 0) ? 'landscape' : 'portrait';
 
                                         if (isLargeDrawing) {
-                                            console.log(`[AI Service] Massive PDF Drawing detected (${metadata.width}x${metadata.height}). Applying Edge-Slicing to extract Title Block.`);
+                                            console.log(`[AI Service] Large drawing detected (${metadata.width}x${metadata.height}, ${orientationLabel}, area=${pixelArea.toLocaleString()}px). Applying 4-edge title block slicing.`);
                                             
-                                            // 1. Bottom-Right Corner (25% wide, 25% high)
-                                            const cropWidthBR = Math.floor(metadata.width * 0.25);
-                                            const cropHeightBR = Math.floor(metadata.height * 0.25);
-                                            const leftBR = metadata.width - cropWidthBR;
-                                            const topBR = metadata.height - cropHeightBR;
-                                            const brCorner = await sharp(rawImageBuffer).extract({ left: leftBR, top: topBR, width: cropWidthBR, height: cropHeightBR }).toBuffer();
-                                            pageImages.push(`data:image/png;base64,${brCorner.toString('base64')}`);
+                                            // 4-corner crop strategy: title blocks may appear on ANY edge
+                                            // (bottom-right is standard BS1192, but many UK firms use left-side or bottom strips)
                                             
-                                            // 2. Right Edge Strip (15% width, full height) - handles vertical title blocks
+                                            // 1. Left Edge Strip (15% width, full height) — catches left-side title blocks like "SURVEY DRAWINGS"
+                                            const cropWidthL = Math.floor(metadata.width * 0.15);
+                                            const leftEdge = await sharp(rawImageBuffer).extract({ left: 0, top: 0, width: cropWidthL, height: metadata.height }).toBuffer();
+                                            pageImages.push(`data:image/png;base64,${leftEdge.toString('base64')}`);
+
+                                            // 2. Bottom Strip (full width, 20% height) — catches bottom-strip title blocks
+                                            const cropHeightBot = Math.floor(metadata.height * 0.20);
+                                            const topBot = metadata.height - cropHeightBot;
+                                            const bottomStrip = await sharp(rawImageBuffer).extract({ left: 0, top: topBot, width: metadata.width, height: cropHeightBot }).toBuffer();
+                                            pageImages.push(`data:image/png;base64,${bottomStrip.toString('base64')}`);
+
+                                            // 3. Right Edge Strip (15% width, full height) — catches right-side title blocks
                                             const cropWidthR = Math.floor(metadata.width * 0.15);
                                             const leftR = metadata.width - cropWidthR;
                                             const rightEdge = await sharp(rawImageBuffer).extract({ left: leftR, top: 0, width: cropWidthR, height: metadata.height }).toBuffer();
                                             pageImages.push(`data:image/png;base64,${rightEdge.toString('base64')}`);
+
+                                            // 4. Top Strip (full width, 15% height) — catches top-strip title blocks
+                                            const cropHeightTop = Math.floor(metadata.height * 0.15);
+                                            const topStrip = await sharp(rawImageBuffer).extract({ left: 0, top: 0, width: metadata.width, height: cropHeightTop }).toBuffer();
+                                            pageImages.push(`data:image/png;base64,${topStrip.toString('base64')}`);
                                             
-                                            break; // Stop parsing pages for drawings! Title block is all we need.
+                                            break; // Stop parsing more pages — title block is all we need for drawings.
                                         } else {
                                             // Standard A4 portrait report/spec - push full page
                                             pageImages.push(`data:image/png;base64,${rawImageBuffer.toString('base64')}`);
@@ -248,8 +272,10 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             // Default (PDFs, Images)
             systemPrompt += `
             VISUAL ANALYSIS INSTRUCTIONS:
-            - **TITLE BLOCK LOCATION**: Title blocks may be located **ANYWHERE** on the drawing (bottom-right, bottom strip, right strip, top-right, or even top-left). Scan the entire image to locate the main information panel.
-            - **PHOTOS**: If this is a photo of a physical drawing, extract data from the visible title block. If it is a site photo, extract a summary description and set title to "Site Photo".
+            - **TITLE BLOCK**: The title block is a formal bordered panel (usually a table or grid) containing clearly labelled rows/columns such as "TITLE:", "CLIENT:", "DRAWING NO:", "SCALE:", "DATE:", "REV:". It is typically at the LEFT EDGE, BOTTOM EDGE, or RIGHT EDGE of a drawing. FIND THIS PANEL.
+            - **TITLE FIELD RULE**: The "title" field MUST be the text found inside the "TITLE" labelled cell/row of the title block panel (e.g. "SURVEY DRAWINGS", "GROUND FLOOR PLAN", "ROOF PLAN"). 
+            - **CRITICAL WARNING**: Do NOT use any text from within the main drawing content as the title. Specifically, labels like "SITE PLAN 1:1250", "BLOCK PLAN", "NORTH ELEVATION" printed next to or within the plan view are SCALE NOTES or VIEW LABELS — they are NOT the document title.
+            - **PHOTOS**: If this is a photo of a physical drawing, extract data from the visible title block panel. If it is a site photo, extract a summary description and set title to "Site Photo".
             - Handwritten text may be present; do your best to transcribe it accurately.
             - Ignore stamps like "RECEIVED" or "CHECKED" unless they contain the status.
             `;
@@ -318,7 +344,7 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
             // Multiple pages
             const pages = contentToAnalyze.split('|||PAGE_BREAK|||');
             userMessage = [
-                { type: "text" as const, text: `Extract data from these ${pages.length} pages of a scanned document. The first pages usually contain the title block and metadata.` },
+                { type: "text" as const, text: `These ${pages.length} images are HIGH-RESOLUTION EDGE CROPS of a large construction drawing.\n\nImage order: [Left Edge Strip] → [Bottom Strip] → [Right Edge Strip] → [Top Strip]\n\nCRITICAL INSTRUCTIONS:\n- The TITLE BLOCK is a bordered panel containing labelled fields like \"TITLE:\", \"CLIENT:\", \"DRAWING NO:\", \"SCALE:\", \"DATE:\", \"REV:\". Find it in ONE of these edge images.\n- Extract the TITLE from the labelled TITLE field in the title block (e.g. \"SURVEY DRAWINGS\", \"GROUND FLOOR PLAN\").\n- DO NOT use any labels printed as plan view notes within the drawing content itself (e.g. \"SITE PLAN 1:1250\" printed next to a map is a scale note, NOT the document title).\n- The DRAWING NUMBER is typically in a \"DRAWING NO.\" or \"DRG NO.\" box (e.g. \"190328/01\", \"1132-01\").\n- The REVISION is in a small \"REV\" or \"REVISION\" box — usually a letter or short code.\n- If the same field appears in multiple edge images, use the value from the most clearly labelled title block panel.` },
                 ...pages.map(pageUrl => ({ type: "image_url" as const, image_url: { "url": pageUrl, "detail": "high" } }))
             ];
         } else if (isImage) {
