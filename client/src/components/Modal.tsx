@@ -73,7 +73,7 @@ const Modal: React.FC<ModalProps> = ({
                                 {cancelText}
                             </button>
                             <button
-                                onClick={() => { if (!isLoading && onConfirm) onConfirm(); }}
+                                onClick={() => { if (!isLoading && onConfirm) { onConfirm(); onClose(); } }}
                                 disabled={isLoading}
                                 className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors shadow-sm flex items-center gap-2
                                     ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}
