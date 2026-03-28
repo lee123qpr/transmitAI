@@ -50,11 +50,14 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                 }
 
                 // Detect CAD vector-glyph exports: these PDFs contain mostly vector paths (high file size)
-                // but very little extractable text. A normal text document has >5 chars of text per KB of file size.
-                // CAD drawings stored as outlines/paths can be 100KB+ but yield under 500 chars of useful text.
+                // but very little extractable text. A normal text document has >50 chars of text per KB of file size.
+                // Dense CAD drawings lack textual DOM flow and often hover < 15 chars/KB.
+                // Furthermore, single-page PDFs are almost always drawings, plans, or cover sheets which benefit heavily from spatial Vision.
                 const textPerKb = contentToAnalyze.length / (fileBuffer.length / 1024);
-                if (textPerKb < 5 && contentToAnalyze.length < 1000) {
-                    console.warn(`[AI Service] CAD vector-export PDF detected (${contentToAnalyze.length} chars text, ${(fileBuffer.length/1024).toFixed(0)}KB file = ${textPerKb.toFixed(1)} chars/KB). Forcing Vision/Edge-Slicing mode.`);
+                const isSinglePage = pdfData.numpages === 1;
+
+                if (isSinglePage || textPerKb < 15) {
+                    console.warn(`[AI Service] CAD / Visual layout detected (1-page or very sparse text, ${textPerKb.toFixed(1)} chars/KB). Forcing Vision/Edge-Slicing mode.`);
                     // Save the garbled text as backup BEFORE entering Vision mode
                     const cadGarbledTextFallback = contentToAnalyze;
                     throw Object.assign(new Error("SCANNED_PDF_DETECTED"), { cadFallbackText: cadGarbledTextFallback });
