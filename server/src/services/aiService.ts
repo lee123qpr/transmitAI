@@ -117,25 +117,25 @@ export const extractDocumentData = async (fileBuffer: Buffer, fileName: string):
                                             // 4-corner crop strategy: title blocks may appear on ANY edge
                                             // (bottom-right is standard BS1192, but many UK firms use left-side or bottom strips)
                                             
-                                            // 1. Left Edge Strip (15% width, full height) — catches left-side title blocks like "SURVEY DRAWINGS"
-                                            const cropWidthL = Math.floor(metadata.width * 0.15);
+                                            // 1. Left Edge Strip (25% width, full height) — catches left-side title blocks like "SURVEY DRAWINGS"
+                                            const cropWidthL = Math.floor(metadata.width * 0.25);
                                             const leftEdge = await sharp(rawImageBuffer).extract({ left: 0, top: 0, width: cropWidthL, height: metadata.height }).toBuffer();
                                             pageImages.push(`data:image/png;base64,${leftEdge.toString('base64')}`);
 
-                                            // 2. Bottom Strip (full width, 20% height) — catches bottom-strip title blocks
-                                            const cropHeightBot = Math.floor(metadata.height * 0.20);
+                                            // 2. Bottom Strip (full width, 25% height) — catches bottom-strip title blocks
+                                            const cropHeightBot = Math.floor(metadata.height * 0.25);
                                             const topBot = metadata.height - cropHeightBot;
                                             const bottomStrip = await sharp(rawImageBuffer).extract({ left: 0, top: topBot, width: metadata.width, height: cropHeightBot }).toBuffer();
                                             pageImages.push(`data:image/png;base64,${bottomStrip.toString('base64')}`);
 
-                                            // 3. Right Edge Strip (15% width, full height) — catches right-side title blocks
-                                            const cropWidthR = Math.floor(metadata.width * 0.15);
+                                            // 3. Right Edge Strip (25% width, full height) — catches right-side title blocks
+                                            const cropWidthR = Math.floor(metadata.width * 0.25);
                                             const leftR = metadata.width - cropWidthR;
                                             const rightEdge = await sharp(rawImageBuffer).extract({ left: leftR, top: 0, width: cropWidthR, height: metadata.height }).toBuffer();
                                             pageImages.push(`data:image/png;base64,${rightEdge.toString('base64')}`);
 
-                                            // 4. Top Strip (full width, 15% height) — catches top-strip title blocks
-                                            const cropHeightTop = Math.floor(metadata.height * 0.15);
+                                            // 4. Top Strip (full width, 25% height) — catches top-strip title blocks
+                                            const cropHeightTop = Math.floor(metadata.height * 0.25);
                                             const topStrip = await sharp(rawImageBuffer).extract({ left: 0, top: 0, width: metadata.width, height: cropHeightTop }).toBuffer();
                                             pageImages.push(`data:image/png;base64,${topStrip.toString('base64')}`);
                                             
