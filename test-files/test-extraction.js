@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const FormData = require('form-data');
-const fetch = require('node-fetch');
 
 const API_URL = 'http://localhost:3000/api/upload';
 const TEST_FILES = [

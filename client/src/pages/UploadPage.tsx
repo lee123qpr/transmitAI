@@ -378,7 +378,7 @@ const UploadPage = () => {
                 let message = err instanceof Error ? err.message : 'Connection lost or server timeout.';
 
                 if (err instanceof DOMException && err.name === 'AbortError') {
-                    message = 'Extraction timed out. This document is too large or complex for immediate processing. Please try a smaller file or splitting it.';
+                    message = 'Extraction timed out. This document is too large or complex for immediate processing. Please try a different version or contact support.';
                 }
 
                 setUploadErrors(prev => [...prev, {
@@ -686,7 +686,7 @@ const UploadPage = () => {
                             } else if (friendlyMessage.includes('empty')) {
                                 friendlyMessage = 'The document appears to be empty and contains no readable text.';
                             } else if (friendlyMessage.includes('complexity') || friendlyMessage.includes('large visual complexity') || friendlyMessage.includes('too complex') || friendlyMessage.includes('exceedingly complex')) {
-                                friendlyMessage = 'This document could not be automatically analysed due to its exceedingly large visual complexity.';
+                                friendlyMessage = 'This document could not be automatically analysed due to its visual complexity.';
                                 suggestedType = guessDocumentType(err.filename);
                             } else if (friendlyMessage.includes('500') || friendlyMessage.includes('Server error')) {
                                 friendlyMessage = 'Internal system error occurred during extraction. Our engineers have been alerted.';
