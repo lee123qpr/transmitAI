@@ -1,4 +1,3 @@
-
 const PrivacyPolicy = () => {
     return (
         <div className="max-w-4xl mx-auto px-6 py-20">
@@ -8,19 +7,19 @@ const PrivacyPolicy = () => {
 
                 <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4">1. Introduction</h2>
                 <p className="mb-4">
-                    Welcome to Transmittal.ai. We respect your privacy and are committed to protecting your personal data.
-                    This privacy policy will inform you as to how we look after your personal data when you visit our website
+                    Welcome to Transmit AI. We respect your privacy and are committed to protecting your personal data.
+                    This privacy policy will inform you as to how we look after your personal data when you visit our website (www.transmittal.co.uk)
                     and tell you about your privacy rights and how the law protects you.
                 </p>
 
                 <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4">2. The Data We Collect</h2>
                 <p className="mb-4">
-                    We may collect, use, store and transfer different kinds of personal data about you which we have grouped together follows:
+                    We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:
                 </p>
                 <ul className="list-disc pl-6 mb-4 space-y-2">
                     <li><strong>Identity Data:</strong> includes first name, last name, username or similar identifier.</li>
                     <li><strong>Contact Data:</strong> includes email address and telephone numbers.</li>
-                    <li><strong>Technical Data:</strong> includes internet protocol (IP) address, your login data, browser type and version.</li>
+                    <li><strong>Technical Data:</strong> includes Internet Protocol (IP) address, your login data, browser type and version.</li>
                     <li><strong>Usage Data:</strong> includes information about how you use our website, products and services.</li>
                 </ul>
 
@@ -41,7 +40,15 @@ const PrivacyPolicy = () => {
 
                 <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4">5. Contact Us</h2>
                 <p className="mb-4">
-                    If you have any questions about this privacy policy or our privacy practices, please contact us at: <a href="mailto:support@transmittal.ai" className="text-blue-600 hover:underline">support@transmittal.ai</a>
+                    If you have any questions about this privacy policy or our privacy practices, please contact us at: <a href="mailto:support@transmittal.co.uk" className="text-blue-600 hover:underline">support@transmittal.co.uk</a>
+                </p>
+                <p className="mb-4">
+                    <strong>Our Registered Address:</strong><br />
+                    Transmit AI<br />
+                    71-75 Shelton Street<br />
+                    Covent Garden<br />
+                    London, UK<br />
+                    WC2H 9JQ
                 </p>
             </div>
         </div>

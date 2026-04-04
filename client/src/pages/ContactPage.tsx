@@ -51,8 +51,8 @@ const ContactPage = () => {
     return (
         <div className="flex flex-col min-h-screen">
             <SEO
-                title="Contact Us - Transmit.AI"
-                description="Get in touch with Transmit.AI. Contact us for support, sales inquiries, or general questions about our AI-powered document extraction platform."
+                title="Contact Us - Transmit AI"
+                description="Get in touch with Transmit AI. Contact us for support, sales inquiries, or general questions about our AI-powered document extraction platform."
             />
 
             {/* Hero Section */}
@@ -229,7 +229,7 @@ const ContactPage = () => {
                 <div className="max-w-4xl mx-auto px-6 text-center">
                     <h2 className="text-3xl font-bold text-slate-900 mb-4">Ready to get started?</h2>
                     <p className="text-lg text-slate-600 mb-8">
-                        Try Transmit.AI free for 10 documents. No credit card required.
+                        Try Transmit AI free for 10 documents. No credit card required.
                     </p>
                     <a
                         href="/app"

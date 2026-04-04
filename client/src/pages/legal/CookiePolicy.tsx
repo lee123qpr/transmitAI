@@ -4,8 +4,8 @@ const CookiePolicy = () => {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Cookie Policy - Transmit.AI"
-                description="Learn about how Transmit.AI uses cookies to improve your experience on our platform."
+                title="Cookie Policy - Transmit AI"
+                description="Learn about how Transmit AI uses cookies to improve your experience on our platform."
             />
 
             <div className="max-w-4xl mx-auto px-6 py-16">
@@ -23,7 +23,7 @@ const CookiePolicy = () => {
                     <section className="mb-8">
                         <h2 className="text-2xl font-bold text-slate-900 mb-4">How We Use Cookies</h2>
                         <p className="text-slate-600 leading-relaxed mb-4">
-                            Transmit.AI uses cookies for the following purposes:
+                            Transmit AI uses cookies for the following purposes:
                         </p>
                         <ul className="list-disc pl-6 text-slate-600 space-y-2 mb-4">
                             <li><strong>Essential Cookies:</strong> These cookies are necessary for the website to function properly. They enable core functionality such as security, network management, and accessibility.</li>
@@ -132,8 +132,16 @@ const CookiePolicy = () => {
                             If you have any questions about our use of cookies, please contact us at:
                         </p>
                         <div className="bg-blue-50 p-6 rounded-lg">
-                            <p className="text-slate-700 mb-1"><strong>Email:</strong> <a href="mailto:support@transmit.ai" className="text-blue-600 hover:text-blue-700">support@transmit.ai</a></p>
-                            <p className="text-slate-700"><strong>Website:</strong> <a href="/contact" className="text-blue-600 hover:text-blue-700">Contact Form</a></p>
+                            <p className="text-slate-700 mb-1"><strong>Email:</strong> <a href="mailto:support@transmittal.co.uk" className="text-blue-600 hover:text-blue-700">support@transmittal.co.uk</a></p>
+                            <p className="text-slate-700 mb-4"><strong>Website:</strong> <a href="/contact" className="text-blue-600 hover:text-blue-700">Contact Form</a></p>
+                            <p className="text-slate-700">
+                                <strong>Our Registered Address:</strong><br />
+                                Transmit AI<br />
+                                71-75 Shelton Street<br />
+                                Covent Garden<br />
+                                London, UK<br />
+                                WC2H 9JQ
+                            </p>
                         </div>
                     </section>
                 </div>
