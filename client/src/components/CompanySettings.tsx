@@ -3,6 +3,7 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 import { Building2, Save, X, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from './Toast';
 import Modal from './Modal';
+import { useDocumentStore } from '../services/store';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -10,6 +11,7 @@ const CompanySettings: React.FC = () => {
     const { user } = useUser();
     const { getToken } = useAuth();
     const { showToast } = useToast();
+    const { setCompanySettings } = useDocumentStore();
     const [isLoading, setIsLoading] = useState(false);
 
     // Delete Account State
@@ -98,6 +100,9 @@ const CompanySettings: React.FC = () => {
                 company_logo_url: logoUrl
             }));
 
+            // Optimistic update global store
+            setCompanySettings(companyName, logoUrl);
+
             showToast('Company name updated', 'success');
             setIsEditingName(false);
         } catch {
@@ -171,6 +176,9 @@ const CompanySettings: React.FC = () => {
                         company_logo_url: newLogoUrl
                     }));
 
+                    // Optimistic update global store
+                    setCompanySettings(companyName, newLogoUrl);
+
                     setLogoUrl(newLogoUrl);
                     showToast('Logo updated successfully', 'success');
                 } catch (error) {
@@ -205,6 +213,9 @@ const CompanySettings: React.FC = () => {
                 company_name: companyName,
                 company_logo_url: ''
             }));
+
+            // Optimistic update global store
+            setCompanySettings(companyName, null);
 
             setLogoUrl('');
             showToast('Logo removed', 'success');

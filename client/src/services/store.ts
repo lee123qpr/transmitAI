@@ -32,6 +32,7 @@ interface UserState {
     companyLogoUrl: string | null;
     isInitialized: boolean;
     fetchUserStatus: (userId: string, email?: string, token?: string) => Promise<void>;
+    setCompanySettings: (name: string | null, logo: string | null) => void;
 }
 
 interface SystemState {
@@ -208,5 +209,6 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
         }
     },
 
-    setUsage: (current, limit) => set({ usage: { current, limit } })
+    setUsage: (current, limit) => set({ usage: { current, limit } }),
+    setCompanySettings: (name, logo) => set({ companyName: name, companyLogoUrl: logo })
 }));

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { Link } from 'react-router-dom';
 import { Upload, X, File, FileText, FileSpreadsheet, FileImage, FileCode, CheckCircle, AlertCircle, Eye, Download, Edit2, Save, RotateCcw, FileCheck, ShieldCheck, Zap, Layers } from 'lucide-react';
@@ -60,32 +60,6 @@ const UploadPage = () => {
     const [transmittalTitle, setTransmittalTitle] = useState('');
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
-    // Company Settings
-    const [companySettings, setCompanySettings] = useState<{ name?: string, logo?: string }>({});
-
-    useEffect(() => {
-        if (!user) return;
-        const fetchSettings = async () => {
-            try {
-                const email = user.primaryEmailAddress?.emailAddress;
-                const token = await getToken();
-                const url = email ? `${API_URL}/user?email=${encodeURIComponent(email)}` : `${API_URL}/user`;
-                const res = await fetch(url, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setCompanySettings({
-                        name: data.company_name,
-                        logo: data.company_logo_url
-                    });
-                }
-            } catch (err) {
-                console.error('Failed to load company settings:', err);
-            }
-        };
-        fetchSettings();
-    }, [user, getToken]);
 
     // Modal State
     const [modalConfig, setModalConfig] = useState<{
@@ -266,7 +240,7 @@ const UploadPage = () => {
         setFiles(files.filter(f => f.name !== name));
     }
 
-    const { setUsage } = useDocumentStore();
+    const { setUsage, companyName, companyLogoUrl } = useDocumentStore();
 
     const processFiles = async () => {
         if (!user) {
@@ -456,8 +430,8 @@ const UploadPage = () => {
             const finalFilename = await exportToExcel(
                 mappedDocs,
                 transmittalTitle || generateDefaultTitle(),
-                companySettings.logo,
-                companySettings.name,
+                companyLogoUrl,
+                companyName,
                 uploadErrors
             );
 
@@ -491,8 +465,8 @@ const UploadPage = () => {
             const finalFilename = await exportToPDF(
                 mappedDocs,
                 transmittalTitle || generateDefaultTitle(),
-                companySettings.logo,
-                companySettings.name
+                companyLogoUrl,
+                companyName
             );
 
             showToast(
