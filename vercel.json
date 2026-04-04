@@ -14,6 +14,10 @@
             "destination": "/api/health"
         },
         {
+            "source": "/sitemap.xml",
+            "destination": "/api/sitemap.xml"
+        },
+        {
             "source": "/api/:path*",
             "destination": "/api/main"
         },
