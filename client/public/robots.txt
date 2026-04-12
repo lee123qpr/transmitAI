@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.transmittal.co.uk/sitemap.xml
+Sitemap: https://www.transmittal.co.uk/api/sitemap.xml

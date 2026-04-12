@@ -37,7 +37,7 @@ router.get('/test', (req, res) => {
 
 // System Config & Announcements
 import { getSystemSettings, recordPageVisit } from '../services/adminService';
-import { getAnnouncements } from '../services/cmsService';
+import { getAnnouncements, getArticles } from '../services/cmsService';
 
 router.get('/config', async (req, res) => {
     try {
@@ -100,8 +100,59 @@ router.get('/announcements', async (req, res) => {
     }
 });
 
+router.get('/sitemap.xml', async (req, res) => {
+    try {
+        const publishedArticles = await getArticles(true);
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+        xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+        // Static routes
+        const staticRoutes = [
+            { loc: '', priority: '1.0', changefreq: 'weekly' },
+            { loc: '/how-it-works', priority: '0.8', changefreq: 'monthly' },
+            { loc: '/articles', priority: '0.9', changefreq: 'daily' },
+            { loc: '/contact', priority: '0.5', changefreq: 'monthly' },
+            { loc: '/faq', priority: '0.6', changefreq: 'monthly' },
+            { loc: '/legal/cookies', priority: '0.1', changefreq: 'yearly' },
+            { loc: '/legal/privacy', priority: '0.1', changefreq: 'yearly' },
+            { loc: '/legal/terms', priority: '0.1', changefreq: 'yearly' }
+        ];
+
+        staticRoutes.forEach(route => {
+            xml += `  <url>\n`;
+            xml += `    <loc>https://www.transmittal.co.uk${route.loc}</loc>\n`;
+            xml += `    <changefreq>${route.changefreq}</changefreq>\n`;
+            xml += `    <priority>${route.priority}</priority>\n`;
+            xml += `  </url>\n`;
+        });
+
+        // Dynamic articles
+        publishedArticles.forEach(article => {
+            xml += `  <url>\n`;
+            xml += `    <loc>https://www.transmittal.co.uk/articles/${article.slug}</loc>\n`;
+            try {
+                 const date = new Date(article.updated_at || article.created_at);
+                 xml += `    <lastmod>${date.toISOString().split('T')[0]}</lastmod>\n`;
+            } catch (e) {
+                 // ignore date error
+            }
+            xml += `    <changefreq>weekly</changefreq>\n`;
+            xml += `    <priority>0.7</priority>\n`;
+            xml += `  </url>\n`;
+        });
+
+        xml += `</urlset>`;
+
+        res.header('Content-Type', 'application/xml');
+        res.send(xml);
+    } catch (err) {
+        console.error('Failed to generate sitemap:', err);
+        res.status(500).send('Error generating sitemap');
+    }
+});
+
 // Articles
-import { getArticles, getArticleBySlug } from '../services/cmsService';
+import { getArticleBySlug } from '../services/cmsService';
 
 // Newsletter
 router.post('/newsletter/subscribe', async (req, res) => {

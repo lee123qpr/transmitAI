@@ -5,7 +5,7 @@ import {
     getStats, getUsers, sendUserEmail, getHealth, updateTier, updateStatus, updateNewsletter,
     listArticles, saveArticle, removeArticle, listAnnouncements, saveAnnouncement, removeAnnouncement,
     listSettings, saveSetting, listBlockedIPs, blockNewIP, unblockExistingIP, fetchLogs, listNewsletterSubscribers,
-    exportUsers, exportNewsletter, sendTestWelcomeEmail, sendTestNewsletterEmail,
+    exportUsers, exportNewsletter, sendTestWelcomeEmail, sendTestNewsletterEmail, sendTestGenericEmail,
     getAnalytics, getErrors, getErrorStatistics, patchErrorStatus
 } from '../controllers/adminController';
 
@@ -53,5 +53,6 @@ router.get('/newsletter/export', exportNewsletter);
 // Email Testing
 router.post('/emails/test-welcome', sendTestWelcomeEmail);
 router.post('/emails/test-newsletter', sendTestNewsletterEmail);
+router.post('/emails/test/:type', sendTestGenericEmail);
 
 export default router;

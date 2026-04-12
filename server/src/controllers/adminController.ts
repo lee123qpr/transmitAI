@@ -113,7 +113,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
     try {
         const dailyUploads = await getDailyUploadStats(14); // Last 14 days
         const popularPages = await getPageVisitStats(7, 10); // Last 7 days, top 10
-        const topUsers = await getTopUsersByUploads(5); // Top 5
+        const topUsers = await getTopUsersByUploads(100); // Expanded Top Users
 
         res.json({
             analytics: {
@@ -478,5 +478,36 @@ export const sendTestNewsletterEmail = async (req: Request, res: Response) => {
     } catch (err: any) {
         console.error('[Admin Email Error]', err);
         res.status(500).json({ error: err.message || 'Failed to send test newsletter' });
+    }
+};
+
+export const sendTestGenericEmail = async (req: Request, res: Response) => {
+    const { email, subject, html } = req.body;
+    const { type } = req.params; // e.g. type = 'seven_day_followup'
+    
+    if (!process.env.RESEND_API_KEY) return res.status(400).json({ error: 'Resend API key not configured' });
+
+    try {
+        const targetEmail = email || process.env.ADMIN_EMAIL;
+        if (!targetEmail) return res.status(400).json({ error: 'No target email specified' });
+
+        if (subject && html) {
+            await resend.emails.send({
+                from: 'Transmit AI <support@transmittal.co.uk>',
+                to: targetEmail,
+                subject,
+                html
+            });
+        } else {
+            // Need a fallback here but usually frontend passes it for previews. 
+            // In the admin panel, the user enters a subject and html, so they are passed.
+            return res.status(400).json({ error: 'Missing subject or html for test' });
+        }
+
+        await logAdminAction((req as any).auth?.userId as string, `test_${type}_email`, undefined, { targetEmail });
+        res.json({ success: true, message: `Test email sent to ${targetEmail}` });
+    } catch (err: any) {
+        console.error('[Admin Email Error]', err);
+        res.status(500).json({ error: err.message || 'Failed to send test email' });
     }
 };

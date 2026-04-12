@@ -122,8 +122,8 @@ interface ErrorStats {
     resolved24h: number;
 }
 
-const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Setting[], onSave: (key: string, value: { subject: string; html: string }) => void, isSaving: boolean, onTest: (type: 'newsletter' | 'user_welcome', subject?: string, html?: string) => void }) => {
-    const [selectedType, setSelectedType] = useState<'newsletter' | 'user_welcome'>('newsletter');
+const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Setting[], onSave: (key: string, value: { subject: string; html: string }) => void, isSaving: boolean, onTest: (type: 'newsletter' | 'user_welcome' | 'seven_day_followup' | 'trial_gifted' | 'trial_ended', subject?: string, html?: string) => void }) => {
+    const [selectedType, setSelectedType] = useState<'newsletter' | 'user_welcome' | 'seven_day_followup' | 'trial_gifted' | 'trial_ended'>('newsletter');
     const [subject, setSubject] = useState('');
     const [html, setHtml] = useState('');
     const [previewMode, setPreviewMode] = useState(false);
@@ -134,17 +134,25 @@ const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Settin
         return (setting?.value as { subject: string; html: string }) || { subject: '', html: '' };
     }, [settings]);
 
-    const handleTypeChange = (type: 'newsletter' | 'user_welcome') => {
+    const handleTypeChange = (type: 'newsletter' | 'user_welcome' | 'seven_day_followup' | 'trial_gifted' | 'trial_ended') => {
         setSelectedType(type);
         const template = getTemplate(type);
-        const defaultSubject = type === 'newsletter' ? 'Welcome to our Newsletter!' : 'Welcome to Transmittal!';
+        const defaultSubject = type === 'newsletter' ? 'Welcome to our Newsletter!' :
+                               type === 'user_welcome' ? 'Welcome to Transmittal!' :
+                               type === 'seven_day_followup' ? 'Checking in - Transmittal' :
+                               type === 'trial_gifted' ? 'Enjoy 14 Days of Pro for Free!' :
+                               'Your Transmittal Pro Trial has ended';
         setSubject(template.subject || defaultSubject);
         setHtml(template.html || '');
     };
 
     useEffect(() => {
         const template = getTemplate(selectedType);
-        const defaultSubject = selectedType === 'newsletter' ? 'Welcome to our Newsletter!' : 'Welcome to Transmittal!';
+        const defaultSubject = selectedType === 'newsletter' ? 'Welcome to our Newsletter!' :
+                               selectedType === 'user_welcome' ? 'Welcome to Transmittal!' :
+                               selectedType === 'seven_day_followup' ? 'Checking in - Transmittal' :
+                               selectedType === 'trial_gifted' ? 'Enjoy 14 Days of Pro for Free!' :
+                               'Your Transmittal Pro Trial has ended';
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setSubject(template.subject || defaultSubject);
 
@@ -154,7 +162,7 @@ const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Settin
     return (
         <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row h-[700px] animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Sidebar */}
-            <div className="w-full md:w-64 border-r border-slate-100 bg-slate-50/50 p-6 space-y-2">
+            <div className="w-full md:w-64 border-r border-slate-100 bg-slate-50/50 p-6 space-y-2 overflow-y-auto">
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 px-2">Email Automations</h3>
                 <button
                     onClick={() => handleTypeChange('newsletter')}
@@ -167,6 +175,24 @@ const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Settin
                     className={`w-full text-left px-5 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${selectedType === 'user_welcome' ? 'bg-white shadow-xl shadow-blue-500/10 text-blue-600 border border-blue-100' : 'text-slate-500 hover:bg-white hover:text-slate-900'}`}
                 >
                     User Welcome
+                </button>
+                <button
+                    onClick={() => handleTypeChange('seven_day_followup')}
+                    className={`w-full text-left px-5 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${selectedType === 'seven_day_followup' ? 'bg-white shadow-xl shadow-blue-500/10 text-blue-600 border border-blue-100' : 'text-slate-500 hover:bg-white hover:text-slate-900'}`}
+                >
+                    7-Day Follow-Up
+                </button>
+                <button
+                    onClick={() => handleTypeChange('trial_gifted')}
+                    className={`w-full text-left px-5 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${selectedType === 'trial_gifted' ? 'bg-white shadow-xl shadow-blue-500/10 text-blue-600 border border-blue-100' : 'text-slate-500 hover:bg-white hover:text-slate-900'}`}
+                >
+                    Trial Granted (14D)
+                </button>
+                <button
+                    onClick={() => handleTypeChange('trial_ended')}
+                    className={`w-full text-left px-5 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${selectedType === 'trial_ended' ? 'bg-white shadow-xl shadow-blue-500/10 text-blue-600 border border-blue-100' : 'text-slate-500 hover:bg-white hover:text-slate-900'}`}
+                >
+                    Trial Expired
                 </button>
             </div>
 
@@ -879,7 +905,7 @@ const AdminDashboard = () => {
                                 <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
                                     <Activity size={20} className="text-orange-500" /> Power Users (Top Extractors)
                                 </h3>
-                                <div className="overflow-x-auto">
+                                <div className="overflow-y-auto max-h-[400px]">
                                     <table className="w-full">
                                         <thead>
                                             <tr className="border-b border-slate-200">
@@ -1011,6 +1037,9 @@ const AdminDashboard = () => {
                                                         <option value="business">BIZ</option>
                                                     </select>
                                                     <div className="text-[10px] text-slate-500">{u.documents_usage} / {u.documents_limit} docs</div>
+                                                    {(u as any).trial_ends_at && new Date((u as any).trial_ends_at) > new Date() && (
+                                                        <span className="text-[9px] bg-orange-100 text-orange-800 px-1 py-0.5 rounded font-bold uppercase w-fit inline-block mt-0.5">Trial Expires {new Date((u as any).trial_ends_at).toLocaleDateString()}</span>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 flex items-center gap-2">
@@ -1266,7 +1295,13 @@ const AdminDashboard = () => {
                             settings={settings}
                             isSaving={isActionLoading}
                             onSave={(key, value) => handleAction('POST', `/api/admin/settings`, { key, value })}
-                            onTest={(type, subject, html) => handleAction('POST', `/api/admin/emails/test-${type === 'user_welcome' ? 'welcome' : 'newsletter'}`, { subject, html })}
+                            onTest={(type, subject, html) => {
+                                if (type === 'user_welcome' || type === 'newsletter') {
+                                    handleAction('POST', `/api/admin/emails/test-${type === 'user_welcome' ? 'welcome' : 'newsletter'}`, { subject, html });
+                                } else {
+                                    handleAction('POST', `/api/admin/emails/test/${type}`, { subject, html });
+                                }
+                            }}
                         />
                     </div>
                 )}

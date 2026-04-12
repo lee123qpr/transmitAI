@@ -14,6 +14,7 @@ export interface User {
     created_at?: string;
     last_seen_at?: string;
     last_ip?: string;
+    trial_ends_at?: string;
 }
 
 const getString = (val: any) => (val === null || val === undefined ? '' : String(val));
@@ -83,11 +84,23 @@ export const incrementUsage = async (userId: string): Promise<User> => {
 };
 
 export const updateUserTier = async (userId: string, tier: string, limit: number): Promise<User> => {
+    // When manually upgrading a user to a paid tier (pro/business) via admin, 
+    // or when downgrading them, we generally want to clear trial_ends_at.
     const res = await query(
         `UPDATE users 
-         SET subscription_tier = $2, documents_limit = $3, updated_at = NOW() 
+         SET subscription_tier = $2, documents_limit = $3, updated_at = NOW(), trial_ends_at = NULL 
          WHERE id = $1 RETURNING *`,
         [userId, tier, limit]
+    );
+    return res.rows[0];
+};
+
+export const giftTrial = async (userId: string): Promise<User> => {
+    const res = await query(
+        `UPDATE users 
+         SET subscription_tier = 'pro', documents_limit = 500, updated_at = NOW(), trial_ends_at = NOW() + interval '14 days' 
+         WHERE id = $1 RETURNING *`,
+        [userId]
     );
     return res.rows[0];
 };

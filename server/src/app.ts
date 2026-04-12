@@ -10,7 +10,6 @@ import userRoutes from './routes/userRoutes';
 import documentRoutes from './routes/documentRoutes';
 import path from 'path';
 import adminRoutes from './routes/adminRoutes';
-import uploadRoutes from './routes/uploadRoutes';
 import { requireAuth } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
 import stripeWebhook from './routes/webhook_stripe';
@@ -22,6 +21,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 import { securityMiddleware } from './middleware/security';
+import { startCronJobs } from './services/cronService';
+
+// Initialize Cron Jobs
+if (!process.env.VERCEL) {
+    startCronJobs();
+}
 
 // Security Middleware
 const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5177', 'https://transmit.ai', 'https://transmit-ai.vercel.app', 'https://www.transmittal.co.uk', 'https://transmittal.co.uk'];
@@ -70,7 +75,6 @@ app.use(securityMiddleware);
 // app.use('/api/user', userRoutes); // Masked by api.ts - removing to unify logic
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
 // Legacy/Payment Routes (Fallback)
