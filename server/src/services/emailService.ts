@@ -282,6 +282,18 @@ export const sendSevenDayFollowUp = async (email: string): Promise<boolean> => {
                     Return to App
                 </a>
             </div>
+            
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0 20px;" />
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="https://www.instagram.com/transmit_ai/" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">Instagram</a>
+                <a href="https://www.linkedin.com/company/transmit-ai" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">LinkedIn</a>
+                <a href="https://www.youtube.com/@Transmit_AI" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
+            </div>
+
+            <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
+                Need help? Reply to this email or visit our <a href="https://www.transmittal.co.uk/faq" style="color: #2563eb; text-decoration: none; font-weight: 600;">FAQ</a>.
+            </p>
         </div>
     `;
 
@@ -319,6 +331,18 @@ export const sendTrialGifted = async (email: string): Promise<boolean> => {
                     Start Your Trial
                 </a>
             </div>
+            
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0 20px;" />
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="https://www.instagram.com/transmit_ai/" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">Instagram</a>
+                <a href="https://www.linkedin.com/company/transmit-ai" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">LinkedIn</a>
+                <a href="https://www.youtube.com/@Transmit_AI" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
+            </div>
+
+            <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
+                Need help? Reply to this email or visit our <a href="https://www.transmittal.co.uk/faq" style="color: #2563eb; text-decoration: none; font-weight: 600;">FAQ</a>.
+            </p>
         </div>
     `;
 
@@ -356,6 +380,18 @@ export const sendTrialEnded = async (email: string): Promise<boolean> => {
                     Upgrade to Pro
                 </a>
             </div>
+            
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0 20px;" />
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="https://www.instagram.com/transmit_ai/" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">Instagram</a>
+                <a href="https://www.linkedin.com/company/transmit-ai" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">LinkedIn</a>
+                <a href="https://www.youtube.com/@Transmit_AI" style="color: #64748b; text-decoration: none; margin: 0 10px; font-size: 14px; font-weight: 600;">YouTube</a>
+            </div>
+
+            <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
+                Need help? Reply to this email or visit our <a href="https://www.transmittal.co.uk/faq" style="color: #2563eb; text-decoration: none; font-weight: 600;">FAQ</a>.
+            </p>
         </div>
     `;
 
