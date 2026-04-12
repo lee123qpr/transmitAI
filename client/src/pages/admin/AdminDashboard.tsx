@@ -122,6 +122,71 @@ interface ErrorStats {
     resolved24h: number;
 }
 
+const DEFAULT_HTMLS: Record<string, string> = {
+    seven_day_followup: `
+        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900;">Transmit<span style="color: #2563eb;">.AI</span></h1>
+            </div>
+            <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; text-align: center;">How are you getting on?</h2>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                It's been a week since you joined Transmit AI! We are checking in to ensure you are getting the most out of our intelligent document control tools.
+            </p>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                In case you missed it, Transmit AI lets you:
+            </p>
+            <ul style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 24px; padding-left: 20px;">
+                <li>Instantly extract intelligent data from drawings and PDFs.</li>
+                <li>Auto-generate Drawing Registers in seconds.</li>
+                <li>Ensure perfect document version control.</li>
+            </ul>
+            <div style="text-align: center; margin-top: 32px;">
+                <a href="https://www.transmittal.co.uk/app" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700;">
+                    Return to App
+                </a>
+            </div>
+        </div>
+    `,
+    trial_gifted: `
+        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900;">Transmit<span style="color: #2563eb;">.AI</span></h1>
+            </div>
+            <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; text-align: center;">We've upgraded you to Pro!</h2>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                We noticed you haven't had a chance to fully explore our advanced features yet. So, we've gifted you a <strong>14-Day Free Pro Trial</strong>!
+            </p>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Your account limit has been increased to 500 documents. Experience the full power of AI batch-extraction right now.
+            </p>
+            <div style="text-align: center; margin-top: 32px;">
+                <a href="https://www.transmittal.co.uk/app" style="display: inline-block; background: #ea580c; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700;">
+                    Start Your Trial
+                </a>
+            </div>
+        </div>
+    `,
+    trial_ended: `
+        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #0f172a; margin: 0; font-size: 28px; font-weight: 900;">Transmit<span style="color: #2563eb;">.AI</span></h1>
+            </div>
+            <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; text-align: center;">Your Pro trial has expired.</h2>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Your 14-day free trial of our Pro features has now come to an end. We've switched you back to the Free plan.
+            </p>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                To restore your 500 document limit and maintain access to premium batch extraction, please upgrade your plan.
+            </p>
+            <div style="text-align: center; margin-top: 32px;">
+                <a href="https://www.transmittal.co.uk/pricing" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700;">
+                    Upgrade to Pro
+                </a>
+            </div>
+        </div>
+    `
+};
+
 const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Setting[], onSave: (key: string, value: { subject: string; html: string }) => void, isSaving: boolean, onTest: (type: 'newsletter' | 'user_welcome' | 'seven_day_followup' | 'trial_gifted' | 'trial_ended', subject?: string, html?: string) => void }) => {
     const [selectedType, setSelectedType] = useState<'newsletter' | 'user_welcome' | 'seven_day_followup' | 'trial_gifted' | 'trial_ended'>('newsletter');
     const [subject, setSubject] = useState('');
@@ -143,7 +208,7 @@ const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Settin
                                type === 'trial_gifted' ? 'Enjoy 14 Days of Pro for Free!' :
                                'Your Transmittal Pro Trial has ended';
         setSubject(template.subject || defaultSubject);
-        setHtml(template.html || '');
+        setHtml(template.html || DEFAULT_HTMLS[type] || '');
     };
 
     useEffect(() => {
@@ -156,7 +221,7 @@ const EmailManager = ({ settings, onSave, isSaving, onTest }: { settings: Settin
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setSubject(template.subject || defaultSubject);
 
-        setHtml(template.html || '');
+        setHtml(template.html || DEFAULT_HTMLS[selectedType] || '');
     }, [settings, selectedType, getTemplate]);
 
     return (
